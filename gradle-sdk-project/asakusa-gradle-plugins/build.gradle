@@ -20,9 +20,10 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-def parentPom = getParentPomDef()
-version = parentPom.version
-group = parentPom.groupId
+version = '0.7-SNAPSHOT'
+group = 'com.asakusafw'
+
+def templateAsakusafwVersion = '0.7-hadoop1-SNAPSHOT'
 
 configurations {
     deployerJars
@@ -72,12 +73,6 @@ gradle.taskGraph.whenReady {taskGraph ->
     }
 }
 
-def getParentPomDef() {
-    def parentPomXml = new XmlSlurper().parse(
-            file('../../asakusa-parent/pom.xml'))
-    return parentPomXml
-}
-
 def getMavenServerDef(String id) {
     def settingsXml = new XmlSlurper().parse(
         new File(System.getProperty("user.home"), ".m2/settings.xml"))
@@ -98,8 +93,9 @@ task generateTemplates << {
             include '**/build.gradle'
             expand ([
                 repProjectVersion: version,
+                repDefaultAsakusafwVersion: templateAsakusafwVersion,
                 repConventionAsakusafwVersion: 'asakusafw.asakusafwVersion',
-                repMavenRepoType: version.text().endsWith("SNAPSHOT") ? 'snapshots' : 'releases',
+                repMavenRepoType: version.endsWith("SNAPSHOT") ? 'snapshots' : 'releases'
             ])
         }
         from ("src/templates") {

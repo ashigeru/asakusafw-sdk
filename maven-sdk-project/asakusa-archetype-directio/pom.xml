@@ -5,10 +5,9 @@
 	<groupId>com.asakusafw</groupId>
 	<artifactId>asakusa-archetype-directio</artifactId>
 	<parent>
-		<artifactId>asakusa-parent</artifactId>
-		<groupId>com.asakusafw</groupId>
+		<artifactId>maven-sdk-project</artifactId>
+		<groupId>com.asakusafw.sdk</groupId>
 		<version>0.7-SNAPSHOT</version>
-		<relativePath>../../asakusa-parent</relativePath>
 	</parent>
 
 	<description>Creates a Asakusa Batch Application block using Direct I/O</description>

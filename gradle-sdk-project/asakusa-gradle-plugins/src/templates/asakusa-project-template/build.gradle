@@ -17,7 +17,7 @@ apply plugin: 'asakusafw-organizer'
 apply plugin: 'eclipse'
 
 asakusafw {
-    asakusafwVersion '${repProjectVersion}'
+    asakusafwVersion '${repDefaultAsakusafwVersion}'
 
     modelgen {
         modelgenSourcePackage 'com.example.modelgen'

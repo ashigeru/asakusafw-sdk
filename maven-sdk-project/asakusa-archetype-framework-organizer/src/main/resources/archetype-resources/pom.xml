@@ -7,7 +7,7 @@
 	<version>\${version}</version>
 
 	<properties>
-		<asakusafw.version>${project.version}</asakusafw.version>
+		<asakusafw.version>${archetype.asakusafw.version}</asakusafw.version>
 		
 		<!--<thundergate.target>asakusa</thundergate.target>-->
 
