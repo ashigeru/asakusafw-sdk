@@ -203,7 +203,7 @@ class AsakusafwPluginConvention {
          *   <dt> Migration from Maven-Archetype: </dt>
          *     <dd> N/A </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code '1.6'} </dd>
+         *     <dd> {@code '1.7'} </dd>
          * </dl>
          */
         JavaVersion sourceCompatibility
@@ -214,7 +214,7 @@ class AsakusafwPluginConvention {
          *   <dt> Migration from Maven-Archetype: </dt>
          *     <dd> N/A </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code '1.6'} </dd>
+         *     <dd> {@code '1.7'} </dd>
          * </dl>
          */
         JavaVersion targetCompatibility

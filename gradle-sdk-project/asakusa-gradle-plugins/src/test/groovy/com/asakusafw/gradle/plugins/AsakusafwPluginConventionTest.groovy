@@ -109,8 +109,8 @@ class AsakusafwPluginConventionTest {
     void javac_defaults() {
         assert convention.javac.annotationSourceDirectory == "${project.buildDir}/generated-sources/annotations"
         assert convention.javac.sourceEncoding == "UTF-8"
-        assert convention.javac.sourceCompatibility == JavaVersion.VERSION_1_6
-        assert convention.javac.targetCompatibility == JavaVersion.VERSION_1_6
+        assert convention.javac.sourceCompatibility == JavaVersion.VERSION_1_7
+        assert convention.javac.targetCompatibility == JavaVersion.VERSION_1_7
     }
 
     /**

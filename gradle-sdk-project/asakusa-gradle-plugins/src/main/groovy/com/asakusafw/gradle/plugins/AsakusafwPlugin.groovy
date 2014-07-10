@@ -114,8 +114,8 @@ class AsakusafwPlugin implements Plugin<Project> {
         convention.javac.conventionMapping.with {
             annotationSourceDirectory = { (String) "${project.buildDir}/generated-sources/annotations" }
             sourceEncoding = { 'UTF-8' }
-            sourceCompatibility = { JavaVersion.VERSION_1_6 }
-            targetCompatibility = { JavaVersion.VERSION_1_6 }
+            sourceCompatibility = { JavaVersion.VERSION_1_7 }
+            targetCompatibility = { JavaVersion.VERSION_1_7 }
         }
         convention.compiler.conventionMapping.with {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
