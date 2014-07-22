@@ -69,8 +69,10 @@ final class ResolutionUtils {
     }
 
     private static void resolveInto(Object arg, List<String> results) {
-        if (arg instanceof String) {
-            results.add(results)
+        if (arg == null) {
+            // skip this entry
+        } else if (arg instanceof String) {
+            results.add(arg)
         } else if (arg instanceof Closure<?>) {
             Closure<?> c = arg
             resolveInto(c.call(), results)
