@@ -370,17 +370,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         attachExtensionDirectIoHive.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
         attachExtensionDirectIoHive.setDescription('Attaches DirectIoHive files to assembly.')
 
-        def attachAssembleDev = project.task('attachAssembleDev', dependsOn: [
-                attachComponentCore,
-                attachComponentDirectIo,
-                attachComponentYaess,
-                attachComponentWindGate,
-                attachComponentDevelopment,
-                attachComponentOperation
-        ])
-        attachAssembleDev.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachAssembleDev.setDescription('Attaches application development environment files to assembly.')
-
         def attachAssemble = project.task('attachAssemble', dependsOn: [
                 attachComponentCore,
                 attachComponentDirectIo,
@@ -390,11 +379,18 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         ])
         attachAssemble.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
         attachAssemble.setDescription('Attaches framework files to assembly with default configuration.')
+
+        def attachAssembleDev = project.task('attachAssembleDev', dependsOn: [
+                attachAssemble,
+                attachComponentDevelopment,
+        ])
+        attachAssembleDev.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
+        attachAssembleDev.setDescription('Attaches application development environment files to assembly.')
+
         project.afterEvaluate {
             if (project.asakusafwOrganizer.thundergate.isEnabled()) {
                 project.logger.info 'Enabling ThunderGate'
                 attachAssemble.dependsOn attachComponentThunderGate
-                attachAssembleDev.dependsOn attachComponentThunderGate
             }
             if (project.plugins.hasPlugin('asakusafw')) {
                 project.logger.info 'Enabling batchapps'
