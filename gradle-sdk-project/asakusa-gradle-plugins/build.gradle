@@ -43,6 +43,9 @@ project.targetCompatibility = JavaVersion.toVersion('1.6')
 
 tasks.withType(AbstractCompile) { task ->
     task.options.encoding = 'UTF-8'
+    if (System.getProperty('compiler.bootclasspath') != null) {
+        task.options.compilerArgs += ['-bootclasspath', System.getProperty('compiler.bootclasspath')]
+    }
 }
 
 groovydoc {
