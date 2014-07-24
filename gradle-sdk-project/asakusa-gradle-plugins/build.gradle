@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    deployerJars 'org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE'
+    deployerJars 'org.springframework.build:aws-maven:5.0.0.RELEASE'
 }
 
 project.sourceCompatibility = JavaVersion.toVersion('1.6')
