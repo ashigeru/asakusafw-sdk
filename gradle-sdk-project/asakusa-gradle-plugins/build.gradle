@@ -20,10 +20,10 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-version = '0.7-SNAPSHOT'
+version = '0.7.0-BETA1'
 group = 'com.asakusafw'
 
-def templateAsakusafwVersion = '0.7-hadoop1-SNAPSHOT'
+def templateAsakusafwVersion = '0.7.0-BETA1-hadoop1'
 
 configurations {
     deployerJars
