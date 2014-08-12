@@ -58,6 +58,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             target = { null }
         }
         convention.hive.libraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
 
     private void configureConfigurations() {

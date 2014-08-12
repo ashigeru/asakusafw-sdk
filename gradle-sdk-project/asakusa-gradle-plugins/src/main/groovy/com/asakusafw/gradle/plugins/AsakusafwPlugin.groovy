@@ -141,6 +141,7 @@ class AsakusafwPlugin implements Plugin<Project> {
             deleteColumn = { 'DELETE_FLAG' }
             deleteValue = { '"1"' }
         }
+        convention.metaClass.toStringDelegate = { -> "asakusafw { ... }" }
     }
 
     private void configureConfigurations() {
