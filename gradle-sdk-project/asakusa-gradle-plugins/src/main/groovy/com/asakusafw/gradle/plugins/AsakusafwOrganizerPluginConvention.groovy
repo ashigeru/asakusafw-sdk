@@ -105,6 +105,18 @@ class AsakusafwOrganizerPluginConvention {
     static class HiveConfiguration {
 
         /**
+         * Configuration whether Direct I/O Hive is enabled or not.
+         * Direct I/O Hive facilities will be enabled only if this value is {@code true}.
+         * <dl>
+         *   <dt> Migration from Maven-Archetype: </dt>
+         *     <dd> N/A </dd>
+         *   <dt> Default value: </dt>
+         *     <dd> {@code false} </dd>
+         * </dl>
+         */
+        boolean enabled
+
+        /**
          * Libraries for Direct I/O Hive runtime.
          * <dl>
          *   <dt> Default value: </dt>
@@ -112,7 +124,6 @@ class AsakusafwOrganizerPluginConvention {
          * </dl>
          */
         List<?> libraries = []
-
     }
 
     @Override

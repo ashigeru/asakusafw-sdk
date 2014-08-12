@@ -57,6 +57,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             enabled = { false }
             target = { null }
         }
+        convention.hive.conventionMapping.with {
+            enabled = { false }
+        }
         convention.hive.libraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
         convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
@@ -392,6 +395,10 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             if (project.asakusafwOrganizer.thundergate.isEnabled()) {
                 project.logger.info 'Enabling ThunderGate'
                 attachAssemble.dependsOn attachComponentThunderGate
+            }
+            if (project.asakusafwOrganizer.hive.isEnabled()) {
+                project.logger.info 'Enabling Direct I/O Hive'
+                attachAssemble.dependsOn attachExtensionDirectIoHive
             }
             if (project.plugins.hasPlugin('asakusafw')) {
                 project.logger.info 'Enabling batchapps'
