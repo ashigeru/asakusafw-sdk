@@ -114,4 +114,18 @@ class AsakusafwOrganizerPluginConvention {
         List<?> libraries = []
 
     }
+
+    @Override
+    String toString() {
+        // explicitly invoke meta-method
+        def delegate = this.metaClass.getMetaMethod('toStringDelegate')
+        if (delegate) {
+            return delegate.invoke(this)
+        }
+        return toStringDelegate()
+    }
+
+    String toStringDelegate() {
+        return super.toString()
+    }
 }

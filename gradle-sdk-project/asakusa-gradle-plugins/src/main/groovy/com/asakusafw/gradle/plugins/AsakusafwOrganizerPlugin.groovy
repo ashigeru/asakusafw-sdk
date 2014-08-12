@@ -50,7 +50,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
         convention.hive = convention.extensions.create('hive', HiveConfiguration)
         convention.conventionMapping.with {
-            asakusafwVersion = { throw new InvalidUserDataException('"asakusafw.asakusafwVersion" must be set') }
+            asakusafwVersion = { throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set') }
             assembleDir = { (String) "${project.buildDir}/asakusafw-assembly" }
         }
         convention.thundergate.conventionMapping.with {
@@ -58,6 +58,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             target = { null }
         }
         convention.hive.libraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
 
     private void configureConfigurations() {
