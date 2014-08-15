@@ -50,14 +50,18 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
         convention.hive = convention.extensions.create('hive', HiveConfiguration)
         convention.conventionMapping.with {
-            asakusafwVersion = { throw new InvalidUserDataException('"asakusafw.asakusafwVersion" must be set') }
+            asakusafwVersion = { throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set') }
             assembleDir = { (String) "${project.buildDir}/asakusafw-assembly" }
         }
         convention.thundergate.conventionMapping.with {
             enabled = { false }
             target = { null }
         }
+        convention.hive.conventionMapping.with {
+            enabled = { false }
+        }
         convention.hive.libraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
 
     private void configureConfigurations() {
@@ -391,6 +395,10 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             if (project.asakusafwOrganizer.thundergate.isEnabled()) {
                 project.logger.info 'Enabling ThunderGate'
                 attachAssemble.dependsOn attachComponentThunderGate
+            }
+            if (project.asakusafwOrganizer.hive.isEnabled()) {
+                project.logger.info 'Enabling Direct I/O Hive'
+                attachAssemble.dependsOn attachExtensionDirectIoHive
             }
             if (project.plugins.hasPlugin('asakusafw')) {
                 project.logger.info 'Enabling batchapps'

@@ -448,6 +448,20 @@ class AsakusafwPluginConvention {
         String deleteValue
     }
 
+    @Override
+    String toString() {
+        // explicitly invoke meta-method
+        def delegate = this.metaClass.getMetaMethod('toStringDelegate')
+        if (delegate) {
+            return delegate.invoke(this)
+        }
+        return toStringDelegate()
+    }
+
+    String toStringDelegate() {
+        return super.toString()
+    }
+
     def getConventionProperties() {
         return asMap(AsakusafwPluginConvention, this, 'com.asaksuafw.asakusafw.')
     }
@@ -457,7 +471,7 @@ class AsakusafwPluginConvention {
         for (Field field : declared.declaredFields.findAll{ !it.synthetic && !Modifier.isStatic(it.getModifiers()) && obj.hasProperty(it.name) }) {
             String propertyKey = keyPrefix + field.name
             Class<?> propertyType = field.type
-            Object propertyValue;
+            Object propertyValue
             try {
                 propertyValue = obj.getAt(field.name)
             } catch (Exception e) {
