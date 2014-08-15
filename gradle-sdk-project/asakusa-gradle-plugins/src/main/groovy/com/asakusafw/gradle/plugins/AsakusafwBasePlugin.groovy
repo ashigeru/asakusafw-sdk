@@ -42,7 +42,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void configureRepositories() {
         project.repositories {
-            mavenCentral()
+            maven { url "http://repo1.maven.org/maven2/" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/releases" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/snapshots" }
         }
