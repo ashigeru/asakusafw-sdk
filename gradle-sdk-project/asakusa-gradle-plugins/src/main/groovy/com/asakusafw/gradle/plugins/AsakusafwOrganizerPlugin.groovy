@@ -16,488 +16,311 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.*
+import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.tasks.bundling.*
+import org.gradle.util.ConfigureUtil
 
-import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
+import com.asakusafw.gradle.plugins.internal.AsakusafwOrganizer
+import com.asakusafw.gradle.tasks.GatherAssemblyTask
 
 /**
  * Gradle plugin for assembling and Installing Asakusa Framework.
+ * @since 0.5.3
+ * @version 0.7.0
  */
 class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
-    public static final String ASAKUSAFW_ORGANIZER_GROUP = 'Asakusa Framework Organizer'
+    /**
+     * The task group name.
+     */
+    static final String ASAKUSAFW_ORGANIZER_GROUP = 'Asakusa Framework Organizer'
+
+    /**
+     * The development profile name.
+     */
+    static final String PROFILE_NAME_DEVELOPMENT = 'dev'
+
+    /**
+     * The production profile name.
+     */
+    static final String PROFILE_NAME_PRODUCTION = 'prod'
 
     private Project project
 
+    private NamedDomainObjectCollection<AsakusafwOrganizer> organizers
+
     void apply(Project project) {
         this.project = project
-
+        this.organizers = project.container(AsakusafwOrganizer)
         project.plugins.apply(AsakusafwBasePlugin.class)
 
         configureProject()
-        defineOrganizerTasks()
+        configureProfiles()
+        configureTasks()
     }
 
     private void configureProject() {
         configureExtentionProperties()
-        configureConfigurations()
-        configureDependencies()
     }
 
     private void configureExtentionProperties() {
         AsakusafwOrganizerPluginConvention convention = project.extensions.create('asakusafwOrganizer', AsakusafwOrganizerPluginConvention)
+        convention.directio = convention.extensions.create('directio', DirectIoConfiguration)
         convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
+        convention.windgate = convention.extensions.create('windgate', WindGateConfiguration)
         convention.hive = convention.extensions.create('hive', HiveConfiguration)
+        convention.yaess = convention.extensions.create('yaess', YaessConfiguration)
+        convention.batchapps = convention.extensions.create('batchapps', BatchappsConfiguration)
+        convention.testing = convention.extensions.create('testing', TestingConfiguration)
+
         convention.conventionMapping.with {
-            asakusafwVersion = { throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set') }
+            asakusafwVersion = {
+                if (project.plugins.hasPlugin("asakusafw")) {
+                    return project.asakusafw.asakusafwVersion
+                } else {
+                    throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set')
+                }
+            }
             assembleDir = { (String) "${project.buildDir}/asakusafw-assembly" }
+        }
+        convention.directio.conventionMapping.with {
+            enabled = { true }
         }
         convention.thundergate.conventionMapping.with {
             enabled = { false }
             target = { null }
         }
+        convention.windgate.conventionMapping.with {
+            enabled = { true }
+            sshEnabled = { true }
+            retryableEnabled = { false }
+        }
         convention.hive.conventionMapping.with {
             enabled = { false }
         }
-        convention.hive.libraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.hive.defaultLibraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.yaess.conventionMapping.with {
+            enabled = { true }
+            toolsEnabled = { true }
+            hadoopEnabled = { true }
+            jobqueueEnabled = { false }
+        }
+        convention.batchapps.conventionMapping.with {
+            enabled = { true }
+        }
+        convention.testing.conventionMapping.with {
+            enabled = { false }
+        }
+
+        // profiles
+        convention.profiles = createProfileContainer(convention)
+        convention.extensions.profiles = convention.profiles
+        convention.profiles.create(PROFILE_NAME_DEVELOPMENT) { AsakusafwOrganizerProfile profile ->
+            profile.testing.enabled = true
+        }
+        convention.profiles.create(PROFILE_NAME_PRODUCTION) { AsakusafwOrganizerProfile profile ->
+            profile.conventionMapping.with {
+                archiveName = { (String) "asakusafw-${profile.asakusafwVersion}.tar.gz" }
+            }
+        }
+
         convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
 
-    private void configureConfigurations() {
-        project.configurations {
-            asakusafwCoreDist {
-                description = "Distribution contents of Asakusa Framework core modules."
-            }
-            asakusafwCoreLib {
-                description = "Distribution libraries of Asakusa Framework core modules."
-            }
-
-            asakusafwDirectIoDist {
-                description = "Distribution contents of Asakusa Framework Direct I/O modules."
-            }
-            asakusafwDirectIoLib {
-                description = "Distribution libraries of Asakusa Framework Direct I/O modules."
-            }
-
-            asakusafwYaessDist {
-                description = "Distribution contents of Asakusa Framework YAESS modules."
-            }
-            asakusafwYaessLib {
-                description = "Distribution libraries of Asakusa Framework YAESS modules."
-            }
-            asakusafwYaessPlugin {
-                description = "Distribution default plugin sets of YAESS."
-            }
-            asakusafwYaessTool {
-                description = "Distribution libraries of Asakusa Framework YAESS tools."
-            }
-
-            asakusafwWindGateDist {
-                description = "Distribution contents of Asakusa Framework WindGate tools."
-            }
-            asakusafwWindGateLib {
-                description = "Distribution libraries of Asakusa Framework WindGate modules."
-            }
-            asakusafwWindGatePlugin {
-                description = "Distribution default plugin sets of WindGate."
-            }
-            asakusafwWindGateSshLib {
-                description = "Distribution libraries of Asakusa Framework WindGate-SSH modules."
-            }
-
-            asakusafwDevelopmentDist {
-                description = "Distribution contents of Asakusa Framework development tools."
-            }
-
-            asakusafwThunderGateDist {
-                description = "Distribution contents of Asakusa Framework ThunderGate tools."
-            }
-            asakusafwThunderGateCoreLib {
-                description = "Distribution libraries of Asakusa Framework ThunderGate modules for core runtime."
-                transitive = false
-            }
-            asakusafwThunderGateLib {
-                description = "Distribution libraries of Asakusa Framework ThunderGate modules."
-            }
-
-            asakusafwOperationDist {
-                description = "Distribution contents of Asakusa Framework operation tools."
-            }
-            asakusafwOperationLib {
-                description = "Distribution libraries of Asakusa Framework operation tools."
-            }
-
-            asakusafwYaessJobQueuePluginLib {
-                description = "Plugin distribution libraries of YAESS JobQueue."
-            }
-            asakusafwWindGateRetryablePluginLib {
-                description = "Plugin distribution libraries of WindGate retryable."
-            }
-            asakusafwDirectIoHivePluginLib {
-                description = "Plugin distribution libraries of Direct I/O Hive."
-            }
+    private NamedDomainObjectContainer<AsakusafwOrganizerProfile> createProfileContainer(AsakusafwOrganizerPluginConvention convention) {
+        NamedDomainObjectContainer<AsakusafwOrganizerProfile> container
+        container = project.container(AsakusafwOrganizerProfile) { String name ->
+            def profile = container.extensions.create(name, AsakusafwOrganizerProfile, name)
+            configureProfile convention, profile
+            return profile
         }
-    }
-
-    private void configureDependencies() {
-
-        project.afterEvaluate {
-            project.dependencies {
-                asakusafwCoreDist "com.asakusafw:asakusa-runtime-configuration:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwCoreLib "com.asakusafw:asakusa-runtime-all:${project.asakusafwOrganizer.asakusafwVersion}:lib@jar"
-
-                asakusafwDirectIoDist "com.asakusafw:asakusa-directio-tools:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwDirectIoLib "com.asakusafw:asakusa-directio-tools:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-
-                asakusafwYaessDist "com.asakusafw:asakusa-yaess-core:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwYaessDist "com.asakusafw:asakusa-yaess-bootstrap:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwYaessDist "com.asakusafw:asakusa-yaess-tools:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwYaessLib "com.asakusafw:asakusa-yaess-bootstrap:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessLib "com.asakusafw:asakusa-yaess-core:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessLib "commons-cli:commons-cli:${project.asakusafwInternal.dep.commonsCliVersion}@jar"
-                asakusafwYaessLib "ch.qos.logback:logback-classic:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwYaessLib "ch.qos.logback:logback-core:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwYaessLib "org.slf4j:slf4j-api:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-                asakusafwYaessLib "org.slf4j:jul-to-slf4j:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-                asakusafwYaessPlugin "com.asakusafw:asakusa-yaess-flowlog:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessPlugin "com.asakusafw:asakusa-yaess-jsch:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessPlugin "com.asakusafw:asakusa-yaess-multidispatch:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessPlugin "com.asakusafw:asakusa-yaess-paralleljob:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessPlugin "com.jcraft:jsch:${project.asakusafwInternal.dep.jschVersion}@jar"
-                asakusafwYaessTool "com.asakusafw:asakusa-yaess-tools:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessTool "com.google.code.gson:gson:${project.asakusafwInternal.dep.gsonVersion}@jar"
-
-                asakusafwWindGateDist "com.asakusafw:asakusa-windgate-plugin:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwWindGateDist "com.asakusafw:asakusa-windgate-hadoopfs:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwWindGateLib "com.asakusafw:asakusa-windgate-bootstrap:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGateLib "com.asakusafw:asakusa-windgate-core:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGateLib "ch.qos.logback:logback-classic:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwWindGateLib "ch.qos.logback:logback-core:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwWindGateLib "org.slf4j:slf4j-api:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-                asakusafwWindGateLib "org.slf4j:jul-to-slf4j:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-                asakusafwWindGateLib "com.jcraft:jsch:${project.asakusafwInternal.dep.jschVersion}@jar"
-                asakusafwWindGatePlugin "com.asakusafw:asakusa-windgate-hadoopfs:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGatePlugin "com.asakusafw:asakusa-windgate-jdbc:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGatePlugin "com.asakusafw:asakusa-windgate-stream:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGateSshLib "com.asakusafw:asakusa-windgate-core:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGateSshLib "com.asakusafw:asakusa-windgate-hadoopfs:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwWindGateSshLib "ch.qos.logback:logback-classic:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwWindGateSshLib "ch.qos.logback:logback-core:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwWindGateSshLib "org.slf4j:slf4j-api:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-                asakusafwWindGateSshLib "org.slf4j:jul-to-slf4j:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-
-                asakusafwThunderGateDist "com.asakusafw:asakusa-thundergate:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwThunderGateLib "com.asakusafw:asakusa-thundergate:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwThunderGateLib "commons-configuration:commons-configuration:${project.asakusafwInternal.dep.commonsConfigurationVersion}@jar"
-                asakusafwThunderGateLib "commons-io:commons-io:${project.asakusafwInternal.dep.commonsIoVersion}@jar"
-                asakusafwThunderGateLib "commons-lang:commons-lang:${project.asakusafwInternal.dep.commonsLangVersion}@jar"
-                asakusafwThunderGateLib "commons-logging:commons-logging:${project.asakusafwInternal.dep.commonsLoggingVersion}@jar"
-                asakusafwThunderGateLib "log4j:log4j:${project.asakusafwInternal.dep.log4jVersion}@jar"
-                asakusafwThunderGateLib "mysql:mysql-connector-java:${project.asakusafwInternal.dep.mysqlConnectorJavaVersion}@jar"
-                asakusafwThunderGateCoreLib "com.asakusafw:asakusa-thundergate-runtime:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-
-                asakusafwDevelopmentDist "com.asakusafw:asakusa-test-driver:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwDevelopmentDist "com.asakusafw:asakusa-development-tools:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-
-                asakusafwOperationDist "com.asakusafw:asakusa-operation-tools:${project.asakusafwOrganizer.asakusafwVersion}:dist@jar"
-                asakusafwOperationLib  "com.asakusafw:asakusa-operation-tools:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwOperationLib "commons-cli:commons-cli:${project.asakusafwInternal.dep.commonsCliVersion}@jar"
-                asakusafwOperationLib "ch.qos.logback:logback-classic:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwOperationLib "ch.qos.logback:logback-core:${project.asakusafwInternal.dep.logbackVersion}@jar"
-                asakusafwOperationLib "org.slf4j:slf4j-api:${project.asakusafwInternal.dep.slf4jVersion}@jar"
-
-                asakusafwYaessJobQueuePluginLib "com.asakusafw:asakusa-yaess-jobqueue:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                asakusafwYaessJobQueuePluginLib "org.apache.httpcomponents:httpcore:${project.asakusafwInternal.dep.httpClientVersion}@jar"
-                asakusafwYaessJobQueuePluginLib "org.apache.httpcomponents:httpclient:${project.asakusafwInternal.dep.httpClientVersion}@jar"
-                asakusafwYaessJobQueuePluginLib "com.google.code.gson:gson:${project.asakusafwInternal.dep.gsonVersion}@jar"
-                asakusafwYaessJobQueuePluginLib "commons-codec:commons-codec:${project.asakusafwInternal.dep.commonsCodecVersion}@jar"
-                asakusafwYaessJobQueuePluginLib "commons-logging:commons-logging:${project.asakusafwInternal.dep.commonsLoggingVersion}@jar"
-
-                asakusafwWindGateRetryablePluginLib "com.asakusafw:asakusa-windgate-retryable:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-
-                asakusafwDirectIoHivePluginLib "com.asakusafw:asakusa-hive-core:${project.asakusafwOrganizer.asakusafwVersion}@jar"
-                for (Object library : project.asakusafwOrganizer.hive.libraries) {
-                    asakusafwDirectIoHivePluginLib library
+        container.metaClass.with {
+            propertyMissing = { String name ->
+                return container.maybeCreate(name)
+            }
+            methodMissing = { String name, args ->
+                if (args.size() != 1 || (args[0] instanceof Closure<?>) == false) {
+                    throw new MissingMethodException(name, NamedDomainObjectContainer, args)
                 }
+                return ConfigureUtil.configure(args[0], container.maybeCreate(name))
             }
+        }
+        return container
+    }
+
+    private void configureProfile(AsakusafwOrganizerPluginConvention convention,  AsakusafwOrganizerProfile profile) {
+        profile.directio = profile.extensions.create('directio', DirectIoConfiguration)
+        profile.thundergate = profile.extensions.create('thundergate', ThunderGateConfiguration)
+        profile.windgate = profile.extensions.create('windgate', WindGateConfiguration)
+        profile.hive = profile.extensions.create('hive', HiveConfiguration)
+        profile.yaess = profile.extensions.create('yaess', YaessConfiguration)
+        profile.batchapps = profile.extensions.create('batchapps', BatchappsConfiguration)
+        profile.testing = profile.extensions.create('testing', TestingConfiguration)
+
+        profile.conventionMapping.with {
+            asakusafwVersion = { convention.asakusafwVersion }
+            assembleDir = { (String) "${convention.assembleDir}-${profile.name}" }
+            archiveName = { (String) "asakusafw-${profile.asakusafwVersion}-${profile.name}.tar.gz" }
+        }
+        profile.components.process {
+            exclude 'META-INF/**'
+            filesMatching('**/*.sh') { FileCopyDetails f ->
+                f.setMode(0755)
+            }
+        }
+        profile.directio.conventionMapping.with {
+            enabled = { convention.directio.enabled }
+        }
+        profile.thundergate.conventionMapping.with {
+            enabled = { convention.thundergate.enabled }
+            target = { convention.thundergate.target }
+        }
+        profile.windgate.conventionMapping.with {
+            enabled = { convention.windgate.enabled }
+            sshEnabled = { convention.windgate.sshEnabled }
+            retryableEnabled = { convention.windgate.retryableEnabled }
+        }
+        profile.hive.conventionMapping.with {
+            enabled = { convention.hive.enabled }
+            defaultLibraries = { convention.hive.libraries }
+        }
+        profile.yaess.conventionMapping.with {
+            enabled = { convention.yaess.enabled }
+            toolsEnabled = { convention.yaess.toolsEnabled }
+            hadoopEnabled = { convention.yaess.hadoopEnabled }
+            jobqueueEnabled = { convention.yaess.jobqueueEnabled }
+        }
+        profile.batchapps.conventionMapping.with {
+            enabled = { convention.batchapps.enabled }
+        }
+        profile.testing.conventionMapping.with {
+            enabled = { convention.testing.enabled }
         }
     }
 
-    private defineOrganizerTasks() {
-        def installAsakusafw = project.task('installAsakusafw', dependsOn: 'attachAssembleDev') << {
-            if (!System.env['ASAKUSA_HOME']) {
-                throw new RuntimeException('ASAKUSA_HOME is not defined')
-            }
-            def timestamp = new Date().format('yyyyMMddHHmmss')
-            project.copy {
-                from "${System.env.ASAKUSA_HOME}"
-                into "${System.env.ASAKUSA_HOME}_${timestamp}"
-            }
-            project.delete "${System.env.ASAKUSA_HOME}"
-            project.mkdir "${System.env.ASAKUSA_HOME}"
-            project.copy {
-                from "${project.asakusafwOrganizer.assembleDir}"
-                into "${System.env.ASAKUSA_HOME}"
-            }
-            println "Asakusa Framework has been installed on ASAKUSA_HOME: ${System.env.ASAKUSA_HOME}"
+    private void configureProfiles() {
+        project.asakusafwOrganizer.profiles.all { AsakusafwOrganizerProfile profile ->
+            AsakusafwOrganizer organizer = new AsakusafwOrganizer(project, profile)
+            organizer.configureProfile()
+            organizers << organizer
         }
-        installAsakusafw.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        installAsakusafw.setDescription('Installs framework files to \$ASAKUSA_HOME.')
+    }
 
-        def cleanAssembleAsakusafw = project.task('cleanAssembleAsakusafw') << {
-            project.delete project.asakusafwOrganizer.assembleDir
-        }
-        cleanAssembleAsakusafw.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        cleanAssembleAsakusafw.setDescription('Deletes the assemble working directory.')
+    private void configureTasks() {
+        configureCommonTasks()
+        configureDevelopmentProfileTasks()
+        configureProductionProfileTasks()
+    }
 
-        def attachBatchapps = project.task('attachBatchapps') << {
-            project.copy {
-                from project.asakusafw.compiler.compiledSourceDirectory
-                into "${project.asakusafwOrganizer.assembleDir}/batchapps"
-            }
-        }
-        attachBatchapps.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachBatchapps.setDescription('Attaches batch application files to assembly.')
-
-        def attachComponentCore = project.task('attachComponentCore') << {
-            unpackDists project.configurations.asakusafwCoreDist
-            project.copy {
-                from project.configurations.asakusafwCoreLib
-                into "${project.asakusafwOrganizer.assembleDir}/core/lib"
-                rename (/asakusa-runtime-all(.*).jar/, 'asakusa-runtime-all.jar')
-            }
-        }
-        attachComponentCore.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentCore.setDescription('Attaches framework core component files to assembly.')
-
-        def attachComponentDirectIo = project.task('attachComponentDirectIo') << {
-            unpackDists project.configurations.asakusafwDirectIoDist
-            project.copy {
-                from project.configurations.asakusafwDirectIoLib
-                into "${project.asakusafwOrganizer.assembleDir}/directio/lib"
-            }
-        }
-        attachComponentDirectIo.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentDirectIo.setDescription('Attaches Direct I/O component files to assembly.')
-
-        def attachComponentYaess = project.task('attachComponentYaess') << {
-            unpackDists project.configurations.asakusafwYaessDist
-            project.copy {
-                from project.configurations.asakusafwYaessLib
-                into "${project.asakusafwOrganizer.assembleDir}/yaess/lib"
-            }
-            project.copy {
-                from project.configurations.asakusafwYaessPlugin
-                into "${project.asakusafwOrganizer.assembleDir}/yaess/plugin"
-            }
-            project.copy {
-                from project.configurations.asakusafwYaessTool
-                into "${project.asakusafwOrganizer.assembleDir}/yaess/tools"
-            }
-        }
-        attachComponentYaess.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentYaess.setDescription('Attaches YAESS component files to assembly.')
-
-        def attachComponentWindGate = project.task('attachComponentWindGate') << {
-            unpackDists project.configurations.asakusafwWindGateDist
-            project.copy {
-                from project.configurations.asakusafwWindGateLib
-                into "${project.asakusafwOrganizer.assembleDir}/windgate/lib"
-            }
-            project.copy {
-                from project.configurations.asakusafwWindGatePlugin
-                into "${project.asakusafwOrganizer.assembleDir}/windgate/plugin"
-            }
-            project.copy {
-                from project.configurations.asakusafwWindGateSshLib
-                into "${project.asakusafwOrganizer.assembleDir}/windgate-ssh/lib"
-            }
-        }
-        attachComponentWindGate.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentWindGate.setDescription('Attaches WindGate component files to assembly.')
-
-        def attachComponentThunderGate = project.task('attachComponentThunderGate') << {
-            unpackThunderGateDists project.configurations.asakusafwThunderGateDist, project.asakusafwOrganizer.thundergate.target
-            project.copy {
-                from project.configurations.asakusafwThunderGateLib
-                into "${project.asakusafwOrganizer.assembleDir}/bulkloader/lib"
-            }
-            project.copy {
-                from project.configurations.asakusafwThunderGateCoreLib
-                into "${project.asakusafwOrganizer.assembleDir}/core/lib"
-            }
-        }
-        attachComponentThunderGate.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentThunderGate.setDescription('Attaches ThunderGate component files to assembly.')
-
-        def attachComponentDevelopment = project.task('attachComponentDevelopment') << {
-            unpackDists project.configurations.asakusafwDevelopmentDist
-        }
-        attachComponentDevelopment.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentDevelopment.setDescription('Attaches developent tool files to assembly.')
-
-        def attachComponentOperation = project.task('attachComponentOperation') << {
-            unpackDists project.configurations.asakusafwOperationDist
-            project.copy {
-                from project.configurations.asakusafwOperationLib
-                into "${project.asakusafwOrganizer.assembleDir}/tools/lib"
-            }
-        }
-        attachComponentOperation.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachComponentOperation.setDescription('Attaches operation tool files to assembly.')
-
-        def attachExtensionYaessJobQueue = project.task('attachExtensionYaessJobQueue') << {
-            project.copy {
-                from project.configurations.asakusafwYaessJobQueuePluginLib
-                into "${project.asakusafwOrganizer.assembleDir}/yaess/plugin"
-            }
-        }
-        attachExtensionYaessJobQueue.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachExtensionYaessJobQueue.setDescription('Attaches YaessJobQueue files to assembly.')
-
-        def attachExtensionWindGateRetryable = project.task('attachExtensionWindGateRetryable') << {
-            project.copy {
-                from project.configurations.asakusafwWindGateRetryablePluginLib
-                into "${project.asakusafwOrganizer.assembleDir}/windgate/plugin"
-            }
-        }
-        attachExtensionWindGateRetryable.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachExtensionWindGateRetryable.setDescription('Attaches WindGateRetryable files to assembly.')
-
-        def attachExtensionDirectIoHive = project.task('attachExtensionDirectIoHive') << {
-            project.copy {
-                from project.configurations.asakusafwDirectIoHivePluginLib
-                into "${project.asakusafwOrganizer.assembleDir}/ext/lib"
-            }
-        }
-        attachExtensionDirectIoHive.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachExtensionDirectIoHive.setDescription('Attaches DirectIoHive files to assembly.')
-
-        def attachAssemble = project.task('attachAssemble', dependsOn: [
-                attachComponentCore,
-                attachComponentDirectIo,
-                attachComponentYaess,
-                attachComponentWindGate,
-                attachComponentOperation
+    private void configureCommonTasks() {
+        defineFacadeTasks([
+                      cleanAssembleAsakusafw : 'Deletes the assembly files and directories.',
+                             attachBatchapps : 'Attaches batch applications to assemblies.',
+                         attachComponentCore : 'Attaches framework core components to assemblies.',
+                     attachComponentDirectIo : 'Attaches Direct I/O components to assemblies.',
+                        attachComponentYaess : 'Attaches YAESS components to assemblies.',
+                  attachComponentYaessHadoop : 'Attaches Yaess Hadoop bridge components to assemblies.',
+                     attachComponentWindGate : 'Attaches WindGate components to assemblies.',
+                  attachComponentWindGateSsh : 'Attaches WindGate SSH components to assemblies.',
+                  attachComponentThunderGate : 'Attaches ThunderGate components to assemblies.',
+                  attachComponentDevelopment : 'Attaches development tools to assemblies.',
+                      attachComponentTesting : 'Attaches testing tools to assemblies.',
+                    attachComponentOperation : 'Attaches operation tools to assemblies.',
+                   attachExtensionYaessTools : 'Attaches YAESS extra tools to assemblies.',
+                attachExtensionYaessJobQueue : 'Attaches YAESS JobQueue client extensions to assemblies.',
+            attachExtensionWindGateRetryable : 'Attaches WindGate retryable extensions to assemblies.',
+                 attachExtensionDirectIoHive : 'Attaches Direct I/O Hive extensions to assemblies.',
+                              attachAssemble : null,
         ])
-        attachAssemble.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachAssemble.setDescription('Attaches framework files to assembly with default configuration.')
-
-        def attachAssembleDev = project.task('attachAssembleDev', dependsOn: [
-                attachAssemble,
-                attachComponentDevelopment,
-        ])
-        attachAssembleDev.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-        attachAssembleDev.setDescription('Attaches application development environment files to assembly.')
-
-        project.afterEvaluate {
-            def assembleAsakusafw = project.task('assembleAsakusafw', dependsOn: 'attachAssemble', type: Tar) {
-                from project.asakusafwOrganizer.assembleDir
-                destinationDir project.buildDir
-                compression Compression.GZIP
-                archiveName "asakusafw-${project.asakusafwOrganizer.asakusafwVersion}.tar.gz"
+        project.task('assembleAsakusafw') { Task task ->
+            task.group ASAKUSAFW_ORGANIZER_GROUP
+            task.description 'Assembles a tarball containing framework files for deployment.'
+            organizers.all { AsakusafwOrganizer organizer ->
+                // task may not resolved yet
+                task.dependsOn organizer.taskName(task.name)
             }
-            assembleAsakusafw.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-            assembleAsakusafw.setDescription('Assembles a tarball containing framework files for deployment.')
-
-            def assembleDevAsakusafw = project.task('assembleDevAsakusafw', dependsOn: 'attachAssembleDev', type: Tar) {
-                from project.asakusafwOrganizer.assembleDir
-                destinationDir project.buildDir
-                compression Compression.GZIP
-                archiveName "asakusafw-${project.asakusafwOrganizer.asakusafwVersion}-dev.tar.gz"
-            }
-            assembleDevAsakusafw.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-            assembleDevAsakusafw.setDescription('Assembles a tarball containing framework files for development.')
-
-            def asakusaDistCustom = project.task('assembleCustomAsakusafw', type: Tar) {
-                from project.asakusafwOrganizer.assembleDir
-                destinationDir project.buildDir
-                compression Compression.GZIP
-                archiveName "asakusafw-${project.asakusafwOrganizer.asakusafwVersion}-custom.tar.gz"
-            }
-            asakusaDistCustom.mustRunAfter(project.tasks.findAll { t ->
-                t.name.startsWith('attach')
-            })
-            asakusaDistCustom.setGroup(ASAKUSAFW_ORGANIZER_GROUP)
-            asakusaDistCustom.setDescription('Assembles a tarball containing custom framework configuration files.')
-
-            project.tasks.addRule('Pattern: attachConf<Target>: Attaches asakusafw custom distribution files to assembly.') { String taskName ->
-                if (taskName.startsWith('attachConf')) {
-                    def task = project.task(taskName) {
-                        ext.distTarget = (taskName - 'attachConf').toLowerCase()
-                        doLast {
-                            project.copy {
-                                from "src/dist/${distTarget}"
-                                into project.asakusafwOrganizer.assembleDir
+        }
+        project.tasks.addRule('Pattern: attachConf<Target>: Attaches asakusafw custom distribution files to assembly.') {
+            String taskName ->
+            if (taskName.startsWith('attachConf')) {
+                project.task(taskName) { Task task ->
+                    task.ext.distTarget = (taskName - 'attachConf').toLowerCase()
+                    project.tasks.withType(GatherAssemblyTask) { Task target ->
+                        target.dependsOn task
+                    }
+                    task.doLast {
+                        project.asakusafwOrganizer.assembly.into('.') {
+                            put "src/dist/${distTarget}"
+                            process {
                                 exclude '**/.*'
                             }
                         }
                     }
-                    task.mustRunAfter(project.tasks.findAll { t ->
-                        t.name.startsWith('attachBatchapp') ||
-                        t.name.startsWith('attachComponent') ||
-                        t.name.startsWith('attachExtension')
-                    })
                 }
             }
-
-            project.tasks.matching { it.name.startsWith('attach') && it.group == ASAKUSAFW_ORGANIZER_GROUP }.all { Task t ->
-                assembleAsakusafw.mustRunAfter t
-                assembleDevAsakusafw.mustRunAfter t
-                installAsakusafw.mustRunAfter t
-            }
-
-            if (project.asakusafwOrganizer.thundergate.isEnabled()) {
-                project.logger.info 'Enabling ThunderGate'
-                attachAssemble.dependsOn attachComponentThunderGate
-            }
-            if (project.asakusafwOrganizer.hive.isEnabled()) {
-                project.logger.info 'Enabling Direct I/O Hive'
-                attachAssemble.dependsOn attachExtensionDirectIoHive
-            }
-            if (project.plugins.hasPlugin('asakusafw')) {
-                project.logger.info 'Enabling batchapps'
-                attachAssembleDev.dependsOn attachBatchapps
-            }
-            if (project.plugins.hasPlugin('asakusafw')) {
-                project.tasks.attachBatchapps.shouldRunAfter project.tasks.compileBatchapp
-                project.tasks.test.shouldRunAfter project.tasks.installAsakusafw
-                // TODO conflicts assemble staging area
-                // project.tasks.assemble.dependsOn project.tasks.attachBatchapps
-                // project.tasks.assemble.dependsOn project.tasks.assembleAsakusafw
-            }
-
-            project.tasks.findAll { task -> task.name.startsWith('attach')}*.dependsOn('cleanAssembleAsakusafw')
         }
-    }
 
-    def unpackDists(distConf) {
-        distConf.files.each { dist ->
-            project.copy {
-                from project.zipTree(dist)
-                into project.asakusafwOrganizer.assembleDir
-                exclude 'META-INF/'
-                filesMatching('**/*.sh') { f ->
-                    f.setMode(0755)
+        project.afterEvaluate {
+            if (project.plugins.hasPlugin('asakusafw')) {
+                organizers.matching { it.name != PROFILE_NAME_DEVELOPMENT }.all { AsakusafwOrganizer organizer ->
+                    project.tasks.assemble.dependsOn organizer.taskName('assembleAsakusafw')
+                }
+                organizers.all { AsakusafwOrganizer organizer ->
+                    project.tasks.cleanAssemble.dependsOn organizer.taskName('cleanAssembleAsakusafw')
                 }
             }
         }
     }
 
-    def unpackThunderGateDists(distConf, targetName) {
-        distConf.files.each { dist ->
-            project.copy {
-                from project.zipTree(dist)
-                into project.asakusafwOrganizer.assembleDir
-                exclude 'META-INF/'
-                filesMatching('**/*.sh') { f ->
-                    f.setMode(0755)
+    private void defineFacadeTasks(Map<String, String> taskMap) {
+        taskMap.each { String taskName, String desc ->
+            project.task(taskName) { Task task ->
+                if (desc != null) {
+                    task.group ASAKUSAFW_ORGANIZER_GROUP
+                    task.description desc
                 }
-                if (targetName) {
-                    rename(/\[\w+\]-jdbc\.properties/, "${targetName}-jdbc.properties")
+                organizers.all { AsakusafwOrganizer organizer ->
+                    task.dependsOn organizer.task(task.name)
                 }
             }
         }
+    }
+
+    private void configureDevelopmentProfileTasks() {
+        AsakusafwOrganizer organizer = organizers[PROFILE_NAME_DEVELOPMENT]
+        organizer.task('gatherAsakusafw').dependsOn organizer.task('cleanAssembleAsakusafw')
+        project.tasks.create('installAsakusafw') {
+            dependsOn organizer.task('gatherAsakusafw')
+            group ASAKUSAFW_ORGANIZER_GROUP
+            description "Installs Asakusa Framework to \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
+            doLast {
+                if (!System.env['ASAKUSA_HOME']) {
+                    throw new RuntimeException('ASAKUSA_HOME is not defined')
+                }
+                def timestamp = new Date().format('yyyyMMddHHmmss')
+                project.copy {
+                    from "${System.env.ASAKUSA_HOME}"
+                    into "${System.env.ASAKUSA_HOME}_${timestamp}"
+                }
+                project.delete "${System.env.ASAKUSA_HOME}"
+                project.mkdir "${System.env.ASAKUSA_HOME}"
+                project.copy {
+                    from organizer.task('gatherAsakusafw').destination
+                    into "${System.env.ASAKUSA_HOME}"
+                }
+                logger.lifecycle "Asakusa Framework has been installed on ASAKUSA_HOME: ${System.env.ASAKUSA_HOME}"
+            }
+        }
+    }
+
+    private void configureProductionProfileTasks() {
+        // no special tasks
     }
 }
