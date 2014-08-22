@@ -392,21 +392,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         attachAssembleDev.setDescription('Attaches application development environment files to assembly.')
 
         project.afterEvaluate {
-            if (project.asakusafwOrganizer.thundergate.isEnabled()) {
-                project.logger.info 'Enabling ThunderGate'
-                attachAssemble.dependsOn attachComponentThunderGate
-            }
-            if (project.asakusafwOrganizer.hive.isEnabled()) {
-                project.logger.info 'Enabling Direct I/O Hive'
-                attachAssemble.dependsOn attachExtensionDirectIoHive
-            }
-            if (project.plugins.hasPlugin('asakusafw')) {
-                project.logger.info 'Enabling batchapps'
-                attachAssembleDev.dependsOn attachBatchapps
-            }
-        }
-
-        project.afterEvaluate {
             def assembleAsakusafw = project.task('assembleAsakusafw', dependsOn: 'attachAssemble', type: Tar) {
                 from project.asakusafwOrganizer.assembleDir
                 destinationDir project.buildDir
@@ -455,6 +440,32 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                         t.name.startsWith('attachExtension')
                     })
                 }
+            }
+
+            project.tasks.matching { it.name.startsWith('attach') && it.group == ASAKUSAFW_ORGANIZER_GROUP }.all { Task t ->
+                assembleAsakusafw.mustRunAfter t
+                assembleDevAsakusafw.mustRunAfter t
+                installAsakusafw.mustRunAfter t
+            }
+
+            if (project.asakusafwOrganizer.thundergate.isEnabled()) {
+                project.logger.info 'Enabling ThunderGate'
+                attachAssemble.dependsOn attachComponentThunderGate
+            }
+            if (project.asakusafwOrganizer.hive.isEnabled()) {
+                project.logger.info 'Enabling Direct I/O Hive'
+                attachAssemble.dependsOn attachExtensionDirectIoHive
+            }
+            if (project.plugins.hasPlugin('asakusafw')) {
+                project.logger.info 'Enabling batchapps'
+                attachAssembleDev.dependsOn attachBatchapps
+            }
+            if (project.plugins.hasPlugin('asakusafw')) {
+                project.tasks.attachBatchapps.shouldRunAfter project.tasks.compileBatchapp
+                project.tasks.test.shouldRunAfter project.tasks.installAsakusafw
+                // TODO conflicts assemble staging area
+                // project.tasks.assemble.dependsOn project.tasks.attachBatchapps
+                // project.tasks.assemble.dependsOn project.tasks.assembleAsakusafw
             }
 
             project.tasks.findAll { task -> task.name.startsWith('attach')}*.dependsOn('cleanAssembleAsakusafw')
