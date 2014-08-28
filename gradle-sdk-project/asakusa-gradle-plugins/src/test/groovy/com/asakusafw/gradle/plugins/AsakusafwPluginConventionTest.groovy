@@ -150,6 +150,7 @@ class AsakusafwPluginConventionTest {
         assert convention.thundergate.sidColumn == 'SID'
         assert convention.thundergate.target == null
         assert convention.thundergate.timestampColumn == 'UPDT_DATETIME'
+        assert convention.thundergate.jdbcFile == null
     }
 
     /**
