@@ -91,57 +91,52 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
         project.delete(getOutputDirectory())
         project.mkdir(getOutputDirectory())
 
-        def compilerWorkingDirectory = this.getWorkingDirectory() ?: new File(project.buildDir, UUID.randomUUID().toString())
-        try {
-            project.javaexec {
-                main = 'com.asakusafw.compiler.bootstrap.AllBatchCompilerDriver'
-                delegate.classpath = this.getToolClasspathCollection()
-                delegate.jvmArgs = this.getJvmArgs()
-                if (this.getMaxHeapSize()) {
-                    delegate.maxHeapSize = this.getMaxHeapSize()
-                }
-                if (this.getLogbackConf()) {
-                    delegate.systemProperties += [ 'logback.configurationFile' : this.getLogbackConf().absolutePath ]
-                }
-                delegate.systemProperties += [ 'com.asakusafw.batchapp.project.version' : this.getProjectVersion() ]
-                delegate.systemProperties += [ 'com.asakusafw.batchapp.build.timestamp' : timestamp ]
-                delegate.systemProperties += [ 'com.asakusafw.batchapp.build.java.version' : System.properties['java.version'] ]
-                if (this.getCompilerOptions()) {
-                    delegate.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions() ]
-                }
-                if (this.getFrameworkVersion()) {
-                    delegate.systemProperties += [ 'com.asakusafw.framework.version' : this.getFrameworkVersion() ]
-                }
-                delegate.systemProperties += this.getSystemProperties()
-                delegate.enableAssertions = true
-                delegate.args = [
-                        '-output',
-                        this.getOutputDirectory(),
-                        '-package',
-                        this.getPackageName(),
-                        '-compilerwork',
-                        this.getWorkingDirectory(),
-                        '-hadoopwork',
-                        this.getHadoopWorkingDirectory(),
-                        '-link',
-                        this.getSourcepathCollection().asPath,
-                        '-scanpath',
-                        this.getSourcepathCollection().asPath,
-                ]
-                if (!isFailFast()) {
-                    delegate.args << '-skiperror'
-                }
-                def plugins = this.getPluginClasspathCollection()
-                if (plugins != null && !plugins.empty) {
-                    delegate.args += [
-                        '-plugin',
-                        plugins.asPath
-                    ]
-                }
+        File compilerWorkingDirectory = getWorkingDirectory() ?: new File(getTemporaryDir(), 'build')
+        project.delete(compilerWorkingDirectory)
+        project.javaexec {
+            main = 'com.asakusafw.compiler.bootstrap.AllBatchCompilerDriver'
+            delegate.classpath = this.getToolClasspathCollection()
+            delegate.jvmArgs = this.getJvmArgs()
+            if (this.getMaxHeapSize()) {
+                delegate.maxHeapSize = this.getMaxHeapSize()
             }
-        } finally {
-            if (!this.getWorkingDirectory()) {
-                project.delete(compilerWorkingDirectory)
+            if (this.getLogbackConf()) {
+                delegate.systemProperties += [ 'logback.configurationFile' : this.getLogbackConf().absolutePath ]
+            }
+            delegate.systemProperties += [ 'com.asakusafw.batchapp.project.version' : this.getProjectVersion() ]
+            delegate.systemProperties += [ 'com.asakusafw.batchapp.build.timestamp' : timestamp ]
+            delegate.systemProperties += [ 'com.asakusafw.batchapp.build.java.version' : System.properties['java.version'] ]
+            if (this.getCompilerOptions()) {
+                delegate.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions() ]
+            }
+            if (this.getFrameworkVersion()) {
+                delegate.systemProperties += [ 'com.asakusafw.framework.version' : this.getFrameworkVersion() ]
+            }
+            delegate.systemProperties += this.getSystemProperties()
+            delegate.enableAssertions = true
+            delegate.args = [
+                    '-output',
+                    this.getOutputDirectory(),
+                    '-package',
+                    this.getPackageName(),
+                    '-compilerwork',
+                    compilerWorkingDirectory,
+                    '-hadoopwork',
+                    this.getHadoopWorkingDirectory(),
+                    '-link',
+                    this.getSourcepathCollection().asPath,
+                    '-scanpath',
+                    this.getSourcepathCollection().asPath,
+            ]
+            if (!isFailFast()) {
+                delegate.args << '-skiperror'
+            }
+            def plugins = this.getPluginClasspathCollection()
+            if (plugins != null && !plugins.empty) {
+                delegate.args += [
+                    '-plugin',
+                    plugins.asPath
+                ]
             }
         }
     }
