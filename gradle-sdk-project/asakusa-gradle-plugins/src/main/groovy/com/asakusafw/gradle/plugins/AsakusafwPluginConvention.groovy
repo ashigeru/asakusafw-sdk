@@ -267,12 +267,13 @@ class AsakusafwPluginConvention {
         String compilerOptions
 
         /**
-         * The directory where work files for batch compile are stored.
+         * The directory where work files for batch compile are stored (optional).
+         * If this property is {@code null}, the compiler use a temporary directory.
          * <dl>
          *   <dt> Migration from Maven-Archetype: </dt>
          *     <dd> build.properties - {@code asakusa.compilerwork.dir} </dd>
          *   <dt> Default value: </dt>
-         *     <dd> <code>"${project.buildDir}/batchcwork"</code> </dd>
+         *     <dd> {@code null} </dd>
          * </dl>
          */
         String compilerWorkDirectory

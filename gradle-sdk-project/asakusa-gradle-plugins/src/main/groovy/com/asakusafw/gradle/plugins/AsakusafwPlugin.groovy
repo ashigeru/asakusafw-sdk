@@ -124,7 +124,7 @@ class AsakusafwPlugin implements Plugin<Project> {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
             compiledSourceDirectory = { (String) "${project.buildDir}/batchc" }
             compilerOptions = { '' }
-            compilerWorkDirectory = { (String) "${project.buildDir}/batchcwork" }
+            compilerWorkDirectory = { null }
             hadoopWorkDirectory = { 'target/hadoopwork/${execution_id}' }
         }
         convention.testtools.conventionMapping.with {
@@ -343,7 +343,13 @@ class AsakusafwPlugin implements Plugin<Project> {
                 frameworkVersion = { project.asakusafw.asakusafwVersion }
                 packageName = { project.asakusafw.compiler.compiledSourcePackage }
                 compilerOptions = { project.asakusafw.compiler.compilerOptions ?: '' }
-                workingDirectory = { project.file(project.asakusafw.compiler.compilerWorkDirectory) }
+                workingDirectory = {
+                    if (project.asakusafw.compiler.compilerWorkDirectory != null) {
+                        return project.file(project.asakusafw.compiler.compilerWorkDirectory)
+                    } else {
+                        return null
+                    }
+                }
                 hadoopWorkingDirectory = { project.asakusafw.compiler.hadoopWorkDirectory }
                 outputDirectory = { project.file(project.asakusafw.compiler.compiledSourceDirectory) }
             }
