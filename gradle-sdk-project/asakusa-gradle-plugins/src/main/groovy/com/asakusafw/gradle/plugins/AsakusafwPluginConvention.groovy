@@ -23,14 +23,14 @@ import org.gradle.api.JavaVersion
 /**
  * Convention class for {@link AsakusafwPlugin}.
  * @since 0.5.2
- * @version 0.6.1
+ * @version 0.7.0
  */
 class AsakusafwPluginConvention {
 
     /**
      * Schema version of this convention.
      */
-    static final CONVENTION_SCHEMA_VERSION = '1.1.0'
+    static final CONVENTION_SCHEMA_VERSION = '1.2.0'
 
     /**
      * The schema version of this convention.
@@ -326,15 +326,61 @@ class AsakusafwPluginConvention {
 
         /**
          * The ThunderGate default name using in the development environment (optional).
-         * ThunderGate facilities will be enabled when this value is non-null.
+         * This will be used for detecting JDBC connection configuration file in the installed Asakusa Framework
+         * and generating DMDL files from the target database metadata.
+         * ThunderGate facilities will be enabled when this value is non-null,
+         * and the facilities may require that the Asakusa Framework with ThunderGate is
+         * correctly installed to execute relative tasks.
+         * If {@link #jdbcFile} is also set, this property will be ignored.
          * <dl>
          *   <dt> Migration from Maven-Archetype: </dt>
          *     <dd> build.properties: {@code asakusa.database.target} </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code null} (disable ThunderGate facility) </dd>
+         *     <dd> {@code null} </dd>
          * </dl>
          */
         String target
+
+        /**
+         * The external ThunderGate JDBC connection configuration file path (optional).
+         * ThunderGate facilities will be enabled when this value is non-null.
+         * The target file must be a Java properties file, and it must include following properties:
+         * <table>
+         *   <tr>
+         *     <th> Key </th>
+         *     <th> Value </th>
+         *   </tr>
+         *   <tr>
+         *     <th> {@code jdbc.driver} </th>
+         *     <th> JDBC driver class name </th>
+         *   </tr>
+         *   <tr>
+         *     <th> {@code jdbc.url} </th>
+         *     <th> target database URL </th>
+         *   </tr>
+         *   <tr>
+         *     <th> {@code jdbc.user} </th>
+         *     <th> connection user name </th>
+         *   </tr>
+         *   <tr>
+         *     <th> {@code jdbc.password} </th>
+         *     <th> connection password </th>
+         *   </tr>
+         *   <tr>
+         *     <th> {@code database.name} </th>
+         *     <th> target database name </th>
+         *   </tr>
+         * </table>
+         * If this property is set, the related tasks will not require any Asakusa Framework installations.
+         * <dl>
+         *   <dt> Migration from Maven-Archetype: </dt>
+         *     <dd> N/A </dd>
+         *   <dt> Default value: </dt>
+         *     <dd> {@code null} </dd>
+         * </dl>
+         * @since 0.7.0
+         */
+        String jdbcFile
 
         /**
          * DDL sources charset encoding name (optional).
@@ -440,7 +486,7 @@ class AsakusafwPluginConvention {
          * Note that the text values must be enclosed with double-quotations like as {@code "<text-value>"}.
          * <dl>
          *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> build.properties: {@code asakusa.modelgen.delete.column} </dd>
+         *     <dd> build.properties: {@code asakusa.modelgen.delete.value} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code '"1"'} </dd>
          * </dl>

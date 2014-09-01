@@ -340,4 +340,30 @@ class AsakusafwPluginTest {
         assert project.files(task.systemDdlFiles).contains(new File(home, 'bulkloader/sql/create_table.sql'))
         assert project.files(task.systemDdlFiles).contains(new File(home, 'bulkloader/sql/insert_import_table_lock.sql'))
     }
+
+    /**
+     * Test for {@code project.tasks.generateThunderGateDataModel}.
+     */
+    @Test
+    void tasks_generateThunderGateDataModel_jdbcFile() {
+        def home = project.file('testing/framework')
+        home.mkdirs()
+        project.plugins.getAt("asakusafw").frameworkHome = home
+
+        def jdbc = project.file('testing/jdbc.properties')
+        jdbc.text = '''
+            jdbc.driver = com.mysql.jdbc.Driver
+            jdbc.url = jdbc:mysql://localhost/asakusa
+            jdbc.user = asakusa
+            jdbc.password = asakusa
+            database.name = asakusa
+            db.parameter=
+            '''.stripIndent()
+
+        AsakusafwPluginConvention convention = project.asakusafw
+        convention.thundergate.jdbcFile project.relativePath(jdbc)
+
+        GenerateThunderGateDataModelTask task = project.tasks.generateThunderGateDataModel
+        assert task.jdbcConfiguration == jdbc
+    }
 }
