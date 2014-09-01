@@ -87,7 +87,7 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
      */
     @TaskAction
     def compileBatchapp() {
-        def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+        def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss (z)")
         project.delete(getOutputDirectory())
         project.mkdir(getOutputDirectory())
 
