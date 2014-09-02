@@ -150,8 +150,8 @@ class EclipsePluginEnhancement {
     private void generateAsakusafwProjectPref() {
         preferences('.settings/com.asakusafw.asakusafw.prefs') { Properties props ->
             project.asakusafw.conventionProperties.each { key, value ->
-                if (key.endsWith('File') || key.endsWith('Directory')) {
-                    value = relativePath(value)
+                if (key.endsWith('File') || key.endsWith('Directory') || key.endsWith('Dir')) {
+                    value = (value == null || value.isEmpty()) ? '' : relativePath(value)
                 }
                 props.setProperty(key, value)
             }
