@@ -21,6 +21,9 @@ import org.gradle.api.InvalidUserDataException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.RelativePath
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.internal.file.DefaultSourceDirectorySet
 import org.gradle.api.internal.file.FileResolver
@@ -121,7 +124,7 @@ class AsakusafwPlugin implements Plugin<Project> {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
             compiledSourceDirectory = { (String) "${project.buildDir}/batchc" }
             compilerOptions = { '' }
-            compilerWorkDirectory = { (String) "${project.buildDir}/batchcwork" }
+            compilerWorkDirectory = { null }
             hadoopWorkDirectory = { 'target/hadoopwork/${execution_id}' }
         }
         convention.testtools.conventionMapping.with {
@@ -130,6 +133,7 @@ class AsakusafwPlugin implements Plugin<Project> {
         }
         convention.thundergate.conventionMapping.with {
             target = { null }
+            jdbcFile = { null }
             ddlEncoding = { null }
             ddlSourceDirectory = { (String) "src/${project.sourceSets.main.name}/sql/modelgen" }
             includes = { null }
@@ -151,6 +155,10 @@ class AsakusafwPlugin implements Plugin<Project> {
         def embedded = project.configurations.create('embedded')
         embedded.description = 'Project embedded libraries'
 
+        def asakusaThunderGateFiles = project.configurations.create('asakusaThunderGateFiles')
+        asakusaThunderGateFiles.description = 'Asakusa ThunderGate system files'
+        asakusaThunderGateFiles.transitive = false
+
         def asakusaYaessLogAnalyzer = project.configurations.create('asakusaYaessLogAnalyzer')
         asakusaYaessLogAnalyzer.description = 'Asakusa YAESS Log Analyzer Libraries'
 
@@ -165,6 +173,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 embedded project.sourceSets.main.libs
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.asakusafwInternal.dep.slf4jVersion
                 compile group: 'ch.qos.logback', name: 'logback-classic', version: project.asakusafwInternal.dep.logbackVersion
+                asakusaThunderGateFiles group: 'com.asakusafw', name: 'asakusa-thundergate', version: project.asakusafw.asakusafwVersion, classifier: 'dist'
                 asakusaYaessLogAnalyzer group: 'com.asakusafw', name: 'asakusa-yaess-log-analyzer', version: project.asakusafw.asakusafwVersion
                 asakusaYaessLogAnalyzer group: 'ch.qos.logback', name: 'logback-classic', version: project.asakusafwInternal.dep.logbackVersion
                 asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: project.asakusafw.asakusafwVersion
@@ -334,7 +343,13 @@ class AsakusafwPlugin implements Plugin<Project> {
                 frameworkVersion = { project.asakusafw.asakusafwVersion }
                 packageName = { project.asakusafw.compiler.compiledSourcePackage }
                 compilerOptions = { project.asakusafw.compiler.compilerOptions ?: '' }
-                workingDirectory = { project.file(project.asakusafw.compiler.compilerWorkDirectory) }
+                workingDirectory = {
+                    if (project.asakusafw.compiler.compilerWorkDirectory != null) {
+                        return project.file(project.asakusafw.compiler.compilerWorkDirectory)
+                    } else {
+                        return null
+                    }
+                }
                 hadoopWorkingDirectory = { project.asakusafw.compiler.hadoopWorkDirectory }
                 outputDirectory = { project.file(project.asakusafw.compiler.compiledSourceDirectory) }
             }
@@ -430,17 +445,23 @@ class AsakusafwPlugin implements Plugin<Project> {
 
     private void defineGenerateThunderGateDataModelTask() {
         def thundergate = project.asakusafw.thundergate
-        def task = project.task('generateThunderGateDataModel', type: GenerateThunderGateDataModelTask) {
+        def task = project.task('generateThunderGateDataModel', type: GenerateThunderGateDataModelTask) { Task task ->
             group ASAKUSAFW_BUILD_GROUP
             description 'Executes DDLs and generates ThunderGate data models.'
             sourcepath << project.sourceSets.main.thundergateDdl
             toolClasspath << project.sourceSets.main.compileClasspath
-            systemDdlFiles << { getFrameworkFile('bulkloader/sql/create_table.sql') }
-            systemDdlFiles << { getFrameworkFile('bulkloader/sql/insert_import_table_lock.sql') }
+            systemDdlFiles << { getThunderGateFile(task, 'bulkloader/sql/create_table.sql') }
+            systemDdlFiles << { getThunderGateFile(task, 'bulkloader/sql/insert_import_table_lock.sql') }
             conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
                 maxHeapSize = { project.asakusafw.maxHeapSize }
-                jdbcConfiguration = { getFrameworkFile("bulkloader/conf/${thundergate.target}-jdbc.properties") }
+                jdbcConfiguration = {
+                    if (thundergate.jdbcFile != null) {
+                        return project.file(thundergate.jdbcFile)
+                    } else {
+                        return getFrameworkFile("bulkloader/conf/${thundergate.target}-jdbc.properties")
+                    }
+                }
                 ddlEncoding = { thundergate.ddlEncoding }
                 includePattern = { thundergate.includes }
                 excludePattern = { thundergate.excludes }
@@ -452,14 +473,20 @@ class AsakusafwPlugin implements Plugin<Project> {
                 deleteFlagColumnName = { thundergate.deleteColumn }
                 deleteFlagColumnValue = { thundergate.deleteValue }
             }
-            onlyIf { thundergate.target != null }
-            doFirst { checkFrameworkInstalled() }
+            onlyIf { thundergate.target != null || thundergate.jdbcFile != null }
+            doFirst {
+                if (thundergate.jdbcFile == null) {
+                    checkFrameworkInstalled()
+                }
+            }
         }
         project.afterEvaluate {
-            if (project.asakusafw.thundergate.target == null) {
+            if (thundergate.target == null && thundergate.jdbcFile == null) {
                 project.logger.info('Disables task: {}', task.name)
             } else {
-                project.logger.info('Enables task: {} (using {})', task.name, task.name)
+                project.logger.info('Enables task: {} (using {})',
+                    task.name,
+                    thundergate.jdbcFile ?: thundergate.target)
                 project.tasks.compileDMDL.dependsOn task
                 project.sourceSets.main.dmdl.srcDirs { thundergate.dmdlOutputDirectory }
             }
@@ -496,6 +523,47 @@ class AsakusafwPlugin implements Plugin<Project> {
         throw new IllegalStateException("Environment variable 'ASAKUSA_HOME' is not valid: ${this.frameworkHome}")
     }
 
+    protected File getThunderGateFile(Task task, String relativePath) {
+        // if jdbcFile is not set, then we use the deployed system files on $ASAKUSA_HOME
+        def thundergate = project.asakusafw.thundergate
+        if (thundergate.jdbcFile == null) {
+            return getFrameworkFile(relativePath)
+        }
+
+        // checking ThunderGate system file cache
+        if (task.hasProperty('cacheThunderGateFile') == false) {
+            task.ext.cacheThunderGateFile = [:]
+        } else {
+            def cached = task.cacheThunderGateFile.get(relativePath)
+            if (cached != null && cached.isFile()) {
+                return cached
+            }
+        }
+
+        // extracting system files into task temporary directory
+        File target = new File(task.temporaryDir, relativePath)
+        project.delete target
+        File distribution = project.configurations.asakusaThunderGateFiles.files.find()
+        if (distribution == null) {
+            throw new FileNotFoundException("ThunderGate system files are not configured")
+        }
+        RelativePath source = RelativePath.parse(true, relativePath)
+        project.zipTree(distribution).visit { FileVisitDetails f ->
+            if (f.relativePath == source) {
+                project.logger.info "Preparing file: ${source} -> ${target}"
+                f.copyTo target
+                f.stopVisiting()
+            }
+        }
+
+        // is distribution file broken or unsupported system file path?
+        if (target.isFile() == false) {
+            throw new FileNotFoundException("Missing '${relativePath}' in ThunderGate system files: ${distribution}")
+        }
+        task.cacheThunderGateFile.put(relativePath, target)
+        return target
+    }
+
     protected File getFrameworkFile(String relativePath) {
         if (frameworkHome != null) {
             return new File(frameworkHome, relativePath)
@@ -507,6 +575,5 @@ class AsakusafwPlugin implements Plugin<Project> {
         new EclipsePluginEnhancement().apply(project)
         new IdeaPluginEnhancement().apply(project)
     }
-
 }
 

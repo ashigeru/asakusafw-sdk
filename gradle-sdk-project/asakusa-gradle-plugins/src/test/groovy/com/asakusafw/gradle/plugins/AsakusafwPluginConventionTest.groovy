@@ -121,7 +121,7 @@ class AsakusafwPluginConventionTest {
         assert convention.compiler.compiledSourcePackage == "${project.asakusafw.basePackage}.batchapp"
         assert convention.compiler.compiledSourceDirectory == "${project.buildDir}/batchc"
         assert convention.compiler.compilerOptions == ''
-        assert convention.compiler.compilerWorkDirectory == "${project.buildDir}/batchcwork"
+        assert convention.compiler.compilerWorkDirectory == null
         assert convention.compiler.hadoopWorkDirectory == 'target/hadoopwork/${execution_id}'
     }
 
@@ -150,6 +150,7 @@ class AsakusafwPluginConventionTest {
         assert convention.thundergate.sidColumn == 'SID'
         assert convention.thundergate.target == null
         assert convention.thundergate.timestampColumn == 'UPDT_DATETIME'
+        assert convention.thundergate.jdbcFile == null
     }
 
     /**

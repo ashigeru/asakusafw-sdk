@@ -21,18 +21,25 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import ${package}.modelgen.table.model.ItemInfo;
 import ${package}.modelgen.table.model.SalesDetail;
-import ${package}.operator.CategorySummaryOperator;
 import com.asakusafw.runtime.value.Date;
 import com.asakusafw.runtime.value.DateTime;
+import com.asakusafw.testdriver.OperatorTestEnvironment;
 
 /**
  * {@link CategorySummaryOperator}のテスト。
  */
 public class CategorySummaryOperatorTest {
+
+    /**
+     * 演算子のテストでフレームワークAPIを利用可能にする。
+     */
+    @Rule
+    public final OperatorTestEnvironment environment = new OperatorTestEnvironment();
 
     /**
      * {@link CategorySummaryOperator#selectAvailableItem(List, SalesDetail)}のテスト。

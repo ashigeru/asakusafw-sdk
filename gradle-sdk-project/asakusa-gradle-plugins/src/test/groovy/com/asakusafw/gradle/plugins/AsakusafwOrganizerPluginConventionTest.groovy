@@ -26,7 +26,13 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
 
 /**
  * Test for {@link AsakusafwOrganizerPluginConvention}.
@@ -40,12 +46,10 @@ class AsakusafwOrganizerPluginConventionTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.plugins.apply 'asakusafw-organizer'
-            convention = project.asakusafwOrganizer
-
-            // NOTE: must set group after convention is created
             project.group = 'com.example.testing'
             project.version = '0.1.0'
+            project.plugins.apply 'asakusafw-organizer'
+            convention = project.asakusafwOrganizer
             return stmt
         }
     }
@@ -68,7 +72,22 @@ class AsakusafwOrganizerPluginConventionTest {
             // ok
         }
         assert convention.assembleDir == "${project.buildDir}/asakusafw-assembly"
+        assert convention.directio instanceof DirectIoConfiguration
         assert convention.thundergate instanceof ThunderGateConfiguration
+        assert convention.windgate instanceof WindGateConfiguration
+        assert convention.hive instanceof HiveConfiguration
+        assert convention.yaess instanceof YaessConfiguration
+        assert convention.batchapps instanceof BatchappsConfiguration
+        assert convention.testing instanceof TestingConfiguration
+        assert convention.assembly.handlers.isEmpty()
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.directio} convention default values.
+     */
+    @Test
+    public void directio_defaults() {
+        assert convention.directio.enabled == true
     }
 
     /**
@@ -76,7 +95,7 @@ class AsakusafwOrganizerPluginConventionTest {
      */
     @Test
     public void thundergate_defaults() {
-        assert !convention.thundergate.enabled
+        assert convention.thundergate.enabled == false
         assert convention.thundergate.target == null
     }
 
@@ -91,11 +110,227 @@ class AsakusafwOrganizerPluginConventionTest {
     }
 
     /**
+     * Test for {@code project.asakusafwOrganizer.windgate} convention default values.
+     */
+    @Test
+    public void windgate_defaults() {
+        assert convention.windgate.enabled == true
+        assert convention.windgate.sshEnabled == true
+        assert convention.windgate.retryableEnabled == false
+    }
+
+    /**
      * Test for {@code project.asakusafwOrganizer.hive} convention default values.
      */
     @Test
     public void hive_defaults() {
-        assert convention.hive.libraries == ['org.apache.hive:hive-exec:0.13.1@jar']
+        assert convention.hive.enabled == false
+        assert convention.hive.libraries.size() == 1
+        assert convention.hive.libraries[0].startsWith('org.apache.hive:hive-exec:')
     }
 
+    /**
+     * Test for {@code project.asakusafwOrganizer.yaess} convention default values.
+     */
+    @Test
+    public void yaess_defaults() {
+        assert convention.yaess.enabled == true
+        assert convention.yaess.toolsEnabled == true
+        assert convention.yaess.hadoopEnabled == true
+        assert convention.yaess.jobqueueEnabled == false
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.batchapps} convention default values.
+     */
+    @Test
+    public void batchapps_defaults() {
+        assert convention.batchapps.enabled == true
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.testing} convention default values.
+     */
+    @Test
+    public void testing_defaults() {
+        assert convention.testing.enabled == false
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles.dev} convention default values.
+     */
+    @Test
+    public void dev_defaults() {
+        AsakusafwOrganizerProfile profile = convention.profiles.dev
+        convention.asakusafwVersion = 'AFW-TEST'
+        assert profile.name == "dev"
+        assert profile.asakusafwVersion == convention.asakusafwVersion
+        assert profile.assembleDir == "${convention.assembleDir}-dev"
+        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-dev.tar.gz"
+        assert profile.directio.enabled == convention.directio.enabled
+        assert profile.thundergate.enabled == convention.thundergate.enabled
+        assert profile.windgate.enabled == convention.windgate.enabled
+        assert profile.yaess.enabled == convention.yaess.enabled
+        assert profile.batchapps.enabled == convention.batchapps.enabled
+        assert profile.testing.enabled == true
+        assert profile.components.handlers.isEmpty()
+        assert profile.assembly.handlers.isEmpty()
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.prod} convention default values.
+     */
+    @Test
+    public void prod_defaults() {
+        AsakusafwOrganizerProfile profile = convention.profiles.prod
+        convention.asakusafwVersion = 'AFW-TEST'
+        assert profile.name == "prod"
+        assert profile.asakusafwVersion == convention.asakusafwVersion
+        assert profile.assembleDir == "${convention.assembleDir}-prod"
+        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}.tar.gz"
+        assert profile.directio.enabled == convention.directio.enabled
+        assert profile.thundergate.enabled == convention.thundergate.enabled
+        assert profile.windgate.enabled == convention.windgate.enabled
+        assert profile.yaess.enabled == convention.yaess.enabled
+        assert profile.batchapps.enabled == convention.batchapps.enabled
+        assert profile.testing.enabled == convention.testing.enabled
+        assert profile.components.handlers.isEmpty()
+        assert profile.assembly.handlers.isEmpty()
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles} convention default values.
+     */
+    @Test
+    public void profiles_defaults() {
+        assert convention.profiles.collect { it.name }.toSet() == ['dev', 'prod'].toSet()
+
+        AsakusafwOrganizerProfile profile = convention.profiles.testProfile
+        assert convention.profiles.collect { it.name }.toSet() == ['dev', 'prod', 'testProfile'].toSet()
+
+        assert profile != null
+        assert profile.name == "testProfile"
+
+        convention.asakusafwVersion = 'AFW-TEST'
+        assert profile.asakusafwVersion == convention.asakusafwVersion
+
+        convention.assembleDir = 'AFW-TEST'
+        assert profile.assembleDir == "${convention.assembleDir}-testProfile"
+        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-testProfile.tar.gz"
+
+        assert profile.directio.enabled == convention.directio.enabled
+        convention.directio.enabled = !convention.directio.enabled
+        assert profile.directio.enabled == convention.directio.enabled
+
+        assert profile.thundergate.enabled == convention.thundergate.enabled
+        convention.thundergate.enabled = !convention.thundergate.enabled
+        assert profile.thundergate.enabled == convention.thundergate.enabled
+
+        assert profile.windgate.enabled == convention.windgate.enabled
+        convention.windgate.enabled = !convention.windgate.enabled
+        assert profile.windgate.enabled == convention.windgate.enabled
+
+        assert profile.yaess.enabled == convention.yaess.enabled
+        convention.yaess.enabled = !convention.yaess.enabled
+        assert profile.yaess.enabled == convention.yaess.enabled
+
+        assert profile.batchapps.enabled == convention.batchapps.enabled
+        convention.batchapps.enabled = !convention.batchapps.enabled
+        assert profile.batchapps.enabled == convention.batchapps.enabled
+
+        assert profile.testing.enabled == convention.testing.enabled
+        convention.testing.enabled = !convention.testing.enabled
+        assert profile.testing.enabled == convention.testing.enabled
+
+        assert profile.components.handlers.isEmpty()
+        assert profile.assembly.handlers.isEmpty()
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles.*} must be splitted from inherited convention values.
+     */
+    @Test
+    public void profiles_split() {
+        AsakusafwOrganizerProfile profile = convention.profiles.testProfile
+
+        convention.asakusafwVersion = 'AFW-TEST'
+        profile.asakusafwVersion = 'PRF-TEST'
+        assert profile.asakusafwVersion != convention.asakusafwVersion
+
+        profile.assembleDir = 'AFW-TEST'
+        assert profile.assembleDir != "${convention.assembleDir}-testProfile"
+
+        profile.directio.enabled = !convention.directio.enabled
+        assert profile.directio.enabled != convention.directio.enabled
+
+        profile.thundergate.enabled = !convention.thundergate.enabled
+        assert profile.thundergate.enabled != convention.thundergate.enabled
+
+        profile.windgate.enabled = !convention.windgate.enabled
+        assert profile.windgate.enabled != convention.windgate.enabled
+
+        profile.yaess.enabled = !convention.yaess.enabled
+        assert profile.yaess.enabled != convention.yaess.enabled
+
+        profile.batchapps.enabled = !convention.batchapps.enabled
+        assert profile.batchapps.enabled != convention.batchapps.enabled
+
+        profile.testing.enabled = !convention.testing.enabled
+        assert profile.testing.enabled != convention.testing.enabled
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles} with direct property access.
+     */
+    @Test
+    public void profiles_configure_property() {
+        convention.asakusafwVersion = 'AFW-TEST'
+        convention.profiles.testProfile.asakusafwVersion 'TEST-PROFILE'
+        AsakusafwOrganizerProfile profile = convention.profiles.testProfile
+        assert profile != null
+        assert profile.name == "testProfile"
+        assert profile.asakusafwVersion == 'TEST-PROFILE'
+        assert convention.asakusafwVersion == 'AFW-TEST'
+        assert convention.profiles.other.asakusafwVersion == convention.asakusafwVersion
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles} with configuration closure.
+     */
+    @Test
+    public void profiles_configure_closure() {
+        convention.asakusafwVersion = 'AFW-TEST'
+        convention.profiles.testProfile {
+            asakusafwVersion 'TEST-PROFILE'
+        }
+        AsakusafwOrganizerProfile profile = convention.profiles.testProfile
+        assert profile != null
+        assert profile.name == "testProfile"
+        assert profile.asakusafwVersion == 'TEST-PROFILE'
+        assert convention.asakusafwVersion == 'AFW-TEST'
+        assert convention.profiles.other.asakusafwVersion == convention.asakusafwVersion
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles.*.hive.libraries} with parent configurations.
+     */
+    @Test
+    public void profiles_hive_libraries() {
+        AsakusafwOrganizerProfile profile = convention.profiles.dev
+        convention.hive.libraries = ['a']
+        convention.hive.libraries = ['b0', 'b1']
+        assert profile.hive.libraries.toSet() == ['b0', 'b1'].toSet()
+
+        profile.hive.libraries += ['c0']
+        assert convention.hive.libraries.toSet() == ['b0', 'b1'].toSet()
+        assert profile.hive.libraries.toSet() == ['b0', 'b1', 'c0'].toSet()
+
+        profile.hive.libraries = ['d0', 'd1']
+        assert convention.hive.libraries.toSet() == ['b0', 'b1'].toSet()
+        assert profile.hive.libraries.toSet() == ['d0', 'd1'].toSet()
+
+        convention.hive.libraries = ['e0']
+        assert convention.hive.libraries.toSet() == ['e0'].toSet()
+        assert profile.hive.libraries.toSet() == ['d0', 'd1'].toSet()
+    }
 }

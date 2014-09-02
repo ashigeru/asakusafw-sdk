@@ -19,6 +19,7 @@ import org.gradle.api.Project
 
 /**
  * Gradle IntelliJ IDEA plugin enhancements for Asakusa Framework.
+ * @since 0.7.0
  */
 class IdeaPluginEnhancement {
 
