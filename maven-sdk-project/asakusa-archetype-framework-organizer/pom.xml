@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>maven-sdk-project</artifactId>
 		<groupId>com.asakusafw.sdk</groupId>
-		<version>0.7.0-RC1</version>
+		<version>0.7.0-RC2</version>
 	</parent>
 
 	<description>Creates a Asakusa Framework deployment archive and installs on local development environment. </description>
