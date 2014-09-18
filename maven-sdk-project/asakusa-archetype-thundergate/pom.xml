@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>maven-sdk-project</artifactId>
 		<groupId>com.asakusafw.sdk</groupId>
-		<version>0.7.0-RC2</version>
+		<version>0.7.0-RC3</version>
 	</parent>
 
 	<description>Creates a Asakusa Batch Application block using ThunderGate</description>
