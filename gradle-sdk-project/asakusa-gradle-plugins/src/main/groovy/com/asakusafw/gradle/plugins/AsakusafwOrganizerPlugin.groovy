@@ -237,7 +237,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                 attachExtensionYaessJobQueue : 'Attaches YAESS JobQueue client extensions to assemblies.',
             attachExtensionWindGateRetryable : 'Attaches WindGate retryable extensions to assemblies.',
                  attachExtensionDirectIoHive : 'Attaches Direct I/O Hive extensions to assemblies.',
-                              attachAssemble : null,
         ])
         project.task('assembleAsakusafw') { Task task ->
             task.group ASAKUSAFW_ORGANIZER_GROUP
@@ -272,8 +271,10 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                 organizers.matching { it.name != PROFILE_NAME_DEVELOPMENT }.all { AsakusafwOrganizer organizer ->
                     project.tasks.assemble.dependsOn organizer.taskName('assembleAsakusafw')
                 }
-                organizers.all { AsakusafwOrganizer organizer ->
-                    project.tasks.cleanAssemble.dependsOn organizer.taskName('cleanAssembleAsakusafw')
+                project.tasks.matching { it.name == 'cleanAssemble' }.all { Task t ->
+                    organizers.all { AsakusafwOrganizer organizer ->
+                        t.dependsOn organizer.taskName('cleanAssembleAsakusafw')
+                    }
                 }
             }
         }
