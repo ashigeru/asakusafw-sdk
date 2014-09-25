@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        maven { url 'http://asakusafw.s3.amazonaws.com/maven/${repMavenRepoType}' }
+    }
+    dependencies {
+        classpath group: 'com.asakusafw', name: 'asakusa-gradle-plugins', version: '${repProjectVersion}'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    distributionUrl 'http://services.gradle.org/distributions/gradle-2.1-bin.zip'
+    jarFile file('.buildtools/gradlew.jar')
+}
+
+apply plugin: 'asakusafw'
+apply plugin: 'asakusafw-organizer'
+apply plugin: 'eclipse'
+
+asakusafw {
+    asakusafwVersion '${repDefaultAsakusafwVersion}'
+
+    modelgen {
+        modelgenSourcePackage 'com.example.modelgen'
+    }
+    compiler {
+        compiledSourcePackage 'com.example.batchapp'
+    }
+}
+
+asakusafwOrganizer {
+    profiles.prod {
+        asakusafwVersion ${repConventionAsakusafwVersion}
+    }
+}
+
+dependencies {
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-core', version: ${repConventionAsakusafwVersion}
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-directio', version: ${repConventionAsakusafwVersion}
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-windgate', version: ${repConventionAsakusafwVersion}
+
+    provided (group: 'org.apache.hadoop', name: 'hadoop-client', version: '1.2.1') {
+        exclude module: 'junit'
+        exclude module: 'mockito-all'
+        exclude module: 'slf4j-log4j12'
+    }
+}
