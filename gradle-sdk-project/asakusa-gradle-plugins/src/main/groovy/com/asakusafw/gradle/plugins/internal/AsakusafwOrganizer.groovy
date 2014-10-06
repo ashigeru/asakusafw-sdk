@@ -30,6 +30,7 @@ import com.asakusafw.gradle.tasks.GatherAssemblyTask
 /**
  * Processes an {@link AsakusafwOrganizerProfile}.
  * @since 0.7.0
+ * @version 0.7.1
  */
 class AsakusafwOrganizer {
 
@@ -378,6 +379,7 @@ class AsakusafwOrganizer {
             assemblies << profile.components
             assemblies << project.asakusafwOrganizer.assembly
             assemblies << profile.assembly
+            dependsOn assemblies
             conventionMapping.with {
                 destination = { project.file(profile.assembleDir) }
             }
