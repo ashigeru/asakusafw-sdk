@@ -190,6 +190,8 @@ class EclipsePluginEnhancement {
             file.withInputStream { stream ->
                 properties.load(stream)
             }
+        } else {
+            file.parentFile.mkdirs()
         }
         closure.call(properties)
         properties.setProperty('eclipse.preferences.version', '1')
