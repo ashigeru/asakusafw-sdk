@@ -22,6 +22,7 @@ import org.gradle.util.ConfigureUtil
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
@@ -33,7 +34,7 @@ import com.asakusafw.gradle.tasks.GatherAssemblyTask
 /**
  * Gradle plugin for assembling and Installing Asakusa Framework.
  * @since 0.5.3
- * @version 0.7.0
+ * @version 0.7.1
  */
 class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
@@ -79,6 +80,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.yaess = convention.extensions.create('yaess', YaessConfiguration)
         convention.batchapps = convention.extensions.create('batchapps', BatchappsConfiguration)
         convention.testing = convention.extensions.create('testing', TestingConfiguration)
+        convention.extension = convention.extensions.create('extension', ExtensionConfiguration)
 
         convention.conventionMapping.with {
             asakusafwVersion = {
@@ -163,6 +165,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.yaess = profile.extensions.create('yaess', YaessConfiguration)
         profile.batchapps = profile.extensions.create('batchapps', BatchappsConfiguration)
         profile.testing = profile.extensions.create('testing', TestingConfiguration)
+        profile.extension = profile.extensions.create('extension', ExtensionConfiguration)
 
         profile.conventionMapping.with {
             asakusafwVersion = { convention.asakusafwVersion }
@@ -203,6 +206,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.testing.conventionMapping.with {
             enabled = { convention.testing.enabled }
         }
+        profile.extension.conventionMapping.with {
+            defaultLibraries = { convention.extension.libraries }
+        }
     }
 
     private void configureProfiles() {
@@ -233,6 +239,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                   attachComponentDevelopment : 'Attaches development tools to assemblies.',
                       attachComponentTesting : 'Attaches testing tools to assemblies.',
                     attachComponentOperation : 'Attaches operation tools to assemblies.',
+                    attachComponentExtension : 'Attaches framework extension components to assemblies.',
                    attachExtensionYaessTools : 'Attaches YAESS extra tools to assemblies.',
                 attachExtensionYaessJobQueue : 'Attaches YAESS JobQueue client extensions to assemblies.',
             attachExtensionWindGateRetryable : 'Attaches WindGate retryable extensions to assemblies.',
