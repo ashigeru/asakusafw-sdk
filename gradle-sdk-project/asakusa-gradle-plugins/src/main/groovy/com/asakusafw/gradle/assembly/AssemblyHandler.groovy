@@ -16,18 +16,22 @@
 package com.asakusafw.gradle.assembly
 
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.api.Buildable
+import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.TaskDependency
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.util.ConfigureUtil
 
 /**
  * Handles assembly definitions.
  * @since 0.7.0
+ * @version 0.7.1
  */
-class AssemblyHandler {
+class AssemblyHandler implements Buildable {
 
     /**
      * The fragment target path.
@@ -129,6 +133,13 @@ class AssemblyHandler {
                 }
             }
         }
+    }
+
+    @Override
+    TaskDependency getBuildDependencies() {
+        return { Task task ->
+            task.project.files(sourceFiles, sourceArchives).buildDependencies.getDependencies(task)
+        } as TaskDependency
     }
 
     /**

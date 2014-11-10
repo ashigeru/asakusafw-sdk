@@ -387,6 +387,7 @@ class AsakusafwOrganizer {
             assemblies << profile.components
             assemblies << project.asakusafwOrganizer.assembly
             assemblies << profile.assembly
+            dependsOn assemblies
             conventionMapping.with {
                 destination = { project.file(profile.assembleDir) }
             }
