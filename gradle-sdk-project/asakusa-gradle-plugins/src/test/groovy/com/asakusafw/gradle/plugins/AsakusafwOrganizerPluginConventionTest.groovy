@@ -28,6 +28,7 @@ import org.junit.runners.model.Statement
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
@@ -79,6 +80,7 @@ class AsakusafwOrganizerPluginConventionTest {
         assert convention.yaess instanceof YaessConfiguration
         assert convention.batchapps instanceof BatchappsConfiguration
         assert convention.testing instanceof TestingConfiguration
+        assert convention.extension instanceof ExtensionConfiguration
         assert convention.assembly.handlers.isEmpty()
     }
 
@@ -127,6 +129,14 @@ class AsakusafwOrganizerPluginConventionTest {
         assert convention.hive.enabled == false
         assert convention.hive.libraries.size() == 1
         assert convention.hive.libraries[0].startsWith('org.apache.hive:hive-exec:')
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.extension} convention default values.
+     */
+    @Test
+    public void extension_defaults() {
+        assert convention.extension.libraries.size() == 0
     }
 
     /**
@@ -332,5 +342,28 @@ class AsakusafwOrganizerPluginConventionTest {
         convention.hive.libraries = ['e0']
         assert convention.hive.libraries.toSet() == ['e0'].toSet()
         assert profile.hive.libraries.toSet() == ['d0', 'd1'].toSet()
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.profiles.*.extension.libraries} with parent configurations.
+     */
+    @Test
+    public void profiles_extension_libraries() {
+        AsakusafwOrganizerProfile profile = convention.profiles.dev
+        convention.extension.libraries = ['a']
+        convention.extension.libraries = ['b0', 'b1']
+        assert profile.extension.libraries.toSet() == ['b0', 'b1'].toSet()
+
+        profile.extension.libraries += ['c0']
+        assert convention.extension.libraries.toSet() == ['b0', 'b1'].toSet()
+        assert profile.extension.libraries.toSet() == ['b0', 'b1', 'c0'].toSet()
+
+        profile.extension.libraries = ['d0', 'd1']
+        assert convention.extension.libraries.toSet() == ['b0', 'b1'].toSet()
+        assert profile.extension.libraries.toSet() == ['d0', 'd1'].toSet()
+
+        convention.extension.libraries = ['e0']
+        assert convention.extension.libraries.toSet() == ['e0'].toSet()
+        assert profile.extension.libraries.toSet() == ['d0', 'd1'].toSet()
     }
 }
