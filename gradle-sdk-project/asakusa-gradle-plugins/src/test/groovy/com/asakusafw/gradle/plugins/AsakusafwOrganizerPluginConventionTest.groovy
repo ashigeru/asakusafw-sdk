@@ -49,7 +49,7 @@ class AsakusafwOrganizerPluginConventionTest {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
             project.group = 'com.example.testing'
             project.version = '0.1.0'
-            project.plugins.apply 'asakusafw-organizer'
+            project.apply plugin: 'asakusafw-organizer'
             convention = project.asakusafwOrganizer
             return stmt
         }
