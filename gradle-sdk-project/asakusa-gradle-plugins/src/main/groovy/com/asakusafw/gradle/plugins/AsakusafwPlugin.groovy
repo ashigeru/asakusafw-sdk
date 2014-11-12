@@ -71,8 +71,8 @@ class AsakusafwPlugin implements Plugin<Project> {
         this.project = project
         this.frameworkHome = System.env['ASAKUSA_HOME'] == null ? null : new File(System.env['ASAKUSA_HOME'])
 
-        project.plugins.apply(JavaPlugin.class)
-        project.plugins.apply(AsakusafwBasePlugin.class)
+        project.apply plugin: JavaPlugin.class
+        project.apply plugin: AsakusafwBasePlugin.class
 
         configureProject()
         configureJavaPlugin()

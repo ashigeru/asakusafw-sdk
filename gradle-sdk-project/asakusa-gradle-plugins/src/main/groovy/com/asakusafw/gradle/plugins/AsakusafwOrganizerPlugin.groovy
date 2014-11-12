@@ -60,7 +60,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
         this.organizers = project.container(AsakusafwOrganizer)
-        project.plugins.apply(AsakusafwBasePlugin.class)
+        project.apply plugin: AsakusafwBasePlugin.class
 
         configureProject()
         configureProfiles()

@@ -37,7 +37,7 @@ class EclipsePluginEnhancementTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.plugins.apply 'asakusafw'
+            project.apply plugin: 'asakusafw'
             return stmt
         }
     }
@@ -57,7 +57,7 @@ class EclipsePluginEnhancementTest {
      */
     @Test
     public void configurations() {
-        project.plugins.apply 'eclipse'
+        project.apply plugin: 'eclipse'
         assert project.configurations.findByName('eclipseAnnotationProcessor') != null
     }
 }
