@@ -148,7 +148,8 @@ class AsakusafwOrganizerPluginTest {
     @Test
     public void dev_tasks() {
         AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.dev
-        assert dependencies(project.tasks.installAsakusafw).contains(pname(profile, 'gatherAsakusafw'))
+        assert dependencies(project.tasks.updateAsakusafw).contains(pname(profile, 'gatherAsakusafw'))
+        assert dependencies(project.tasks.installAsakusafw).contains('updateAsakusafw')
     }
 
     /**
