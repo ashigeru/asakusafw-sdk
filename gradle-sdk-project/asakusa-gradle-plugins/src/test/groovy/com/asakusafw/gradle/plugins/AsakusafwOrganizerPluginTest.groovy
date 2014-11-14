@@ -17,8 +17,13 @@ package com.asakusafw.gradle.plugins
 
 import static org.junit.Assert.*
 
+import java.util.concurrent.Callable
+
+import org.gradle.api.Buildable
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskDependency
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +45,7 @@ class AsakusafwOrganizerPluginTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.plugins.apply 'asakusafw-organizer'
+            project.apply plugin: 'asakusafw-organizer'
             return stmt
         }
     }
@@ -122,12 +127,29 @@ class AsakusafwOrganizerPluginTest {
     }
 
     /**
+     * Test for dependencies of user defined artifacts.
+     */
+    @Test
+    public void assembly_extra_dependencies() {
+        AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.testp
+        AsakusafwOrganizerProfile other = project.asakusafwOrganizer.profiles.other
+        String tname = 'test_user_defined_artifact'
+        project.tasks.create(tname, Zip) { Task t ->
+            from 'testing'
+            profile.assembly.into('TESTING').from t
+        }
+        assert dependencies(ptask(profile, 'gatherAsakusafw')).contains(tname)
+        assert dependencies(ptask(other, 'gatherAsakusafw')).contains(tname) == false
+    }
+
+    /**
      * Test for {@code project.tasks} for development profile tasks.
      */
     @Test
     public void dev_tasks() {
         AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.dev
-        assert dependencies(project.tasks.installAsakusafw).contains(pname(profile, 'gatherAsakusafw'))
+        assert dependencies(project.tasks.updateAsakusafw).contains(pname(profile, 'gatherAsakusafw'))
+        assert dependencies(project.tasks.installAsakusafw).contains('updateAsakusafw')
     }
 
     /**
@@ -175,12 +197,22 @@ class AsakusafwOrganizerPluginTest {
     }
 
     private Set<String> dependencies(Task task) {
-        return task.getDependsOn().collect {
-            if (it instanceof Task) {
-                return it.name
-            } else {
-                return String.valueOf(it)
-            }
-        }.toSet()
+        return task.getDependsOn().collect { toTaskNames(task, it) }.flatten().toSet()
+    }
+
+    private Collection<String> toTaskNames(Task origin, Object value) {
+        if (value instanceof Task) {
+            return [ value.name ]
+        } else if (value instanceof Callable<?>) {
+            return toTaskNames(origin, value.call() ?: [])
+        } else if (value instanceof TaskDependency) {
+            return value.getDependencies(origin).collect { it.name }
+        } else if (value instanceof Buildable) {
+            return toTaskNames(origin, value.buildDependencies)
+        } else if (value instanceof Collection<?> || value instanceof Object[]) {
+            return value.collect { toTaskNames(origin, it) }.flatten()
+        } else {
+            return [ String.valueOf(value) ]
+        }
     }
 }

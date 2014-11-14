@@ -22,6 +22,7 @@ import org.gradle.util.ConfigureUtil
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
@@ -33,7 +34,7 @@ import com.asakusafw.gradle.tasks.GatherAssemblyTask
 /**
  * Gradle plugin for assembling and Installing Asakusa Framework.
  * @since 0.5.3
- * @version 0.7.0
+ * @version 0.7.1
  */
 class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
@@ -59,7 +60,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
         this.organizers = project.container(AsakusafwOrganizer)
-        project.plugins.apply(AsakusafwBasePlugin.class)
+        project.apply plugin: AsakusafwBasePlugin.class
 
         configureProject()
         configureProfiles()
@@ -79,6 +80,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.yaess = convention.extensions.create('yaess', YaessConfiguration)
         convention.batchapps = convention.extensions.create('batchapps', BatchappsConfiguration)
         convention.testing = convention.extensions.create('testing', TestingConfiguration)
+        convention.extension = convention.extensions.create('extension', ExtensionConfiguration)
 
         convention.conventionMapping.with {
             asakusafwVersion = {
@@ -163,6 +165,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.yaess = profile.extensions.create('yaess', YaessConfiguration)
         profile.batchapps = profile.extensions.create('batchapps', BatchappsConfiguration)
         profile.testing = profile.extensions.create('testing', TestingConfiguration)
+        profile.extension = profile.extensions.create('extension', ExtensionConfiguration)
 
         profile.conventionMapping.with {
             asakusafwVersion = { convention.asakusafwVersion }
@@ -203,6 +206,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.testing.conventionMapping.with {
             enabled = { convention.testing.enabled }
         }
+        profile.extension.conventionMapping.with {
+            defaultLibraries = { convention.extension.libraries }
+        }
     }
 
     private void configureProfiles() {
@@ -233,6 +239,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                   attachComponentDevelopment : 'Attaches development tools to assemblies.',
                       attachComponentTesting : 'Attaches testing tools to assemblies.',
                     attachComponentOperation : 'Attaches operation tools to assemblies.',
+                    attachComponentExtension : 'Attaches framework extension components to assemblies.',
                    attachExtensionYaessTools : 'Attaches YAESS extra tools to assemblies.',
                 attachExtensionYaessJobQueue : 'Attaches YAESS JobQueue client extensions to assemblies.',
             attachExtensionWindGateRetryable : 'Attaches WindGate retryable extensions to assemblies.',
@@ -297,28 +304,69 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     private void configureDevelopmentProfileTasks() {
         AsakusafwOrganizer organizer = organizers[PROFILE_NAME_DEVELOPMENT]
         organizer.task('gatherAsakusafw').dependsOn organizer.task('cleanAssembleAsakusafw')
-        project.tasks.create('installAsakusafw') {
-            dependsOn organizer.task('gatherAsakusafw')
-            group ASAKUSAFW_ORGANIZER_GROUP
-            description "Installs Asakusa Framework to \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
+        project.tasks.create('backupAsakusafw') {
+            shouldRunAfter organizer.task('gatherAsakusafw')
+            onlyIf { getFrameworkHome() != null }
             doLast {
-                if (!System.env['ASAKUSA_HOME']) {
-                    throw new RuntimeException('ASAKUSA_HOME is not defined')
-                }
-                def timestamp = new Date().format('yyyyMMddHHmmss')
+                File home = getFrameworkHome()
+                String timestamp = new Date().format('yyyyMMddHHmmss')
+                File backup = new File(home.parentFile, "${home.name}_${timestamp}")
                 project.copy {
-                    from "${System.env.ASAKUSA_HOME}"
-                    into "${System.env.ASAKUSA_HOME}_${timestamp}"
+                    from home
+                    into backup
                 }
-                project.delete "${System.env.ASAKUSA_HOME}"
-                project.mkdir "${System.env.ASAKUSA_HOME}"
-                project.copy {
-                    from organizer.task('gatherAsakusafw').destination
-                    into "${System.env.ASAKUSA_HOME}"
-                }
-                logger.lifecycle "Asakusa Framework has been installed on ASAKUSA_HOME: ${System.env.ASAKUSA_HOME}"
             }
         }
+        project.tasks.create('updateAsakusafw') { Task t ->
+            group ASAKUSAFW_ORGANIZER_GROUP
+            description "Updates Asakusa Framework on \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
+            t.dependsOn organizer.task('gatherAsakusafw')
+            t.shouldRunAfter 'backupAsakusafw'
+            project.afterEvaluate {
+                File home = getFrameworkHome()
+                if (home != null) {
+                    t.inputs.dir organizer.task('gatherAsakusafw').destination
+                    t.outputs.dir home
+                }
+            }
+            t.doLast {
+                File home = getFrameworkHomeChecked()
+                if (home.exists()) {
+                    project.delete home
+                }
+                project.mkdir home
+                project.copy {
+                    from organizer.task('gatherAsakusafw').destination
+                    into home
+                }
+            }
+        }
+        project.tasks.create('installAsakusafw') {
+            group ASAKUSAFW_ORGANIZER_GROUP
+            description "Installs Asakusa Framework to \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
+            dependsOn 'backupAsakusafw', 'updateAsakusafw'
+            doLast {
+                File home = getFrameworkHomeChecked()
+                if (project.tasks.updateAsakusafw.didWork) {
+                    logger.lifecycle "Asakusa Framework is successfully installed: ${home}"
+                } else {
+                    logger.lifecycle "Asakusa Framework is already up-to-date: ${home}"
+                }
+            }
+        }
+    }
+
+    private File getFrameworkHome() {
+        def home = System.env['ASAKUSA_HOME']
+        return home == null ? null : project.file(home).absoluteFile
+    }
+
+    private File getFrameworkHomeChecked() {
+        File home = getFrameworkHome()
+        if (home == null) {
+            throw new RuntimeException('ASAKUSA_HOME is not defined')
+        }
+        return home
     }
 
     private void configureProductionProfileTasks() {

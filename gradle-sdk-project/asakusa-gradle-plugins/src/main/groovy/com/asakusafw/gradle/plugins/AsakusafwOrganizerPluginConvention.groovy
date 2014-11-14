@@ -92,6 +92,12 @@ class AsakusafwOrganizerPluginConvention {
     TestingConfiguration testing
 
     /**
+     * Asakusa Framework extension settings.
+     * @since 0.7.1
+     */
+    ExtensionConfiguration extension
+
+    /**
      * Profiles for organizing framework package.
      * @since 0.7.0
      */
@@ -407,6 +413,50 @@ class AsakusafwOrganizerPluginConvention {
          * </dl>
          */
         boolean enabled
+    }
+
+    /**
+     * Asakusa Framework extension settings for the Asakusa Framework organizer.
+     * @since 0.7.1
+     */
+    static class ExtensionConfiguration {
+
+        /**
+         * Default libraries for Asakusa Framework extensions.
+         * Clients should not modify this property, and use {@link #libraries} instead.
+         */
+        List<Object> defaultLibraries = []
+
+        /**
+         * Libraries for Asakusa Framework extensions.
+         * <dl>
+         *   <dt> Default value: </dt>
+         *     <dd> {@code []} </dd>
+         * </dl>
+         */
+        List<Object> libraries
+
+        /**
+         * Returns libraries for Asakusa Framework extensions.
+         * @return the libraries
+         */
+        List<Object> getLibraries() {
+            if (this.@libraries == null) {
+                return Collections.unmodifiableList(getDefaultLibraries())
+            }
+            return Collections.unmodifiableList(this.@libraries)
+        }
+
+        /**
+         * Sets libraries for Asakusa Framework extensions.
+         * @param libraries the libraries
+         */
+        void setLibraries(Object... libraries) {
+            // copy on write
+            List<Object> list = new ArrayList<Object>()
+            list.addAll(libraries.flatten())
+            this.@libraries = list
+        }
     }
 
     @Override
