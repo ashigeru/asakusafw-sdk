@@ -30,6 +30,7 @@ import com.asakusafw.gradle.tasks.GatherAssemblyTask
 /**
  * Processes an {@link AsakusafwOrganizerProfile}.
  * @since 0.7.0
+ * @version 0.7.1
  */
 class AsakusafwOrganizer {
 
@@ -102,8 +103,10 @@ class AsakusafwOrganizer {
                    ThunderGateLib : "Libraries of Asakusa Framework ThunderGate modules (${profile.name}).",
                     OperationDist : "Contents of Asakusa Framework operation tools (${profile.name}).",
                      OperationLib : "Libraries of Asakusa Framework operation tools (${profile.name}).",
+                     ExtensionLib : "Asakusa Framework extension libraries (${profile.name}).",
         ])
         configuration('asakusafwThunderGateCoreLib').transitive = false
+        configuration('asakusafwExtensionLib').transitive = false
     }
 
     private void createConfigurations(String prefix, Map<String, String> confMap) {
@@ -212,7 +215,8 @@ class AsakusafwOrganizer {
                     "org.slf4j:slf4j-api:${deps.slf4jVersion}@jar",
                 ],
                 DirectIoHiveDist : [],
-                DirectIoHiveLib : ["com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar"] + profile.hive.libraries
+                DirectIoHiveLib : ["com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar"] + profile.hive.libraries,
+                ExtensionLib : profile.extension.libraries,
             ])
         }
     }
@@ -330,6 +334,11 @@ class AsakusafwOrganizer {
                     put configuration('asakusafwOperationLib')
                 }
             },
+            Extension : {
+                into('ext/lib') {
+                    put configuration('asakusafwExtensionLib')
+                }
+            },
         ]
         createAttachComponentTasks 'attachExtension', [
             DirectIoHive : {
@@ -378,6 +387,7 @@ class AsakusafwOrganizer {
             assemblies << profile.components
             assemblies << project.asakusafwOrganizer.assembly
             assemblies << profile.assembly
+            dependsOn assemblies
             conventionMapping.with {
                 destination = { project.file(profile.assembleDir) }
             }
@@ -420,6 +430,7 @@ class AsakusafwOrganizer {
             // default enabled
             task('attachAssemble').dependsOn task('attachComponentCore')
             task('attachAssemble').dependsOn task('attachComponentOperation')
+            task('attachAssemble').dependsOn task('attachComponentExtension')
 
             if (profile.directio.isEnabled()) {
                 project.logger.info 'Enabling Direct I/O'

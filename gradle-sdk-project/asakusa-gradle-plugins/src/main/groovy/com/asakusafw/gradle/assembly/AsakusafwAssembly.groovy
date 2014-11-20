@@ -15,11 +15,16 @@
  */
 package com.asakusafw.gradle.assembly
 
+import org.gradle.api.Buildable
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskDependency
+
 /**
  * Assembly definitions for organizing Asakusa Framework distribution packages.
  * @since 0.7.0
+ * @version 0.7.1
  */
-class AsakusafwAssembly {
+class AsakusafwAssembly implements Buildable {
 
     /**
      * The assembly name.
@@ -75,6 +80,15 @@ class AsakusafwAssembly {
      */
     AssemblyHandler into(Object target, Closure<?> configurator) {
         return into(target).configure(configurator)
+    }
+
+    @Override
+    TaskDependency getBuildDependencies() {
+        return { Task task ->
+            handlers.collect { AssemblyHandler handler ->
+                handler.buildDependencies.getDependencies(task)
+            }.flatten().toSet()
+        } as TaskDependency
     }
 
     @Override
