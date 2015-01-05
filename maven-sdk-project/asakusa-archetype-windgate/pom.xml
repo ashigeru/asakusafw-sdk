@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>maven-sdk-project</artifactId>
 		<groupId>com.asakusafw.sdk</groupId>
-		<version>0.7.2-RC1</version>
+		<version>0.7.2</version>
 	</parent>
 
 	<description>Creates a Asakusa Batch Application block using WindGate</description>
