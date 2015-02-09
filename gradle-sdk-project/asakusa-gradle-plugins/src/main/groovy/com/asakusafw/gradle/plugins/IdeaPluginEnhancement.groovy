@@ -45,7 +45,8 @@ class IdeaPluginEnhancement {
     }
 
     private void extendIdeaProjectTask() {
-        project.idea.project {
+        Project rootProject = project.getRootProject()
+        rootProject.idea.project {
             jdkName = project.asakusafw.javac.sourceCompatibility
             languageLevel = project.asakusafw.javac.sourceCompatibility
 
