@@ -158,7 +158,7 @@ class AsakusafwPluginTest {
 
         convention.asakusafwVersion 'testing/compiled'
         convention.compiler.compiledSourcePackage 'testing.batchapps'
-        convention.compiler.compilerOptions 'Xtesting=true'
+        convention.compiler.compilerOptions = ['Xtesting=true']
         convention.compiler.compilerWorkDirectory 'testing/work'
         convention.compiler.hadoopWorkDirectory 'testing/hadoop'
         convention.compiler.compiledSourceDirectory 'testing/compiled'
@@ -176,6 +176,19 @@ class AsakusafwPluginTest {
         assert task.workingDirectory == project.file(convention.compiler.compilerWorkDirectory)
         assert task.hadoopWorkingDirectory == convention.compiler.hadoopWorkDirectory
         assert task.outputDirectory == project.file(convention.compiler.compiledSourceDirectory)
+    }
+
+    /**
+     * Test for {@code project.tasks.compileBatchapp} with String compileOption.
+     */
+    @Test
+    void tasks_compileBatchapp_stringCompileOption() {
+        AsakusafwPluginConvention convention = project.asakusafw
+
+        convention.compiler.compilerOptions 'Xtesting=true, Xhoge=fuga'
+
+        CompileBatchappTask task = project.tasks.compileBatchapp
+        assert task.compilerOptions.containsAll(['Xtesting=true', 'Xhoge=fuga'])
     }
 
     /**

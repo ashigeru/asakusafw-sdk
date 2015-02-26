@@ -23,14 +23,14 @@ import org.gradle.api.JavaVersion
 /**
  * Convention class for {@link AsakusafwPlugin}.
  * @since 0.5.2
- * @version 0.7.0
+ * @version 0.7.3
  */
 class AsakusafwPluginConvention {
 
     /**
      * Schema version of this convention.
      */
-    static final CONVENTION_SCHEMA_VERSION = '1.2.0'
+    static final CONVENTION_SCHEMA_VERSION = '1.3.0'
 
     /**
      * The schema version of this convention.
@@ -261,10 +261,10 @@ class AsakusafwPluginConvention {
          *   <dt> Migration from Maven-Archetype: </dt>
          *     <dd> build.properties - {@code asakusa.compiler.options} </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code ''} </dd>
+         *     <dd> <code>"XjavaVersion={@link AsakusafwPluginConvention.JavacConfiguration#targetCompatibility}" </dd>
          * </dl>
          */
-        String compilerOptions
+        List<String> compilerOptions
 
         /**
          * The directory where work files for batch compile are stored (optional).
@@ -288,6 +288,25 @@ class AsakusafwPluginConvention {
          * </dl>
          */
         String hadoopWorkDirectory
+
+        /**
+         * Sets the DSL Compiler options.
+         *
+         * @param compilerOptions The value for the DSL Compiler options as comma separated String
+         */
+        void compilerOptions(String compilerOptions) {
+            setCompilerOptions(compilerOptions.tokenize(',').collect {it.trim()})
+        }
+
+        /**
+         * Sets the DSL Compiler options.
+         *
+         * @param compilerOptions The value for the DSL Compiler options as List of String
+         */
+        void compilerOptions(List<String> compilerOptions) {
+            this.compilerOptions = compilerOptions
+        }
+
     }
 
     /**
