@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.asakusafw.gradle.tasks.internal.AbstractAsakusaToolTask
 /**
  * Gradle Task for DSL Compile.
  * @since 0.5.3
- * @version 0.6.1
+ * @version 0.7.3
  */
 class CompileBatchappTask extends AbstractAsakusaToolTask {
 
@@ -47,7 +47,7 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
      */
     @Optional
     @Input
-    String compilerOptions
+    List<String> compilerOptions = []
 
     /**
      * The compiler working directory.
@@ -107,7 +107,7 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
             delegate.systemProperties += [ 'com.asakusafw.batchapp.build.timestamp' : timestamp ]
             delegate.systemProperties += [ 'com.asakusafw.batchapp.build.java.version' : System.properties['java.version'] ]
             if (this.getCompilerOptions()) {
-                delegate.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions() ]
+                delegate.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions().join(", ") ]
             }
             if (this.getFrameworkVersion()) {
                 delegate.systemProperties += [ 'com.asakusafw.framework.version' : this.getFrameworkVersion() ]

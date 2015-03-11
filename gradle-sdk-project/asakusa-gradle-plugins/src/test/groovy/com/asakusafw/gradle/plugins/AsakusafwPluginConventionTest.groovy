@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,8 @@ class AsakusafwPluginConventionTest {
     void compiler_defaults() {
         assert convention.compiler.compiledSourcePackage == "${project.asakusafw.basePackage}.batchapp"
         assert convention.compiler.compiledSourceDirectory == "${project.buildDir}/batchc"
-        assert convention.compiler.compilerOptions == ''
+        assert convention.compiler.compilerOptions == [
+                String.format("XjavaVersion=%s", JavaVersion.VERSION_1_7.toString())]
         assert convention.compiler.compilerWorkDirectory == null
         assert convention.compiler.hadoopWorkDirectory == 'target/hadoopwork/${execution_id}'
     }

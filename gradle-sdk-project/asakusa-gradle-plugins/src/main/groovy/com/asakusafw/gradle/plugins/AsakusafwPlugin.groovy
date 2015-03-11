@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,9 @@ class AsakusafwPlugin implements Plugin<Project> {
         convention.compiler.conventionMapping.with {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
             compiledSourceDirectory = { (String) "${project.buildDir}/batchc" }
-            compilerOptions = { '' }
+            compilerOptions = {[
+                String.format("XjavaVersion=%s", JavaVersion.toVersion(convention.javac.targetCompatibility))
+            ]}
             compilerWorkDirectory = { null }
             hadoopWorkDirectory = { 'target/hadoopwork/${execution_id}' }
         }
@@ -342,7 +344,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 maxHeapSize = { project.asakusafw.maxHeapSize }
                 frameworkVersion = { project.asakusafw.asakusafwVersion }
                 packageName = { project.asakusafw.compiler.compiledSourcePackage }
-                compilerOptions = { project.asakusafw.compiler.compilerOptions ?: '' }
+                compilerOptions = { project.asakusafw.compiler.compilerOptions }
                 workingDirectory = {
                     if (project.asakusafw.compiler.compilerWorkDirectory != null) {
                         return project.file(project.asakusafw.compiler.compilerWorkDirectory)
