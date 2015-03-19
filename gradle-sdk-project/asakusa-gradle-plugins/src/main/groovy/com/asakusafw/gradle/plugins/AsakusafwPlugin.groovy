@@ -48,6 +48,8 @@ import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
 import com.asakusafw.gradle.tasks.GenerateTestbookTask
 import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
+import com.asakusafw.gradle.tasks.TestToolTask
+import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
 
 /**
  * Gradle plugin for building application component blocks.
@@ -299,6 +301,7 @@ class AsakusafwPlugin implements Plugin<Project> {
         defineTestRunBatchappTask()
         defineSummarizeYaessJobTask()
         defineGenerateThunderGateDataModelTask()
+        configureTestToolTasks()
     }
 
     private void defineCompileDMDLTask() {
@@ -408,10 +411,10 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void defineTestRunBatchappTask() {
+        // NOTE: toolClasspath will be configured later
         project.tasks.create('testRunBatchapp', RunBatchappTask) { RunBatchappTask task ->
             group ASAKUSAFW_BUILD_GROUP
             description 'Executes Asakusa Batch Application [Experimental].'
-            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
             task.systemProperties.put 'asakusa.testdriver.batchapps', { project.tasks.compileBatchapp.outputDirectory }
             task.conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
@@ -492,6 +495,15 @@ class AsakusafwPlugin implements Plugin<Project> {
                 project.tasks.compileDMDL.dependsOn task
                 project.sourceSets.main.dmdl.srcDirs { thundergate.dmdlOutputDirectory }
             }
+        }
+    }
+
+    private void configureTestToolTasks() {
+        project.tasks.withType(RunBatchappTask) { AbstractTestToolTask task ->
+            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
+        }
+        project.tasks.withType(TestToolTask) { AbstractTestToolTask task ->
+            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
         }
     }
 
