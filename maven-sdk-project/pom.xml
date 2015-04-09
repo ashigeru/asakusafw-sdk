@@ -4,7 +4,7 @@
 	<name>Asakusa Framework Maven SDK project</name>
 	<groupId>com.asakusafw.sdk</groupId>
 	<artifactId>maven-sdk-project</artifactId>
-	<version>0.7.3-RC1</version>
+	<version>0.7.3-RC2</version>
 
 	<packaging>pom</packaging>
 
@@ -45,7 +45,7 @@
 		<plugin.assembly.version>2.4</plugin.assembly.version>
 
 		<!-- artifact id/versions -->
-		<archetype.asakusafw.version>0.7.3-RC1-hadoop1</archetype.asakusafw.version>
+		<archetype.asakusafw.version>0.7.3-RC2-hadoop1</archetype.asakusafw.version>
 		<hadoop.artifact.id>hadoop-client</hadoop.artifact.id>
 		<hadoop.version>1.2.1</hadoop.version>
 		<mysql.jdbc.version>5.1.25</mysql.jdbc.version>
