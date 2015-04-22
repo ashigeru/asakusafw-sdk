@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class AsakusafwInternalPluginConvention {
             commonsConfigurationVersion = '1.8'
             commonsLoggingVersion = '1.1.1'
             mysqlConnectorJavaVersion = '5.1.25'
-            hiveArtifact = 'org.apache.hive:hive-exec:0.14.0'
+            hiveArtifact = 'org.apache.hive:hive-exec:1.1.0'
 
             embeddedLibsDirectory = "src/main/libs"
         }

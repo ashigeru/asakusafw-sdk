@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
 import com.asakusafw.gradle.tasks.GenerateTestbookTask
 import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
+import com.asakusafw.gradle.tasks.TestToolTask
+import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
 
 /**
  * Gradle plugin for building application component blocks.
@@ -123,7 +125,9 @@ class AsakusafwPlugin implements Plugin<Project> {
         convention.compiler.conventionMapping.with {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
             compiledSourceDirectory = { (String) "${project.buildDir}/batchc" }
-            compilerOptions = { '' }
+            compilerOptions = {[
+                String.format("XjavaVersion=%s", JavaVersion.toVersion(convention.javac.targetCompatibility))
+            ]}
             compilerWorkDirectory = { null }
             hadoopWorkDirectory = { 'target/hadoopwork/${execution_id}' }
         }
@@ -297,6 +301,7 @@ class AsakusafwPlugin implements Plugin<Project> {
         defineTestRunBatchappTask()
         defineSummarizeYaessJobTask()
         defineGenerateThunderGateDataModelTask()
+        configureTestToolTasks()
     }
 
     private void defineCompileDMDLTask() {
@@ -342,7 +347,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 maxHeapSize = { project.asakusafw.maxHeapSize }
                 frameworkVersion = { project.asakusafw.asakusafwVersion }
                 packageName = { project.asakusafw.compiler.compiledSourcePackage }
-                compilerOptions = { project.asakusafw.compiler.compilerOptions ?: '' }
+                compilerOptions = { project.asakusafw.compiler.compilerOptions }
                 workingDirectory = {
                     if (project.asakusafw.compiler.compilerWorkDirectory != null) {
                         return project.file(project.asakusafw.compiler.compilerWorkDirectory)
@@ -406,10 +411,10 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void defineTestRunBatchappTask() {
+        // NOTE: toolClasspath will be configured later
         project.tasks.create('testRunBatchapp', RunBatchappTask) { RunBatchappTask task ->
             group ASAKUSAFW_BUILD_GROUP
             description 'Executes Asakusa Batch Application [Experimental].'
-            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
             task.systemProperties.put 'asakusa.testdriver.batchapps', { project.tasks.compileBatchapp.outputDirectory }
             task.conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
@@ -490,6 +495,15 @@ class AsakusafwPlugin implements Plugin<Project> {
                 project.tasks.compileDMDL.dependsOn task
                 project.sourceSets.main.dmdl.srcDirs { thundergate.dmdlOutputDirectory }
             }
+        }
+    }
+
+    private void configureTestToolTasks() {
+        project.tasks.withType(RunBatchappTask) { AbstractTestToolTask task ->
+            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
+        }
+        project.tasks.withType(TestToolTask) { AbstractTestToolTask task ->
+            task.toolClasspath = project.files({ project.sourceSets.test.runtimeClasspath })
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Asakusa Framework Team.
+ * Copyright 2011-2015 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,63 +15,26 @@
  */
 package com.asakusafw.gradle.tasks
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.InvalidUserDataException
-import org.gradle.api.Nullable
-import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.JavaExecSpec
 
-import com.asakusafw.gradle.tasks.internal.ResolutionUtils
+import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
 
 /**
  * Gradle Task for Running Asakusa batch application.
  * @since 0.6.1
+ * @version 0.7.3
  */
-class RunBatchappTask extends DefaultTask {
+class RunBatchappTask extends AbstractTestToolTask {
 
-    /**
-     * The logback configuration for the tool.
-     */
-    @Nullable
-    File logbackConf
-
-    /**
-     * The max heap size for the tool.
-     */
-    @Nullable
-    String maxHeapSize
-
-    /**
-     * The Java system properties.
-     */
-    Map<Object, Object> systemProperties = [:]
-
-    /**
-     * The Java VM arguments.
-     */
-    List<Object> jvmArgs = []
-
-    /**
-     * The tool class path.
-     */
-    @InputFiles
-    FileCollection toolClasspath = project.files()
+    private static final String MAIN_CLASS = 'com.asakusafw.testdriver.tools.runner.BatchTestRunner'
 
     /**
      * The target batch ID.
      */
     @Input
     String batchId
-
-    /**
-     * The target batch arguments.
-     */
-    @Input
-    Map<Object, Object> batchArguments = [:]
 
     /**
      * Sets the target batch ID.
@@ -82,56 +45,11 @@ class RunBatchappTask extends DefaultTask {
         this.batchId = batchId
     }
 
-    @Option(option = 'arguments', description = 'The target batch arguments separated by comma')
-    void setEncodedBatchArguments(String encoded) {
-        Map<String, String> args = [:]
-        StringBuilder buf = new StringBuilder()
-        boolean sawEscape = false
-        for (char c in encoded.toCharArray()) {
-            if (sawEscape) {
-                buf.append c
-                sawEscape = false
-            } else if (c == '\\') {
-                sawEscape = true
-            } else if (c == ',') {
-                addArg buf.toString(), args
-                buf.setLength 0
-            } else {
-                buf.append c
-            }
-        }
-        addArg buf.toString(), args
-        getBatchArguments().putAll(args)
-    }
-
-    private void addArg(String string, Map<String, String> kvs) {
-        int index = string.indexOf '='
-        if (index < 0) {
-            throw new InvalidUserDataException("Invalid batch argument: \"${string}\"")
-        }
-        kvs.put string.substring(0, index), string.substring(index + 1)
-    }
-
     /**
-     * Performs this task.
+     * Performs actions of this task.
      */
     @TaskAction
     void perform() {
-        project.javaexec { JavaExecSpec spec ->
-            spec.main = 'com.asakusafw.testdriver.tools.runner.BatchTestRunner'
-            spec.classpath = this.getToolClasspath()
-            spec.jvmArgs = ResolutionUtils.resolveToStringList(this.getJvmArgs())
-            if (this.getMaxHeapSize()) {
-                spec.maxHeapSize = this.getMaxHeapSize()
-            }
-            if (this.getLogbackConf()) {
-                spec.systemProperties += ['logback.configurationFile' : this.getLogbackConf().absolutePath]
-            }
-            spec.systemProperties += ResolutionUtils.resolveToStringMap(this.getSystemProperties())
-            spec.args += ['--batch', this.getBatchId()]
-            for (Map.Entry<String, String> entry in ResolutionUtils.resolveToStringMap(this.getBatchArguments()).entrySet()) {
-                spec.args += ['-A', "${entry.key}=${entry.value}"]
-            }
-        }
+        execute(MAIN_CLASS, ['--batch', getBatchId()])
     }
 }
