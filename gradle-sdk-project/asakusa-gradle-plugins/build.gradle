@@ -48,10 +48,32 @@ tasks.withType(AbstractCompile) { task ->
     }
 }
 
+eclipse.classpath {
+    file {
+        whenMerged { classpath ->
+            classpath.entries.findAll {
+                it.path.contains('org.eclipse.jdt.launching.JRE_CONTAINER')
+            }.each {
+                it.path = "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-${sourceCompatibility}"
+            }
+            classpath.entries.unique()
+        }
+    }
+}
+
 groovydoc {
     docTitle "Asakusa Gradle Plugins ${version}"
     windowTitle "Asakusa Gradle Plugins ${version}"
     footer "Copyright 2011-${new Date().format('yyyy')} Asakusa Framework Team."
+}
+
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives tasks.sourcesJar
 }
 
 gradle.taskGraph.whenReady {taskGraph ->
