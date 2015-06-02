@@ -21,7 +21,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
-import org.gradle.util.ConfigureUtil
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention.DependencyConfiguration
@@ -32,17 +31,7 @@ import com.asakusafw.gradle.tasks.GatherAssemblyTask
  * @since 0.7.0
  * @version 0.7.1
  */
-class AsakusafwOrganizer {
-
-    /**
-     * The current project.
-     */
-    final Project project
-
-    /**
-     * The target profile.
-     */
-    final AsakusafwOrganizerProfile profile
+class AsakusafwOrganizer extends AbstractOrganizer {
 
     /**
      * Creates a new instance.
@@ -50,21 +39,13 @@ class AsakusafwOrganizer {
      * @param profile the target profile
      */
     AsakusafwOrganizer(Project project, AsakusafwOrganizerProfile profile) {
-        this.project = project
-        this.profile = profile
-    }
-
-    /**
-     * Returns the profile name.
-     * @return the profile name
-     */
-    String getName() {
-        return profile.name
+        super(project, profile)
     }
 
     /**
      * Configures the target profile.
      */
+    @Override
     void configureProfile() {
         configureConfigurations()
         configureDependencies()
@@ -107,15 +88,6 @@ class AsakusafwOrganizer {
         ])
         configuration('asakusafwThunderGateCoreLib').transitive = false
         configuration('asakusafwExtensionLib').transitive = false
-    }
-
-    private void createConfigurations(String prefix, Map<String, String> confMap) {
-        confMap.each { String name, String desc ->
-            createConfiguration(prefix + name) {
-                description desc
-                visible false
-            }
-        }
     }
 
     private void configureDependencies() {
@@ -218,18 +190,6 @@ class AsakusafwOrganizer {
                 DirectIoHiveLib : ["com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar"] + profile.hive.libraries,
                 ExtensionLib : profile.extension.libraries,
             ])
-        }
-    }
-
-    private void createDependencies(String prefix, Map<String, Object> depsMap) {
-        depsMap.each { String name, Object value ->
-            if (value instanceof Collection<?> || value instanceof Object[]) {
-                value.each { Object notation ->
-                    createDependency prefix + name, notation
-                }
-            } else if (value != null) {
-                createDependency prefix + name, value
-            }
         }
     }
 
@@ -408,23 +368,6 @@ class AsakusafwOrganizer {
         }
     }
 
-    private void createAttachComponentTasks(String prefix, Map<String, Closure<?>> actionMap) {
-        actionMap.each { String name, Closure<?> action ->
-            createTask(prefix + name) {
-                doLast {
-                    ConfigureUtil.configure action, profile.components
-                }
-            }
-        }
-    }
-
-    private boolean isProfileTask(Task task) {
-        if (task.hasProperty('profileName')) {
-            return task.profileName == profile.name
-        }
-        return false
-    }
-
     private void enableTasks() {
         project.afterEvaluate {
             // default enabled
@@ -482,65 +425,5 @@ class AsakusafwOrganizer {
                 task('attachAssemble').dependsOn task('attachComponentTesting')
             }
         }
-    }
-
-    private String qualify(String name) {
-        return "${name}_${profile.name}"
-    }
-
-    private Configuration createConfiguration(String name, Closure<?> configurator) {
-        return project.configurations.create(qualify(name), configurator)
-    }
-
-    private Dependency createDependency(String configurationName, Object notation) {
-        return project.dependencies.add(qualify(configurationName), notation)
-    }
-
-    private Task createTask(String name, Class<? extends Task> parent, Closure<?> configurator) {
-        project.tasks.create(qualify(name), parent, configurator)
-        Task task = task(name)
-        task.ext.profileName = profile.name
-        return task
-    }
-
-    private Task createTask(String name) {
-        project.tasks.create(qualify(name))
-        Task task = task(name)
-        task.ext.profileName = profile.name
-        return task
-    }
-
-    private Task createTask(String name, Closure<?> configurator) {
-        project.tasks.create(qualify(name), configurator)
-        Task task = task(name)
-        task.ext.profileName = profile.name
-        return task
-    }
-
-    /**
-     * Returns the task name for the profile.
-     * @param name the bare task name
-     * @return the corresponded profile task name
-     */
-    String taskName(String name) {
-        return qualify(name)
-    }
-
-    /**
-     * Returns the task for the profile.
-     * @param name the bare task name
-     * @return the corresponded profile task
-     */
-    Task task(String name) {
-        return project.tasks[qualify(name)]
-    }
-
-    /**
-     * Returns the configuration for the profile.
-     * @param name the bare task name
-     * @return the corresponded profile configuration
-     */
-    Configuration configuration(String name) {
-        return project.configurations[qualify(name)]
     }
 }
