@@ -16,6 +16,9 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.Project
+import org.gradle.plugins.ide.idea.IdeaPlugin
+
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 
 /**
  * Gradle IntelliJ IDEA plugin enhancements for Asakusa Framework.
@@ -27,15 +30,8 @@ class IdeaPluginEnhancement {
 
     void apply(Project project) {
         this.project = project
-        afterPluginEnabled('idea') {
+        PluginUtils.afterPluginEnabled(project, IdeaPlugin) {
             configureIdeaPlugin()
-        }
-    }
-
-    private void afterPluginEnabled(String pluginId, Closure<?> closure) {
-        project.plugins.matching({ it == project.plugins.findPlugin(pluginId) }).all {
-            // without delegate to the found plugin
-            closure.call()
         }
     }
 

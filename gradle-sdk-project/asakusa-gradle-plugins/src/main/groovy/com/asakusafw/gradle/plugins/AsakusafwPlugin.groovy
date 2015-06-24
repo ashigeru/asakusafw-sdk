@@ -41,6 +41,7 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.TestToolsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
 import com.asakusafw.gradle.tasks.CompileBatchappTask
 import com.asakusafw.gradle.tasks.CompileDmdlTask
@@ -172,7 +173,7 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void configureDependencies() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             project.dependencies {
                 embedded project.sourceSets.main.libs
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.asakusafwInternal.dep.slf4jVersion
@@ -242,7 +243,7 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void configureJavaProjectProperties() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             project.sourceCompatibility = project.asakusafw.javac.sourceCompatibility
             project.targetCompatibility = project.asakusafw.javac.targetCompatibility
         }
@@ -254,7 +255,7 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void configureJavaCompileTask() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             [project.tasks.compileJava, project.tasks.compileTestJava].each { JavaCompile task ->
                 task.options.encoding = project.asakusafw.javac.sourceEncoding
             }
@@ -282,7 +283,7 @@ class AsakusafwPlugin implements Plugin<Project> {
             }
             task.dependsOn project.tasks.compileJava
         }
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             project.tasks.javadoc { Javadoc task ->
                 task.options.encoding = project.asakusafw.javac.sourceEncoding
                 task.options.source = String.valueOf(project.asakusafw.javac.sourceCompatibility)
@@ -485,7 +486,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 }
             }
         }
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             if (thundergate.target == null && thundergate.jdbcFile == null) {
                 project.logger.info('Disables task: {}', task.name)
             } else {

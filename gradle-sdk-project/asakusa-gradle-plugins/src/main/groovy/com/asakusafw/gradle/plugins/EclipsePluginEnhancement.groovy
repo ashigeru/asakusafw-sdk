@@ -18,6 +18,9 @@ package com.asakusafw.gradle.plugins
 import groovy.xml.MarkupBuilder
 
 import org.gradle.api.*
+import org.gradle.plugins.ide.eclipse.EclipsePlugin
+
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 
 /**
  * Gradle Eclipse plugin enhancements for Asakusa Framework.
@@ -28,7 +31,7 @@ class EclipsePluginEnhancement {
 
     void apply(Project project) {
         this.project = project
-        afterPluginEnabled('eclipse') {
+        PluginUtils.afterPluginEnabled(project, EclipsePlugin) {
             configureProject()
             configureEclipsePlugin()
         }
@@ -48,7 +51,7 @@ class EclipsePluginEnhancement {
     }
 
     private void configureDependencies() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             project.dependencies {
                 eclipseAnnotationProcessor "com.asakusafw:asakusa-runtime:${project.asakusafw.asakusafwVersion}"
                 eclipseAnnotationProcessor "com.asakusafw:asakusa-dsl-vocabulary:${project.asakusafw.asakusafwVersion}"
@@ -99,7 +102,9 @@ class EclipsePluginEnhancement {
                 }
             }
             plusConfigurations += [project.configurations.provided, project.configurations.embedded]
-            noExportConfigurations += [project.configurations.provided, project.configurations.embedded]
+            if (PluginUtils.compareGradleVersion('2.5-rc-1') < 0) {
+                noExportConfigurations += [project.configurations.provided, project.configurations.embedded]
+            }
         }
         project.eclipseClasspath.doFirst {
             makeGeneratedSourceDir()
@@ -169,13 +174,6 @@ class EclipsePluginEnhancement {
             project.delete(project.file('.factorypath'))
             project.delete(project.file('.settings/org.eclipse.jdt.apt.core.prefs'))
             project.delete(project.file('.settings/com.asakusafw.asakusafw.prefs'))
-        }
-    }
-
-    private void afterPluginEnabled(String pluginId, Closure<?> closure) {
-        project.plugins.matching({ it == project.plugins.findPlugin(pluginId) }).all {
-            // without delegate to the found plugin
-            closure.call()
         }
     }
 

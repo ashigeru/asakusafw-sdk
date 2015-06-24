@@ -29,6 +29,7 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGa
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
 import com.asakusafw.gradle.plugins.internal.AsakusafwOrganizer
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.gradle.tasks.GatherAssemblyTask
 
 /**
@@ -273,7 +274,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             }
         }
 
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             if (project.plugins.hasPlugin('asakusafw')) {
                 organizers.matching { it.name != PROFILE_NAME_DEVELOPMENT }.all { AsakusafwOrganizer organizer ->
                     project.tasks.assemble.dependsOn organizer.taskName('assembleAsakusafw')
@@ -322,7 +323,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             description "Updates Asakusa Framework on \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
             t.dependsOn organizer.task('gatherAsakusafw')
             t.shouldRunAfter 'backupAsakusafw'
-            project.afterEvaluate {
+            PluginUtils.afterEvaluate(project) {
                 File home = getFrameworkHome()
                 if (home != null) {
                     t.inputs.dir organizer.task('gatherAsakusafw').destination
