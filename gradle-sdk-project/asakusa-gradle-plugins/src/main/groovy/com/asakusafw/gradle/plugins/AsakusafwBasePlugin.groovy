@@ -16,6 +16,7 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.*
+import org.gradle.util.GradleVersion
 
 import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
 
@@ -28,6 +29,10 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     void apply(Project project) {
         this.project = project
+        if (GradleVersion.current() < GradleVersion.version('2.0')) {
+            project.logger.warn "Asakusa Framework Gradle plug-ins recommend using Gradle 2.0 or later"
+            project.logger.warn "The current Gradle version (${GradleVersion.current()}) will not be supported in future releases"
+        }
         configureProject()
     }
 
