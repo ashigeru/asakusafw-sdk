@@ -50,7 +50,7 @@ class AsakusafwOrganizerProfile {
      * Working directory of Framework Organizer.
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> {@code "${project.asakusafwOrganizer.assembleDir}-${name}"} </dd>
+     *     <dd> <code>"${project.asakusafwOrganizer.assembleDir}-${name}"</code> </dd>
      * </dl>
      */
     String assembleDir
@@ -59,7 +59,7 @@ class AsakusafwOrganizerProfile {
      * The final archive name (should be end with {@code .tar.gz}).
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> {@code "asakusafw-${asakusafwVersion}-${name}.tar.gz"} </dd>
+     *     <dd> <code>"asakusafw-${asakusafwVersion}-${name}.tar.gz"</code> </dd>
      * </dl>
      */
     String archiveName
