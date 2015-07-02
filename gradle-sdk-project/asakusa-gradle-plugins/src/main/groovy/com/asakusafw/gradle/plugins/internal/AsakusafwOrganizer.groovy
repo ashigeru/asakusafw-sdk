@@ -91,7 +91,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
     }
 
     private void configureDependencies() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             String frameworkVersion = profile.asakusafwVersion
             DependencyConfiguration deps = project.asakusafwInternal.dep
             createDependencies('asakusafw', [
@@ -357,7 +357,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             }
         }
 
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             createTask('assembleAsakusafw', Tar) {
                 dependsOn task('gatherAsakusafw')
                 from task('gatherAsakusafw').destination
@@ -369,7 +369,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
     }
 
     private void enableTasks() {
-        project.afterEvaluate {
+        PluginUtils.afterEvaluate(project) {
             // default enabled
             task('attachAssemble').dependsOn task('attachComponentCore')
             task('attachAssemble').dependsOn task('attachComponentOperation')
