@@ -59,7 +59,7 @@ class AsakusafwInternalPluginConvention {
             commonsConfigurationVersion = '1.8'
             commonsLoggingVersion = '1.1.1'
             mysqlConnectorJavaVersion = '5.1.25'
-            hiveArtifact = 'org.apache.hive:hive-exec:1.1.0'
+            hiveArtifact = 'org.apache.hive:hive-exec:1.1.1'
 
             embeddedLibsDirectory = "src/main/libs"
         }
