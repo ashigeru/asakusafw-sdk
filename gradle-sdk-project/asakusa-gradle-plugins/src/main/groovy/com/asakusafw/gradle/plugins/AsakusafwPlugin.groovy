@@ -155,7 +155,7 @@ class AsakusafwPlugin implements Plugin<Project> {
 
     private void configureConfigurations() {
         def provided = project.configurations.create('provided')
-        provided.description = 'Emulating Maven’s provided scope'
+        provided.description = '''Emulating Maven's provided scope'''
 
         def embedded = project.configurations.create('embedded')
         embedded.description = 'Project embedded libraries'
