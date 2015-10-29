@@ -15,12 +15,15 @@
  */
 package com.asakusafw.gradle.tasks
 
+import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.JavaExecSpec
 
 import com.asakusafw.gradle.tasks.internal.AbstractAsakusaToolTask
+import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
  * Gradle Task for DSL Compile.
@@ -68,10 +71,21 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     File outputDirectory
 
     /**
+     * The accepting batch class name patterns ({@code "*"} as a wildcard character).
+     */
+    List<Object> include = []
+
+    /**
      * {@code true} to stop compilation immediately when detects any compilation errors.
      */
     @Input
     boolean failFast = false
+
+    /**
+     * Whether clean-up output directory before compile applications or not.
+     */
+    @Input
+    boolean clean = true
 
     /**
      * Returns the application project version.
@@ -83,38 +97,65 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     }
 
     /**
+     * Returns the actual values of {@link #include}.
+     * @return accepting batch class name patterns
+     */
+    @Input
+    List<String> getResolvedInclude() {
+        return ResolutionUtils.resolveToStringList(getInclude())
+    }
+
+    /**
+     * Set the update target batch class name.
+     * With this, the compiler only builds the target batch class,
+     * and the {@link #include} will be ignored.
+     * @param className the target class name pattern
+     */
+    @Option(option = 'update', description = 'compiles the specified batch classes only')
+    void setUpdateOption(String className) {
+        logger.info("update: ${className}")
+        setClean(false)
+        setInclude([className])
+    }
+
+    /**
      * Task Action of this task.
      */
     @TaskAction
     def compileBatchapp() {
         def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss (z)")
-        project.delete(getOutputDirectory())
-        project.mkdir(getOutputDirectory())
+        if (isClean()) {
+            logger.info "Cleaning Asakusa DSL compiler output directory"
+            project.delete getOutputDirectory()
+        }
+        if (getOutputDirectory().exists() == false) {
+            project.mkdir getOutputDirectory()
+        }
 
         File compilerWorkingDirectory = getWorkingDirectory() ?: new File(getTemporaryDir(), 'build')
         project.delete(compilerWorkingDirectory)
-        project.javaexec {
-            main = 'com.asakusafw.compiler.bootstrap.AllBatchCompilerDriver'
-            delegate.classpath = this.getToolClasspathCollection()
-            delegate.jvmArgs = this.getJvmArgs()
+        project.javaexec { JavaExecSpec spec ->
+            spec.main = 'com.asakusafw.compiler.bootstrap.AllBatchCompilerDriver'
+            spec.classpath = this.getToolClasspathCollection()
+            spec.jvmArgs = this.getJvmArgs()
             if (this.getMaxHeapSize()) {
-                delegate.maxHeapSize = this.getMaxHeapSize()
+                spec.maxHeapSize = this.getMaxHeapSize()
             }
             if (this.getLogbackConf()) {
-                delegate.systemProperties += [ 'logback.configurationFile' : this.getLogbackConf().absolutePath ]
+                spec.systemProperties += [ 'logback.configurationFile' : this.getLogbackConf().absolutePath ]
             }
-            delegate.systemProperties += [ 'com.asakusafw.batchapp.project.version' : this.getProjectVersion() ]
-            delegate.systemProperties += [ 'com.asakusafw.batchapp.build.timestamp' : timestamp ]
-            delegate.systemProperties += [ 'com.asakusafw.batchapp.build.java.version' : System.properties['java.version'] ]
+            spec.systemProperties += [ 'com.asakusafw.batchapp.project.version' : this.getProjectVersion() ]
+            spec.systemProperties += [ 'com.asakusafw.batchapp.build.timestamp' : timestamp ]
+            spec.systemProperties += [ 'com.asakusafw.batchapp.build.java.version' : System.properties['java.version'] ]
             if (this.getCompilerOptions()) {
-                delegate.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions().join(", ") ]
+                spec.systemProperties += [ 'com.asakusafw.compiler.options' : this.getCompilerOptions().join(',') ]
             }
             if (this.getFrameworkVersion()) {
-                delegate.systemProperties += [ 'com.asakusafw.framework.version' : this.getFrameworkVersion() ]
+                spec.systemProperties += [ 'com.asakusafw.framework.version' : this.getFrameworkVersion() ]
             }
-            delegate.systemProperties += this.getSystemProperties()
-            delegate.enableAssertions = true
-            delegate.args = [
+            spec.systemProperties += this.getSystemProperties()
+            spec.enableAssertions = true
+            spec.args = [
                     '-output',
                     this.getOutputDirectory(),
                     '-package',
@@ -128,15 +169,15 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
                     '-scanpath',
                     this.getSourcepathCollection().asPath,
             ]
+            if (!getResolvedInclude().isEmpty()) {
+                spec.args('-include', getResolvedInclude().join(','))
+            }
             if (!isFailFast()) {
-                delegate.args << '-skiperror'
+                spec.args('-skiperror')
             }
             def plugins = this.getPluginClasspathCollection()
             if (plugins != null && !plugins.empty) {
-                delegate.args += [
-                    '-plugin',
-                    plugins.asPath
-                ]
+                spec.args('-plugin', plugins.asPath)
             }
         }
     }
