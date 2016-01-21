@@ -49,7 +49,7 @@ class AsakusafwInternalPluginConvention {
             slf4jVersion = '1.7.5'
             logbackVersion = '1.1.2'
             log4jVersion = '1.2.15'
-            jschVersion = '0.1.51'
+            jschVersion = '0.1.53'
             gsonVersion = '2.2.4'
             httpClientVersion = '4.2.5'
             commonsCliVersion = '1.2'
