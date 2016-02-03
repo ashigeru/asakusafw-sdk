@@ -77,6 +77,7 @@ processResources { t ->
         }
 
         Properties p = new Properties()
+        p.put("plugin-version", project.version)
         p.put("framework-version", project.version)
         file.withOutputStream { s ->
             p.store(s, null)

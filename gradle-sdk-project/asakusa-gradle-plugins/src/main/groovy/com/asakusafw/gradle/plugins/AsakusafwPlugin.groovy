@@ -298,6 +298,7 @@ class AsakusafwPlugin implements Plugin<Project> {
     }
 
     private void defineAsakusaTasks() {
+        extendVersionsTask()
         defineCompileDMDLTask()
         extendCompileJavaTask()
         defineCompileBatchappTask()
@@ -309,6 +310,19 @@ class AsakusafwPlugin implements Plugin<Project> {
         defineSummarizeYaessJobTask()
         defineGenerateThunderGateDataModelTask()
         configureTestToolTasks()
+    }
+
+    private void extendVersionsTask() {
+        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
+            def frameworkVersion
+            try {
+                frameworkVersion = project.asakusafw.asakusafwVersion
+            } catch (Exception e) {
+                frameworkVersion = 'INVALID'
+            }
+            logger.lifecycle "Asakusa SDK: ${frameworkVersion}"
+            logger.lifecycle "JVM: ${project.asakusafw.javac.targetCompatibility}"
+        }
     }
 
     private void defineCompileDMDLTask() {
