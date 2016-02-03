@@ -92,6 +92,7 @@ class AsakusafwPlugin implements Plugin<Project> {
 
     private void configureExtentionProperties() {
         AsakusafwPluginConvention convention = project.extensions.create('asakusafw', AsakusafwPluginConvention)
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         convention.dmdl = convention.extensions.create('dmdl', DmdlConfiguration)
         convention.modelgen = convention.extensions.create('modelgen', ModelgenConfiguration)
         convention.javac = convention.extensions.create('javac', JavacConfiguration)
@@ -99,7 +100,12 @@ class AsakusafwPlugin implements Plugin<Project> {
         convention.testtools = convention.extensions.create('testtools', TestToolsConfiguration)
         convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
         convention.conventionMapping.with {
-            asakusafwVersion = { throw new InvalidUserDataException('"asakusafw.asakusafwVersion" must be set') }
+            asakusafwVersion = {
+                if (base.frameworkVersion == null) {
+                    throw new InvalidUserDataException('"asakusafw.asakusafwVersion" must be set')
+                }
+                return base.frameworkVersion
+            }
             maxHeapSize = { '1024m' }
             logbackConf = { (String) "src/${project.sourceSets.test.name}/resources/logback-test.xml" }
             basePackage = {

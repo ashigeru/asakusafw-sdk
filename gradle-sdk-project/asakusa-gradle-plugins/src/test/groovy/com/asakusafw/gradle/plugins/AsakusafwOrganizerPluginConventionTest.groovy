@@ -50,6 +50,7 @@ class AsakusafwOrganizerPluginConventionTest {
             project.group = 'com.example.testing'
             project.version = '0.1.0'
             project.apply plugin: 'asakusafw-organizer'
+            project.asakusafwBase.frameworkVersion = '0.0.0'
             convention = project.asakusafwOrganizer
             return stmt
         }

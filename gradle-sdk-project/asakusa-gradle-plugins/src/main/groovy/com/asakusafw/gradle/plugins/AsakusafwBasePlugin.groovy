@@ -22,13 +22,33 @@ import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
 
 /**
  * Base class of Asakusa Framework Gradle Plugin.
+ * @since 0.5.3
+ * @version 0.8.0
  */
 class AsakusafwBasePlugin implements Plugin<Project> {
 
+    private static final String ARTIFACT_INFO_PATH = 'META-INF/asakusa-gradle/artifact.properties'
+
+    private static final String INVALID_VERSION = 'INVALID'
+
     private Project project
 
+    private AsakusafwBaseExtension extension
+
+    /**
+     * Applies this plug-in and returns the extension object for the project.
+     * @param project the target project
+     * @return the corresponded extension
+     */
+    static AsakusafwBaseExtension get(Project project) {
+        project.apply plugin: AsakusafwBasePlugin
+        return project.plugins.getPlugin(AsakusafwBasePlugin).extension
+    }
+
+    @Override
     void apply(Project project) {
         this.project = project
+        this.extension = project.extensions.create('asakusafwBase', AsakusafwBaseExtension)
         if (GradleVersion.current() < GradleVersion.version('2.0')) {
             project.logger.warn "Asakusa Framework Gradle plug-ins recommend using Gradle 2.0 or later"
             project.logger.warn "The current Gradle version (${GradleVersion.current()}) will not be supported in future releases"
@@ -37,9 +57,35 @@ class AsakusafwBasePlugin implements Plugin<Project> {
     }
 
     private void configureProject() {
+        configureBaseExtension()
         configureExtentionProperties()
         configureRepositories()
     }
+
+    private void configureBaseExtension() {
+        configureArtifactVersion()
+    }
+
+    private void configureArtifactVersion() {
+        InputStream input = getClass().classLoader.getResourceAsStream(ARTIFACT_INFO_PATH)
+        if (input != null) {
+            try {
+                Properties properties = new Properties()
+                properties.load(input)
+                extension.frameworkVersion = properties.getProperty('framework-version', INVALID_VERSION)
+            } catch (IOException e) {
+                project.logger.warn "error occurred while extracting artifact version: ${ARTIFACT_INFO_PATH}"
+            } finally {
+                input.close()
+            }
+        }
+        if (extension.frameworkVersion == null) {
+            project.logger.warn "failed to detect version of Asakusa Framework: ${ARTIFACT_INFO_PATH}"
+            extension.frameworkVersion = null
+        }
+        project.logger.info "Asakusa Framework: ${extension.frameworkVersion}"
+    }
+
 
     private void configureExtentionProperties() {
         project.extensions.create('asakusafwInternal', AsakusafwInternalPluginConvention)
@@ -51,6 +97,14 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             maven { url "http://asakusafw.s3.amazonaws.com/maven/releases" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/snapshots" }
         }
+    }
+
+    /**
+     * Returns the extension.
+     * @return the extension
+     */
+    AsakusafwBaseExtension getExtension() {
+        return extension
     }
 }
 
