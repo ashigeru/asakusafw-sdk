@@ -22,6 +22,9 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ResolvedConfiguration
+import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.file.RelativePath
 import org.gradle.api.file.SourceDirectorySet
@@ -320,9 +323,44 @@ class AsakusafwPlugin implements Plugin<Project> {
             } catch (Exception e) {
                 frameworkVersion = 'INVALID'
             }
+            def hadoopVersion = 'UNKNOWN'
+            try {
+                logger.info 'detecting Hadoop version'
+                for (Configuration conf : [project.configurations.provided, project.configurations.compile]) {
+                    def v = findHadoopVersion(conf.resolvedConfiguration)
+                    if (v != null) {
+                        hadoopVersion = v
+                        break
+                    }
+                }
+            } catch (Exception e) {
+                logger.info 'failed to detect Hadoop version', e
+                hadoopVersion = 'INVALID'
+            }
             logger.lifecycle "Asakusa SDK: ${frameworkVersion}"
             logger.lifecycle "JVM: ${project.asakusafw.javac.targetCompatibility}"
+            logger.lifecycle "Hadoop: ${hadoopVersion}"
         }
+    }
+
+    private String findHadoopVersion(ResolvedConfiguration conf) {
+        LinkedList<ResolvedDependency> work = new LinkedList<ResolvedDependency>()
+        work.addAll(conf.firstLevelModuleDependencies)
+        Set<ResolvedDependency> saw = new HashSet<ResolvedDependency>()
+        while (!work.empty) {
+            ResolvedDependency d = work.removeFirst()
+            if (saw.contains(d)) {
+                continue
+            }
+            saw.add(d)
+            if (d.moduleVersion != null
+                    && d.moduleGroup == 'org.apache.hadoop'
+                    && (d.moduleName == 'hadoop-core' || d.moduleName == 'hadoop-common')) {
+                return d.moduleVersion
+            }
+            work.addAll(d.children)
+        }
+        return null
     }
 
     private void defineCompileDMDLTask() {
