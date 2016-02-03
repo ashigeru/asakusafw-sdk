@@ -321,7 +321,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 frameworkVersion = 'INVALID'
             }
             logger.lifecycle "Asakusa SDK: ${frameworkVersion}"
-            logger.lifecycle "Target Java: ${project.asakusafw.javac.targetCompatibility}"
+            logger.lifecycle "JVM: ${project.asakusafw.javac.targetCompatibility}"
         }
     }
 
