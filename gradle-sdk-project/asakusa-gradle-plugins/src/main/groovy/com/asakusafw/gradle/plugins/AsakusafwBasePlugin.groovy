@@ -16,7 +16,6 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.*
-import org.gradle.api.plugins.HelpTasksPlugin
 import org.gradle.util.GradleVersion
 
 import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
@@ -110,7 +109,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void configureTasks() {
         project.tasks.create(TASK_VERSIONS) { Task t ->
-            t.group HelpTasksPlugin.HELP_GROUP
+            t.group 'help'
             t.description 'Displays the versions about Asakusa Framework'
             t.doLast {
                 t.logger.lifecycle "Asakusa Gradle Plug-ins: ${extension.pluginVersion}"
