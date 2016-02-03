@@ -16,6 +16,7 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.*
+import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.util.GradleVersion
 
 import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
@@ -33,7 +34,17 @@ class AsakusafwBasePlugin implements Plugin<Project> {
      */
     static final String TASK_VERSIONS = 'asakusaVersions'
 
-    private static final String ARTIFACT_INFO_PATH = 'META-INF/asakusa-gradle/artifact.properties'
+    /**
+     * The task name of printing versions information.
+     * @since 0.8.0
+     */
+    static final String TASK_UPGRADE = 'asakusaUpgrade'
+
+    private static final String PREFIX_INFO_PATH = 'META-INF/asakusa-gradle/'
+
+    private static final String ARTIFACT_INFO_PATH = PREFIX_INFO_PATH + 'artifact.properties'
+
+    private static final String DEFAULTS_INFO_PATH = PREFIX_INFO_PATH + 'defaults.properties'
 
     private static final String INVALID_VERSION = 'INVALID'
 
@@ -71,29 +82,47 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void configureBaseExtension() {
         configureArtifactVersion()
+        configureDefaults()
     }
 
     private void configureArtifactVersion() {
-        InputStream input = getClass().classLoader.getResourceAsStream(ARTIFACT_INFO_PATH)
-        if (input != null) {
+        Properties properties = loadProperties(ARTIFACT_INFO_PATH)
+        extension.pluginVersion = extract(properties, 'plugin-version', 'Asakusa Gradle plug-ins')
+        extension.frameworkVersion = extract(properties, 'framework-version', 'Asakusa SDK')
+        project.logger.info "Asakusa Gradle plug-ins: ${extension.pluginVersion}"
+    }
+
+    private void configureDefaults() {
+        Properties properties = loadProperties(DEFAULTS_INFO_PATH)
+        extension.gradleVersion = extract(properties, 'gradle-version', 'recommended Gradle')
+    }
+
+    private String extract(Properties properties, String key, String name) {
+        String value = properties.getProperty(key, INVALID_VERSION)
+        if (value == INVALID_VERSION) {
+            project.logger.warn "failed to detect version of ${name}"
+        } else {
+            project.logger.info "${name} version: ${value}"
+        }
+        return value
+    }
+
+    private Properties loadProperties(String path) {
+        Properties results = new Properties()
+        InputStream input = getClass().classLoader.getResourceAsStream(path)
+        if (input == null) {
+            project.logger.warn "missing properties file: ${path}"
+        } else {
             try {
-                Properties properties = new Properties()
-                properties.load(input)
-                extension.pluginVersion = properties.getProperty('plugin-version', INVALID_VERSION)
-                extension.frameworkVersion = properties.getProperty('framework-version', INVALID_VERSION)
+                results.load(input)
             } catch (IOException e) {
-                project.logger.warn "error occurred while extracting artifact version: ${ARTIFACT_INFO_PATH}"
+                project.logger.warn "error occurred while extracting properties: ${path}"
             } finally {
                 input.close()
             }
         }
-        if (extension.frameworkVersion == null) {
-            project.logger.warn "failed to detect version of Asakusa Framework: ${ARTIFACT_INFO_PATH}"
-            extension.frameworkVersion = null
-        }
-        project.logger.info "Asakusa Framework: ${extension.frameworkVersion}"
+        return results
     }
-
 
     private void configureExtentionProperties() {
         project.extensions.create('asakusafwInternal', AsakusafwInternalPluginConvention)
@@ -108,12 +137,33 @@ class AsakusafwBasePlugin implements Plugin<Project> {
     }
 
     private void configureTasks() {
+        defineVersionsTask()
+        defineUpgradeTask()
+    }
+
+    private void defineVersionsTask() {
         project.tasks.create(TASK_VERSIONS) { Task t ->
             t.group 'help'
             t.description 'Displays the versions about Asakusa Framework'
             t.doLast {
                 t.logger.lifecycle "Asakusa Gradle Plug-ins: ${extension.pluginVersion}"
             }
+        }
+    }
+
+    private void defineUpgradeTask() {
+        project.tasks.create(TASK_UPGRADE) { Task t ->
+            t.description 'Upgrades application development project'
+        }
+        project.tasks.create('upgradeGradleWrapper', Wrapper) { Wrapper t ->
+            t.description 'Upgrades Gradle wrapper'
+            project.tasks.getByName(TASK_UPGRADE).dependsOn t
+            t.distributionUrl "http://services.gradle.org/distributions/gradle-${extension.gradleVersion}-bin.zip"
+            t.jarFile project.file('.buildtools/gradlew.jar')
+            t.doFirst {
+                t.logger.lifecycle "installing Gradle wrapper: version=${extension.gradleVersion}"
+            }
+            t.onlyIf { extension.gradleVersion != INVALID_VERSION }
         }
     }
 
