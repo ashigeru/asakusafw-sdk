@@ -23,6 +23,11 @@ package com.asakusafw.gradle.plugins
 class AsakusafwBaseExtension {
 
     /**
+     * The plug-ins version.
+     */
+    String pluginVersion
+
+    /**
      * The default framework version.
      */
     String frameworkVersion

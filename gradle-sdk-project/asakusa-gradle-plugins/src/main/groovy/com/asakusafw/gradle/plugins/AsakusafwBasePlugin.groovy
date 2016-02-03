@@ -16,6 +16,7 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.*
+import org.gradle.api.plugins.HelpTasksPlugin
 import org.gradle.util.GradleVersion
 
 import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
@@ -26,6 +27,12 @@ import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
  * @version 0.8.0
  */
 class AsakusafwBasePlugin implements Plugin<Project> {
+
+    /**
+     * The task name of printing versions information.
+     * @since 0.8.0
+     */
+    static final String TASK_VERSIONS = 'asakusaVersions'
 
     private static final String ARTIFACT_INFO_PATH = 'META-INF/asakusa-gradle/artifact.properties'
 
@@ -60,6 +67,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
         configureBaseExtension()
         configureExtentionProperties()
         configureRepositories()
+        configureTasks()
     }
 
     private void configureBaseExtension() {
@@ -72,6 +80,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             try {
                 Properties properties = new Properties()
                 properties.load(input)
+                extension.pluginVersion = properties.getProperty('plugin-version', INVALID_VERSION)
                 extension.frameworkVersion = properties.getProperty('framework-version', INVALID_VERSION)
             } catch (IOException e) {
                 project.logger.warn "error occurred while extracting artifact version: ${ARTIFACT_INFO_PATH}"
@@ -96,6 +105,16 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             maven { url "http://repo1.maven.org/maven2/" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/releases" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/snapshots" }
+        }
+    }
+
+    private void configureTasks() {
+        project.tasks.create(TASK_VERSIONS) { Task t ->
+            t.group HelpTasksPlugin.HELP_GROUP
+            t.description 'Displays the versions about Asakusa Framework'
+            t.doLast {
+                t.logger.lifecycle "Asakusa Gradle Plug-ins: ${extension.pluginVersion}"
+            }
         }
     }
 
