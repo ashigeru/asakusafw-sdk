@@ -46,6 +46,7 @@ class AsakusafwPluginConventionTest {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
             project.apply plugin: 'asakusafw'
+            project.asakusafwBase.frameworkVersion = '0.0.0'
             convention = project.asakusafw
 
             // NOTE: must set group after convention is created
@@ -66,12 +67,7 @@ class AsakusafwPluginConventionTest {
     void defaults() {
         assert convention != null
 
-        try {
-            convention.getAsakusafwVersion()
-            fail()
-        } catch (RuntimeException e) {
-            // ok
-        }
+        assert convention.asakusafwVersion == '0.0.0'
         assert convention.maxHeapSize == '1024m'
         assert convention.logbackConf == "src/${project.sourceSets.test.name}/resources/logback-test.xml"
         assert convention.basePackage == project.group

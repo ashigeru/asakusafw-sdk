@@ -50,6 +50,7 @@ class AsakusafwPluginTest {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
             project.apply plugin: 'asakusafw'
+            project.asakusafwBase.frameworkVersion = '0.0.0'
             return stmt
         }
     }

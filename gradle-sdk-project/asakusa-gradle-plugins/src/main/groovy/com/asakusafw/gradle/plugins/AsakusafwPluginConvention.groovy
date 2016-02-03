@@ -45,7 +45,7 @@ class AsakusafwPluginConvention {
      *   <dt> Migration from Maven-Archetype: </dt>
      *     <dd> pom.xml - {@code properties/asakusafw.version} </dd>
      *   <dt> Default value: </dt>
-     *     <dd> N/A </dd>
+     *     <dd> (same as the Asakusa Gradle plug-ins version) </dd>
      * </dl>
      */
     String asakusafwVersion
