@@ -31,4 +31,9 @@ class AsakusafwBaseExtension {
      * The default framework version.
      */
     String frameworkVersion
+
+    /**
+     * The default Gradle version.
+     */
+    String gradleVersion
 }
