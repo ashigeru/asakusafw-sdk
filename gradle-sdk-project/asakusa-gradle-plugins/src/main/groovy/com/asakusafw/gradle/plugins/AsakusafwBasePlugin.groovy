@@ -19,8 +19,6 @@ import org.gradle.api.*
 import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.util.GradleVersion
 
-import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention
-
 /**
  * Base class of Asakusa Framework Gradle Plugin.
  * @since 0.5.3
@@ -75,7 +73,6 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void configureProject() {
         configureBaseExtension()
-        configureExtentionProperties()
         configureRepositories()
         configureTasks()
     }
@@ -87,14 +84,52 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void configureArtifactVersion() {
         Properties properties = loadProperties(ARTIFACT_INFO_PATH)
-        extension.pluginVersion = extract(properties, 'plugin-version', 'Asakusa Gradle plug-ins')
-        extension.frameworkVersion = extract(properties, 'framework-version', 'Asakusa SDK')
+        driveProperties(ARTIFACT_INFO_PATH, [
+            'plugin-version': 'Asakusa Gradle plug-ins',
+            'framework-version': 'Asakusa SDK',
+        ])
         project.logger.info "Asakusa Gradle plug-ins: ${extension.pluginVersion}"
     }
 
     private void configureDefaults() {
-        Properties properties = loadProperties(DEFAULTS_INFO_PATH)
-        extension.gradleVersion = extract(properties, 'gradle-version', 'recommended Gradle')
+        driveProperties(DEFAULTS_INFO_PATH, [
+            'java-version': 'JVM version',
+            'gradle-version': 'recommended Gradle',
+            'embedded-libs-directory': 'embeddedd libraries directory',
+            'slf4j-version': 'SLF4J',
+            'logback-version': 'Logback',
+            'log4j-version': 'Log4J',
+            'jsch-version': 'JSCH',
+            'gson-version': 'GSON',
+            'http-client-version': 'Commons HTTP client',
+            'commons-cli-version': 'Commons CLI',
+            'commons-io-version': 'Commons IO',
+            'commons-lang-version': 'Commons Lang',
+            'commons-codec-version': 'Commons Codec',
+            'commons-configuration-version': 'Commons Configuration',
+            'commons-logging-version': 'Commons Logging',
+            'mysql-connector-java-version': 'MySQL connector/Java',
+            'hive-artifact': 'Hive',
+        ])
+    }
+
+    private void driveProperties(String path, Map<String, String> configurations) {
+        Properties properties = loadProperties(path)
+        configurations.each { String key, String name ->
+            StringBuilder buf = new StringBuilder()
+            boolean sawHyphen = false
+            for (char c : key.toCharArray()) {
+                if (c == '-') {
+                    sawHyphen = true
+                } else {
+                    buf.append(sawHyphen ? Character.toUpperCase(c) : c)
+                    sawHyphen = false
+                }
+            }
+            String prop = buf.toString()
+            assert extension.hasProperty(prop)
+            extension[prop] = extract(properties, key, name)
+        }
     }
 
     private String extract(Properties properties, String key, String name) {
@@ -122,10 +157,6 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             }
         }
         return results
-    }
-
-    private void configureExtentionProperties() {
-        project.extensions.create('asakusafwInternal', AsakusafwInternalPluginConvention)
     }
 
     private void configureRepositories() {

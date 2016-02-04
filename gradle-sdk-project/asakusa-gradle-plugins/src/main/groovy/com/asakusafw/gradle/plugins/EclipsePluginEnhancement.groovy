@@ -52,20 +52,22 @@ class EclipsePluginEnhancement {
 
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            AsakusafwPluginConvention sdk =  project.asakusafw
             project.dependencies {
-                eclipseAnnotationProcessor "com.asakusafw:asakusa-runtime:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:asakusa-dsl-vocabulary:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:ashigel-compiler:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:java-dom:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:javadoc-parser:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:jsr269-bridge:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:collections:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:simple-graph:${project.asakusafw.asakusafwVersion}"
-                eclipseAnnotationProcessor "commons-io:commons-io:${project.asakusafwInternal.dep.commonsIoVersion}"
-                eclipseAnnotationProcessor "commons-lang:commons-lang:${project.asakusafwInternal.dep.commonsLangVersion}"
-                eclipseAnnotationProcessor "ch.qos.logback:logback-classic:${project.asakusafwInternal.dep.logbackVersion}"
-                eclipseAnnotationProcessor "ch.qos.logback:logback-core:${project.asakusafwInternal.dep.logbackVersion}"
-                eclipseAnnotationProcessor "org.slf4j:slf4j-api:${project.asakusafwInternal.dep.slf4jVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:asakusa-runtime:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:asakusa-dsl-vocabulary:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:ashigel-compiler:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:java-dom:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:javadoc-parser:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:jsr269-bridge:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:collections:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "com.asakusafw:simple-graph:${sdk.asakusafwVersion}"
+                eclipseAnnotationProcessor "commons-io:commons-io:${base.commonsIoVersion}"
+                eclipseAnnotationProcessor "commons-lang:commons-lang:${base.commonsLangVersion}"
+                eclipseAnnotationProcessor "ch.qos.logback:logback-classic:${base.logbackVersion}"
+                eclipseAnnotationProcessor "ch.qos.logback:logback-core:${base.logbackVersion}"
+                eclipseAnnotationProcessor "org.slf4j:slf4j-api:${base.slf4jVersion}"
             }
         }
     }

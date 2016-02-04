@@ -33,7 +33,87 @@ class AsakusafwBaseExtension {
     String frameworkVersion
 
     /**
+     * The default Java version.
+     */
+    String javaVersion
+
+    /**
      * The default Gradle version.
      */
     String gradleVersion
+
+    /**
+     * The default embedded libraries directory path (relative from the project root).
+     */
+    String embeddedLibsDirectory
+
+    /**
+     * The default SLF4J version.
+     */
+    String slf4jVersion
+
+    /**
+     * The default Logback version.
+     */
+    String logbackVersion
+
+    /**
+     * The default Log4J version.
+     */
+    String log4jVersion
+
+    /**
+     * The default JSCH version.
+     */
+    String jschVersion
+
+    /**
+     * The default GSON version.
+     */
+    String gsonVersion
+
+    /**
+     * The default HTTP Client version.
+     */
+    String httpClientVersion
+
+    /**
+     * The default Commons CLI version.
+     */
+    String commonsCliVersion
+
+    /**
+     * The default Commons Codec version.
+     */
+    String commonsCodecVersion
+
+    /**
+     * The default Commons Configuration version.
+     */
+    String commonsConfigurationVersion
+
+    /**
+     * The default Commons IO version.
+     */
+    String commonsIoVersion
+
+    /**
+     * The default Commons Lang version.
+     */
+    String commonsLangVersion
+
+    /**
+     * The default Commons Logging version.
+     */
+    String commonsLoggingVersion
+
+    /**
+     * The default MySQL Connector/J version.
+     */
+    String mysqlConnectorJavaVersion
+
+    /**
+     * The default Hive artifact notation.
+     */
+    String hiveArtifact
 }

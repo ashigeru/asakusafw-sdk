@@ -22,8 +22,9 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
+import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
+import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
-import com.asakusafw.gradle.plugins.internal.AsakusafwInternalPluginConvention.DependencyConfiguration
 import com.asakusafw.gradle.tasks.GatherAssemblyTask
 
 /**
@@ -93,7 +94,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
             String frameworkVersion = profile.asakusafwVersion
-            DependencyConfiguration deps = project.asakusafwInternal.dep
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             createDependencies('asakusafw', [
                 CoreDist : "com.asakusafw:asakusa-runtime-configuration:${frameworkVersion}:dist@jar",
                 CoreLib : [
@@ -107,43 +108,43 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 YaessLib : [
                     "com.asakusafw:asakusa-yaess-bootstrap:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-yaess-core:${frameworkVersion}@jar",
-                    "commons-cli:commons-cli:${deps.commonsCliVersion}@jar",
-                    "ch.qos.logback:logback-classic:${deps.logbackVersion}@jar",
-                    "ch.qos.logback:logback-core:${deps.logbackVersion}@jar",
-                    "org.slf4j:slf4j-api:${deps.slf4jVersion}@jar",
-                    "org.slf4j:jul-to-slf4j:${deps.slf4jVersion}@jar",
+                    "commons-cli:commons-cli:${base.commonsCliVersion}@jar",
+                    "ch.qos.logback:logback-classic:${base.logbackVersion}@jar",
+                    "ch.qos.logback:logback-core:${base.logbackVersion}@jar",
+                    "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
+                    "org.slf4j:jul-to-slf4j:${base.slf4jVersion}@jar",
                 ],
                 YaessPlugin : [
                     "com.asakusafw:asakusa-yaess-flowlog:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-yaess-jsch:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-yaess-multidispatch:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-yaess-paralleljob:${frameworkVersion}@jar",
-                    "com.jcraft:jsch:${deps.jschVersion}@jar",
+                    "com.jcraft:jsch:${base.jschVersion}@jar",
                 ],
                 YaessHadoopDist : "com.asakusafw:asakusa-yaess-core:${frameworkVersion}:dist@jar",
                 YaessHadoopLib : [],
                 YaessToolsDist : "com.asakusafw:asakusa-yaess-tools:${frameworkVersion}:dist@jar",
                 YaessToolsLib : [
                     "com.asakusafw:asakusa-yaess-tools:${frameworkVersion}@jar",
-                    "com.google.code.gson:gson:${deps.gsonVersion}@jar",
+                    "com.google.code.gson:gson:${base.gsonVersion}@jar",
                 ],
                 YaessJobQueueLib : [
                     "com.asakusafw:asakusa-yaess-jobqueue:${frameworkVersion}@jar",
-                    "org.apache.httpcomponents:httpcore:${deps.httpClientVersion}@jar",
-                    "org.apache.httpcomponents:httpclient:${deps.httpClientVersion}@jar",
-                    "com.google.code.gson:gson:${deps.gsonVersion}@jar",
-                    "commons-codec:commons-codec:${deps.commonsCodecVersion}@jar",
-                    "commons-logging:commons-logging:${deps.commonsLoggingVersion}@jar",
+                    "org.apache.httpcomponents:httpcore:${base.httpClientVersion}@jar",
+                    "org.apache.httpcomponents:httpclient:${base.httpClientVersion}@jar",
+                    "com.google.code.gson:gson:${base.gsonVersion}@jar",
+                    "commons-codec:commons-codec:${base.commonsCodecVersion}@jar",
+                    "commons-logging:commons-logging:${base.commonsLoggingVersion}@jar",
                 ],
                 WindGateDist : "com.asakusafw:asakusa-windgate-plugin:${frameworkVersion}:dist@jar",
                 WindGateLib : [
                     "com.asakusafw:asakusa-windgate-bootstrap:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-windgate-core:${frameworkVersion}@jar",
-                    "ch.qos.logback:logback-classic:${deps.logbackVersion}@jar",
-                    "ch.qos.logback:logback-core:${deps.logbackVersion}@jar",
-                    "org.slf4j:slf4j-api:${deps.slf4jVersion}@jar",
-                    "org.slf4j:jul-to-slf4j:${deps.slf4jVersion}@jar",
-                    "com.jcraft:jsch:${deps.jschVersion}@jar",
+                    "ch.qos.logback:logback-classic:${base.logbackVersion}@jar",
+                    "ch.qos.logback:logback-core:${base.logbackVersion}@jar",
+                    "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
+                    "org.slf4j:jul-to-slf4j:${base.slf4jVersion}@jar",
+                    "com.jcraft:jsch:${base.jschVersion}@jar",
                 ],
                 WindGatePlugin : [
                     "com.asakusafw:asakusa-windgate-hadoopfs:${frameworkVersion}@jar",
@@ -154,10 +155,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 WindGateSshLib : [
                     "com.asakusafw:asakusa-windgate-core:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-windgate-hadoopfs:${frameworkVersion}@jar",
-                    "ch.qos.logback:logback-classic:${deps.logbackVersion}@jar",
-                    "ch.qos.logback:logback-core:${deps.logbackVersion}@jar",
-                    "org.slf4j:slf4j-api:${deps.slf4jVersion}@jar",
-                    "org.slf4j:jul-to-slf4j:${deps.slf4jVersion}@jar",
+                    "ch.qos.logback:logback-classic:${base.logbackVersion}@jar",
+                    "ch.qos.logback:logback-core:${base.logbackVersion}@jar",
+                    "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
+                    "org.slf4j:jul-to-slf4j:${base.slf4jVersion}@jar",
                 ],
                 WindGateRetryableDist : [],
                 WindGateRetryableLib : [
@@ -166,12 +167,12 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 ThunderGateDist : "com.asakusafw:asakusa-thundergate:${frameworkVersion}:dist@jar",
                 ThunderGateLib : [
                     "com.asakusafw:asakusa-thundergate:${frameworkVersion}@jar",
-                    "commons-configuration:commons-configuration:${deps.commonsConfigurationVersion}@jar",
-                    "commons-io:commons-io:${deps.commonsIoVersion}@jar",
-                    "commons-lang:commons-lang:${deps.commonsLangVersion}@jar",
-                    "commons-logging:commons-logging:${deps.commonsLoggingVersion}@jar",
-                    "log4j:log4j:${deps.log4jVersion}@jar",
-                    "mysql:mysql-connector-java:${deps.mysqlConnectorJavaVersion}@jar",
+                    "commons-configuration:commons-configuration:${base.commonsConfigurationVersion}@jar",
+                    "commons-io:commons-io:${base.commonsIoVersion}@jar",
+                    "commons-lang:commons-lang:${base.commonsLangVersion}@jar",
+                    "commons-logging:commons-logging:${base.commonsLoggingVersion}@jar",
+                    "log4j:log4j:${base.log4jVersion}@jar",
+                    "mysql:mysql-connector-java:${base.mysqlConnectorJavaVersion}@jar",
                 ],
                 ThunderGateCoreLib : [
                     "com.asakusafw:asakusa-thundergate-runtime:${frameworkVersion}@jar"
@@ -181,10 +182,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 OperationDist : "com.asakusafw:asakusa-operation-tools:${frameworkVersion}:dist@jar",
                 OperationLib : [
                     "com.asakusafw:asakusa-operation-tools:${frameworkVersion}@jar",
-                    "commons-cli:commons-cli:${deps.commonsCliVersion}@jar",
-                    "ch.qos.logback:logback-classic:${deps.logbackVersion}@jar",
-                    "ch.qos.logback:logback-core:${deps.logbackVersion}@jar",
-                    "org.slf4j:slf4j-api:${deps.slf4jVersion}@jar",
+                    "commons-cli:commons-cli:${base.commonsCliVersion}@jar",
+                    "ch.qos.logback:logback-classic:${base.logbackVersion}@jar",
+                    "ch.qos.logback:logback-core:${base.logbackVersion}@jar",
+                    "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
                 ],
                 DirectIoHiveDist : [],
                 DirectIoHiveLib : ["com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar"] + profile.hive.libraries,
