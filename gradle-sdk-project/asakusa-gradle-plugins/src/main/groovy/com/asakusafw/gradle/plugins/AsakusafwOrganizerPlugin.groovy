@@ -73,6 +73,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     }
 
     private void configureExtentionProperties() {
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.extensions.create('asakusafwOrganizer', AsakusafwOrganizerPluginConvention)
         convention.directio = convention.extensions.create('directio', DirectIoConfiguration)
         convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
@@ -108,7 +109,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.hive.conventionMapping.with {
             enabled = { false }
         }
-        convention.hive.defaultLibraries.add(project.asakusafwInternal.dep.hiveArtifact + '@jar')
+        convention.hive.defaultLibraries.add(base.hiveArtifact + '@jar')
         convention.yaess.conventionMapping.with {
             enabled = { true }
             toolsEnabled = { true }

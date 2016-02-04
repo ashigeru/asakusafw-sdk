@@ -129,8 +129,8 @@ class AsakusafwPlugin implements Plugin<Project> {
         convention.javac.conventionMapping.with {
             annotationSourceDirectory = { (String) "${project.buildDir}/generated-sources/annotations" }
             sourceEncoding = { 'UTF-8' }
-            sourceCompatibility = { JavaVersion.VERSION_1_7 }
-            targetCompatibility = { JavaVersion.VERSION_1_7 }
+            sourceCompatibility = { JavaVersion.toVersion(base.javaVersion) }
+            targetCompatibility = { JavaVersion.toVersion(base.javaVersion) }
         }
         convention.compiler.conventionMapping.with {
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
@@ -183,25 +183,28 @@ class AsakusafwPlugin implements Plugin<Project> {
 
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
+            AsakusafwPluginConvention self = project.asakusafw
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             project.dependencies {
                 embedded project.sourceSets.main.libs
-                compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.asakusafwInternal.dep.slf4jVersion
-                compile group: 'ch.qos.logback', name: 'logback-classic', version: project.asakusafwInternal.dep.logbackVersion
-                asakusaThunderGateFiles group: 'com.asakusafw', name: 'asakusa-thundergate', version: project.asakusafw.asakusafwVersion, classifier: 'dist'
-                asakusaYaessLogAnalyzer group: 'com.asakusafw', name: 'asakusa-yaess-log-analyzer', version: project.asakusafw.asakusafwVersion
-                asakusaYaessLogAnalyzer group: 'ch.qos.logback', name: 'logback-classic', version: project.asakusafwInternal.dep.logbackVersion
-                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: project.asakusafw.asakusafwVersion
+                compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: base.slf4jVersion
+                compile group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
+                asakusaThunderGateFiles group: 'com.asakusafw', name: 'asakusa-thundergate', version: self.asakusafwVersion, classifier: 'dist'
+                asakusaYaessLogAnalyzer group: 'com.asakusafw', name: 'asakusa-yaess-log-analyzer', version: self.asakusafwVersion
+                asakusaYaessLogAnalyzer group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
+                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: self.asakusafwVersion
             }
         }
     }
 
     private void configureSourceSets() {
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         SourceSet container = project.sourceSets.main
 
         // Application Libraries
         SourceDirectorySet libs = createSourceDirectorySet(container, 'libs', 'Application libraries')
         libs.filter.include '*.jar'
-        libs.srcDirs { project.asakusafwInternal.dep.embeddedLibsDirectory }
+        libs.srcDirs { base.embeddedLibsDirectory }
 
         // DMDL source set
         SourceDirectorySet dmdl = createSourceDirectorySet(container, 'dmdl', 'DMDL scripts')
