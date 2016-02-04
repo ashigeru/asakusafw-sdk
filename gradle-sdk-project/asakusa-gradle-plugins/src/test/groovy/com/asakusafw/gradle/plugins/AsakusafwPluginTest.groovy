@@ -165,6 +165,10 @@ class AsakusafwPluginTest {
         convention.compiler.compiledSourceDirectory 'testing/compiled'
 
         CompileBatchappTask task = project.tasks.compileBatchapp
+        assert task.enabled == true
+        convention.compiler.enabled false
+        assert task.enabled == false
+
         assert task.logbackConf == project.file(convention.logbackConf)
         assert task.maxHeapSize == convention.maxHeapSize
         assert project.files(task.sourcepath).contains(project.sourceSets.main.output.classesDir)

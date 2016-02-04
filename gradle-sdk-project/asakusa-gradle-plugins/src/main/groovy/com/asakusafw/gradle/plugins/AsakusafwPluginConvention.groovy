@@ -230,8 +230,15 @@ class AsakusafwPluginConvention {
 
     /**
      * DSL compiler settings for building Asakusa batch applications.
+     * @version 0.8.0
      */
     static class CompilerConfiguration {
+
+        /**
+         * Whether Asakusa DSL compiler for MapReduce is enabled or not.
+         * @since 0.8.0
+         */
+        boolean enabled
 
         /**
          * Package name that is used batch compiled classes for Hadoop MapReduce, JobClient and so on.

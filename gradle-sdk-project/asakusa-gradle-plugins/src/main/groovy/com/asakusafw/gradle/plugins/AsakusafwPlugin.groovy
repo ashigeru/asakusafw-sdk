@@ -133,6 +133,7 @@ class AsakusafwPlugin implements Plugin<Project> {
             targetCompatibility = { JavaVersion.toVersion(base.javaVersion) }
         }
         convention.compiler.conventionMapping.with {
+            enabled = { true }
             compiledSourcePackage = { (String) "${project.asakusafw.basePackage}.batchapp" }
             compiledSourceDirectory = { (String) "${project.buildDir}/batchc" }
             compilerOptions = {[
@@ -398,6 +399,7 @@ class AsakusafwPlugin implements Plugin<Project> {
         project.task('compileBatchapp', type: CompileBatchappTask, dependsOn: ['compileJava', 'processResources']) {
             group ASAKUSAFW_BUILD_GROUP
             description 'Compiles the Asakusa DSL java source with Asakusa DSL Compiler.'
+            compilerName = 'Asakusa DSL compiler for MapReduce'
             sourcepath << { project.sourceSets.main.output.classesDir }
             toolClasspath << project.sourceSets.main.compileClasspath
             toolClasspath << project.sourceSets.main.output
@@ -405,6 +407,7 @@ class AsakusafwPlugin implements Plugin<Project> {
                 pluginClasspath << project.fileTree(dir: getFrameworkFile('compiler/plugin'), include: '**/*.jar')
             }
             conventionMapping.with {
+                enabled = { project.asakusafw.compiler.enabled }
                 logbackConf = { this.findLogbackConf() }
                 maxHeapSize = { project.asakusafw.maxHeapSize }
                 frameworkVersion = { project.asakusafw.asakusafwVersion }
