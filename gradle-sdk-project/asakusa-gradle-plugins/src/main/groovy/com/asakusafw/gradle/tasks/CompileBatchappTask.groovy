@@ -160,7 +160,7 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
             project.delete getOutputDirectory()
         }
         if (isEnabled() == false) {
-            logger.info "${getCompilerName()} is not enabled"
+            logger.lifecycle "${getCompilerName()} is disabled"
             return
         }
         if (getOutputDirectory().exists() == false) {
