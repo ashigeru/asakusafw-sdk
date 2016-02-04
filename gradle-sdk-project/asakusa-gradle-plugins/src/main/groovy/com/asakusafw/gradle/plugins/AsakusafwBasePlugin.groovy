@@ -158,10 +158,13 @@ class AsakusafwBasePlugin implements Plugin<Project> {
         project.tasks.create('upgradeGradleWrapper', Wrapper) { Wrapper t ->
             t.description 'Upgrades Gradle wrapper'
             project.tasks.getByName(TASK_UPGRADE).dependsOn t
-            t.distributionUrl "http://services.gradle.org/distributions/gradle-${extension.gradleVersion}-bin.zip"
-            t.jarFile project.file('.buildtools/gradlew.jar')
+            t.conventionMapping.with {
+                gradleVersion = { extension.gradleVersion }
+                distributionUrl = { (String) "http://services.gradle.org/distributions/gradle-${t.gradleVersion}-bin.zip" }
+                jarFile  = { project.file('.buildtools/gradlew.jar') }
+            }
             t.doFirst {
-                t.logger.lifecycle "installing Gradle wrapper: version=${extension.gradleVersion}"
+                t.logger.lifecycle "installing Gradle wrapper: ${t.distributionUrl}"
             }
             t.onlyIf { extension.gradleVersion != INVALID_VERSION }
         }
