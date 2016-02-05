@@ -114,6 +114,7 @@ class AsakusafwPluginConventionTest {
      */
     @Test
     void compiler_defaults() {
+        assert convention.compiler.enabled == true
         assert convention.compiler.compiledSourcePackage == "${project.asakusafw.basePackage}.batchapp"
         assert convention.compiler.compiledSourceDirectory == "${project.buildDir}/batchc"
         assert convention.compiler.compilerOptions == [

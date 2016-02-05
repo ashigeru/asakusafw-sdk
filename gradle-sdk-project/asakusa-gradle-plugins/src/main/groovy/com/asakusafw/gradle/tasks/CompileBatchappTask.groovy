@@ -28,9 +28,23 @@ import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 /**
  * Gradle Task for DSL Compile.
  * @since 0.5.3
- * @version 0.7.3
+ * @version 0.8.0
  */
 class CompileBatchappTask extends AbstractAsakusaToolTask {
+
+    /**
+     * The compiler name.
+     * @since 0.8.0
+     */
+    String compilerName = 'Asakusa DSL compiler'
+
+    /**
+     * Whether the task is enabled or not.
+     * @since 0.8.0
+     */
+    @Optional
+    @Input
+    boolean enabled = true
 
     /**
      * The current framework version.
@@ -46,7 +60,7 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     String packageName
 
     /**
-     * The Asaksua DSL compiler options
+     * The Asakusa DSL compiler options
      */
     @Optional
     @Input
@@ -74,6 +88,12 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
      * The accepting batch class name patterns ({@code "*"} as a wildcard character).
      */
     List<Object> include = []
+
+    /**
+     * The rejecting batch class name patterns ({@code "*"} as a wildcard character).
+     * @since 0.8.0
+     */
+    List<Object> exclude = []
 
     /**
      * {@code true} to stop compilation immediately when detects any compilation errors.
@@ -106,6 +126,15 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     }
 
     /**
+     * Returns the actual values of {@link #exclude}.
+     * @return rejecting batch class name patterns
+     */
+    @Input
+    List<String> getResolvedExclude() {
+        return ResolutionUtils.resolveToStringList(getExclude())
+    }
+
+    /**
      * Set the update target batch class name.
      * With this, the compiler only builds the target batch class,
      * and the {@link #include} will be ignored.
@@ -114,8 +143,10 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     @Option(option = 'update', description = 'compiles the specified batch classes only')
     void setUpdateOption(String className) {
         logger.info("update: ${className}")
+        setEnabled(true)
         setClean(false)
         setInclude([className])
+        setExclude([])
     }
 
     /**
@@ -125,8 +156,12 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     def compileBatchapp() {
         def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss (z)")
         if (isClean()) {
-            logger.info "Cleaning Asakusa DSL compiler output directory"
+            logger.info "Cleaning ${getCompilerName()} output directory"
             project.delete getOutputDirectory()
+        }
+        if (isEnabled() == false) {
+            logger.lifecycle "${getCompilerName()} is disabled"
+            return
         }
         if (getOutputDirectory().exists() == false) {
             project.mkdir getOutputDirectory()
@@ -171,6 +206,9 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
             ]
             if (!getResolvedInclude().isEmpty()) {
                 spec.args('-include', getResolvedInclude().join(','))
+            }
+            if (!getResolvedExclude().isEmpty()) {
+                spec.args('-exclude', getResolvedExclude().join(','))
             }
             if (!isFailFast()) {
                 spec.args('-skiperror')

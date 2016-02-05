@@ -18,8 +18,15 @@ package com.asakusafw.gradle.plugins
 /**
  * An extension object for Asakusa DSL compiler framework.
  * @since 0.7.4
+ * @version 0.8.0
  */
 class AsakusafwCompilerExtension {
+
+    /**
+     * Whether this Asakusa DSL compiler is enabled or not.
+     * @since 0.8.0
+     */
+    boolean enabled
 
     /**
      * The base output directory for compilation results.
