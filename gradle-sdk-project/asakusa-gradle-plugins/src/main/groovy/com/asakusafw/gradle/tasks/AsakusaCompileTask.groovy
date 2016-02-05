@@ -44,14 +44,6 @@ class AsakusaCompileTask extends DefaultTask {
     String compilerName = 'Asakusa DSL compiler'
 
     /**
-     * Whether the task is enabled or not.
-     * @since 0.8.0
-     */
-    @Optional
-    @Input
-    boolean enabled = true
-
-    /**
      * The maximum heap size.
      */
     String maxHeapSize
@@ -347,7 +339,6 @@ class AsakusaCompileTask extends DefaultTask {
      */
     @Option(option = 'update', description = 'compiles the specified batch class only')
     void setUpdateOption(String className) {
-        setEnabled(true)
         setClean(false)
         setInclude([className])
         setExclude([])
@@ -414,10 +405,6 @@ class AsakusaCompileTask extends DefaultTask {
         if (isClean()) {
             logger.info "Cleaning ${getCompilerName()} output directory"
             project.delete getOutputDirectory()
-        }
-        if (isEnabled() == false) {
-            logger.lifecycle "${getCompilerName()} is disabled"
-            return
         }
         if (getOutputDirectory().exists() == false) {
             project.mkdir getOutputDirectory()

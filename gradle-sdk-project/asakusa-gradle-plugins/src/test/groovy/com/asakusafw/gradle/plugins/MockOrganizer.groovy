@@ -15,28 +15,26 @@
  */
 package com.asakusafw.gradle.plugins
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.Project;
 
-import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
+import com.asakusafw.gradle.plugins.internal.AbstractOrganizer;
 
 /**
- * Gradle plugin for building application component blocks.
+ * Mock implementation of {@link AbstractOrganizer}.
  */
-class AsakusafwPlugin implements Plugin<Project> {
+class MockOrganizer extends AbstractOrganizer {
 
     /**
-     * The build group name.
+     * Creates a new instance.
+     * @param project the current project
+     * @param profile the target profile
      */
-    @Deprecated
-    static final String ASAKUSAFW_BUILD_GROUP = AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
+    MockOrganizer(Project project, AsakusafwOrganizerProfile profile) {
+        super(project, profile)
+    }
 
     @Override
-    void apply(Project project) {
-        project.apply plugin: AsakusaSdkPlugin
-
-        // FIXME purge MapReduce
-        project.apply plugin: AsakusafwMapReducePlugin
+    void configureProfile() {
+        return
     }
 }

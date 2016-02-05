@@ -61,7 +61,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
         this.organizers = project.container(AsakusafwOrganizer)
-        project.apply plugin: AsakusafwBasePlugin.class
+        project.apply plugin: AsakusafwBasePlugin
 
         configureProject()
         configureProfiles()
@@ -86,7 +86,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
         convention.conventionMapping.with {
             asakusafwVersion = {
-                if (project.plugins.hasPlugin("asakusafw")) {
+                if (project.plugins.hasPlugin('asakusafw-sdk')) {
                     return project.asakusafw.asakusafwVersion
                 } else {
                     throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set')
@@ -127,6 +127,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.profiles = createProfileContainer(convention)
         convention.extensions.profiles = convention.profiles
         convention.profiles.create(PROFILE_NAME_DEVELOPMENT) { AsakusafwOrganizerProfile profile ->
+            profile.batchapps.enabled = false
             profile.testing.enabled = true
         }
         convention.profiles.create(PROFILE_NAME_PRODUCTION) { AsakusafwOrganizerProfile profile ->
@@ -230,7 +231,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     private void configureCommonTasks() {
         defineFacadeTasks([
                       cleanAssembleAsakusafw : 'Deletes the assembly files and directories.',
-                             attachBatchapps : 'Attaches batch applications to assemblies.',
                          attachComponentCore : 'Attaches framework core components to assemblies.',
                      attachComponentDirectIo : 'Attaches Direct I/O components to assemblies.',
                         attachComponentYaess : 'Attaches YAESS components to assemblies.',
@@ -276,7 +276,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
 
         PluginUtils.afterEvaluate(project) {
-            if (project.plugins.hasPlugin('asakusafw')) {
+            if (project.plugins.hasPlugin('asakusafw-sdk')) {
                 organizers.matching { it.name != PROFILE_NAME_DEVELOPMENT }.all { AsakusafwOrganizer organizer ->
                     project.tasks.assemble.dependsOn organizer.taskName('assembleAsakusafw')
                 }
