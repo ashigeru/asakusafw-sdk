@@ -127,7 +127,7 @@ abstract class AbstractTestToolTask extends DefaultTask {
             if (getLogbackConf()) {
                 spec.systemProperties += ['logback.configurationFile' : getLogbackConf().absolutePath]
             }
-            spec.systemProperties += ResolutionUtils.resolveToStringMap(getSystemProperties())
+            spec.systemProperties += ResolutionUtils.resolveToStringMap(this.getSystemProperties())
             spec.args += toolArguments
             ResolutionUtils.resolveToStringMap(getBatchArguments()).each { String key, String value ->
                 spec.args += ['-A', "${key}=${value}"]
