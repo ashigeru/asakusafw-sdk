@@ -16,4 +16,4 @@
 /**
  * Launches Tool classes.
  */
-package com.asakusafw.lang.tool.launcher;
+package com.asakusafw.sdk.launcher;
