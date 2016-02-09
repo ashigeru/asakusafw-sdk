@@ -61,6 +61,10 @@
     <artifact.id>${artifact.name}-${artifact.version}</artifact.id>
   </properties>
 
+  <modules>
+    <module>asakusa-tool-launcher</module>
+  </modules>
+
   <repositories>
     <repository>
       <id>central</id>
