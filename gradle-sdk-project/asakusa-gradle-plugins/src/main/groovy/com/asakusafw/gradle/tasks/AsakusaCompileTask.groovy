@@ -30,6 +30,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaExecSpec
 
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
+import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 
 /**
  * Gradle Task for Asakusa DSL compiler framework.
@@ -397,8 +398,8 @@ class AsakusaCompileTask extends DefaultTask {
         FileCollection launcher = project.files(getLauncherClasspath())
         if (!launcher.empty) {
             logger.info "Starting ${getCompilerName()} using launcher"
-            File script = createLaunchFile(javaClasspath, javaMain, javaArguments)
-            javaMain = 'com.asakusafw.lang.tool.launcher.Launcher'
+            File script = ToolLauncherUtils.createLaunchFile(this, javaClasspath, javaMain, javaArguments)
+            javaMain = ToolLauncherUtils.MAIN_CLASS
             javaClasspath = launcher
             javaArguments = [script.absolutePath]
         }
@@ -423,28 +424,6 @@ class AsakusaCompileTask extends DefaultTask {
             spec.enableAssertions = true
             spec.args = javaArguments
         }
-    }
-
-    private File createLaunchFile(FileCollection classpath, String mainClass, List<String> arguments) {
-        Properties properties = new Properties()
-        properties.setProperty 'main', mainClass
-        classpath.eachWithIndex { File f, int index ->
-            properties.setProperty "classpath.${index}", f.absolutePath
-        }
-        arguments.eachWithIndex { String s, int index ->
-            properties.setProperty "argument.${index}", s
-        }
-
-        File temporary = getTemporaryDir()
-        if (temporary.exists() == false) {
-            project.mkdir temporary
-        }
-
-        File result = new File(temporary, 'launch.properties')
-        result.withOutputStream { OutputStream out ->
-            properties.store out, null
-        }
-        return result
     }
 
     @PackageScope
