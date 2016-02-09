@@ -15,8 +15,10 @@
  */
 package com.asakusafw.gradle.tasks
 
+import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -88,6 +90,12 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     List<Object> exclude = []
 
     /**
+     * The source path to be embedded into the batch application archives.
+     * @since 0.8.0
+     */
+    List<Object> embed = []
+
+    /**
      * {@code true} to stop compilation immediately when detects any compilation errors.
      */
     @Input
@@ -106,6 +114,24 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     @Input
     def getProjectVersion() {
         return project.version
+    }
+
+    /**
+     * Returns the files to be embedded.
+     * @return the embed files
+     */
+    @InputFiles
+    FileCollection getEmbedFiles() {
+        Object all = project.files(getEmbed()).collect { File file ->
+            if (file.isFile()) {
+                return file
+            } else if (file.isDirectory()) {
+                return project.fileTree(file)
+            } else {
+                return []
+            }
+        }
+        return project.files(all)
     }
 
     /**
@@ -187,9 +213,9 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
                     '-hadoopwork',
                     this.getHadoopWorkingDirectory(),
                     '-link',
-                    this.getSourcepathCollection().asPath,
+                    project.files(this.getSourcepath(), this.getEmbed()).filter { it.exists() }.asPath,
                     '-scanpath',
-                    this.getSourcepathCollection().asPath,
+                    project.files(this.getSourcepath()).filter { it.exists() }.asPath,
             ]
             if (!getResolvedInclude().isEmpty()) {
                 spec.args('-include', getResolvedInclude().join(','))

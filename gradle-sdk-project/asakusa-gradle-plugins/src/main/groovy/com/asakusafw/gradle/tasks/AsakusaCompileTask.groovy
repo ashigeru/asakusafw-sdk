@@ -379,9 +379,10 @@ class AsakusaCompileTask extends DefaultTask {
                 return [f]
             } else if (f.isDirectory()) {
                 return project.fileTree(f)
+            } else {
+                return []
             }
         }
-
         return project.files(all)
     }
 

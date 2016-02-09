@@ -87,6 +87,7 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
             task.compilerName = 'Asakusa DSL compiler for MapReduce'
 
             task.sourcepath << { project.sourceSets.main.output.classesDir }
+            task.embed << { project.sourceSets.main.output.resourcesDir }
 
             task.toolClasspath << project.sourceSets.main.compileClasspath
             task.toolClasspath << project.sourceSets.main.output
