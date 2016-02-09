@@ -13,6 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ext.parentPom = { f ->
+    if (!f.exists()) {
+        return null
+    }
+    def xml = new XmlSlurper().parse(f)
+    return [
+        projectVersion : xml.version.text(),
+        coreVersion : xml['properties']['asakusafw.version'].text().replaceFirst('-hadoop[12]', ''),
+    ]
+}(project.file('../../pom.xml'))
+
 defaultTasks 'clean', 'build', 'install', 'assembleTemplates'
 
 apply plugin: 'groovy'
@@ -20,7 +31,7 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-version = '0.8.0-SNAPSHOT'
+version = parentPom.projectVersion
 group = 'com.asakusafw'
 
 def templateAsakusafwVersion = '0.7-hadoop1-SNAPSHOT'
@@ -68,18 +79,19 @@ groovydoc {
 }
 
 processResources { t ->
-    t.inputs.property 'version', project.version
+    File outputFile = new File(t.destinationDir, 'META-INF/asakusa-gradle/artifact.properties')
+    t.inputs.properties parentPom
+    t.outputs.file new File(t.destinationDir, 'META-INF/asakusa-gradle/artifact.properties')
     doLast {
         logger.info "injecting project version info: ${project.version}"
-        File file = new File(t.destinationDir, 'META-INF/asakusa-gradle/artifact.properties')
-        if (!file.parentFile.exists()) {
-            project.mkdir file.parentFile
+        if (!outputFile.parentFile.exists()) {
+            mkdir outputFile.parentFile
         }
 
         Properties p = new Properties()
-        p.put("plugin-version", project.version)
-        p.put("framework-version", project.version)
-        file.withOutputStream { s ->
+        p.put("plugin-version", parentPom.projectVersion)
+        p.put("framework-version", parentPom.coreVersion)
+        outputFile.withOutputStream { s ->
             p.store(s, null)
         }
     }
