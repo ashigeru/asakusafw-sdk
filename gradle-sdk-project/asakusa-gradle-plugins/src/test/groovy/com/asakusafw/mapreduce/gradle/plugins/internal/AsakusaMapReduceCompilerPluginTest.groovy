@@ -123,6 +123,7 @@ class AsakusaMapReduceCompilerPluginTest {
         assert task.logbackConf == project.file(sdk.logbackConf)
         assert task.maxHeapSize == sdk.maxHeapSize
         assert project.files(task.sourcepath).contains(project.sourceSets.main.output.classesDir)
+        assert project.files(task.embed).contains(project.sourceSets.main.output.resourcesDir)
         assert task.systemProperties.isEmpty()
         assert task.jvmArgs.isEmpty()
 
