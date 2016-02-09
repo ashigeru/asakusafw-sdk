@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.gradle.plugins
+package com.asakusafw.mapreduce.gradle.plugins
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
+import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceCompilerPlugin
+import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceOrganizerPlugin
 
 /**
- * Gradle plugin for building application component blocks.
+ * A Gradle plug-in for Asakusa projects for MapReduce runtime.
  */
-class AsakusafwPlugin implements Plugin<Project> {
-
-    /**
-     * The build group name.
-     */
-    @Deprecated
-    static final String ASAKUSAFW_BUILD_GROUP = AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
+class AsakusafwMapReducePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.apply plugin: AsakusaSdkPlugin
-
-        // FIXME purge MapReduce
-        project.apply plugin: AsakusafwMapReducePlugin
+        PluginUtils.afterPluginEnabled(project, 'asakusafw-sdk') {
+            project.apply plugin: AsakusaMapReduceCompilerPlugin
+        }
+        PluginUtils.afterPluginEnabled(project, 'asakusafw-organizer') {
+            project.apply plugin: AsakusaMapReduceOrganizerPlugin
+        }
     }
 }

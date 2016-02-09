@@ -195,13 +195,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
     }
 
     private void configureTasks() {
-        createAttachComponentTasks 'attach', [
-            Batchapps : {
-                into('batchapps') {
-                    put project.asakusafw.compiler.compiledSourceDirectory
-                }
-            },
-        ]
         createAttachComponentTasks 'attachComponent', [
             Core : {
                 into('.') {
@@ -352,13 +345,13 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             conventionMapping.with {
                 destination = { project.file(profile.assembleDir) }
             }
-            // Gather task must be run after 'attach*' were finished
-            project.tasks.matching { it.name.startsWith('attach') && isProfileTask(it) }.all { Task target ->
-                t.mustRunAfter target
-            }
         }
 
         PluginUtils.afterEvaluate(project) {
+            // Gather task must be run after 'attach*' were finished
+            project.tasks.matching { it.name.startsWith('attach') && isProfileTask(it) }.all { Task target ->
+                task('gatherAsakusafw').mustRunAfter target
+            }
             createTask('assembleAsakusafw', Tar) {
                 dependsOn task('gatherAsakusafw')
                 from task('gatherAsakusafw').destination
@@ -415,11 +408,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             if (profile.yaess.isJobqueueEnabled()) {
                 project.logger.info 'Enabling YAESS JobQueue'
                 task('attachComponentYaess').dependsOn task('attachExtensionYaessJobQueue')
-            }
-            if (profile.batchapps.isEnabled() && project.plugins.hasPlugin('asakusafw')) {
-                project.logger.info 'Enabling Batchapps'
-                task('attachBatchapps').shouldRunAfter project.tasks.compileBatchapp
-                task('attachAssemble').dependsOn task('attachBatchapps')
             }
             if (profile.testing.isEnabled()) {
                 project.logger.info 'Enabling Testing'

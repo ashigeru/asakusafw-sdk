@@ -39,14 +39,6 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     String compilerName = 'Asakusa DSL compiler'
 
     /**
-     * Whether the task is enabled or not.
-     * @since 0.8.0
-     */
-    @Optional
-    @Input
-    boolean enabled = true
-
-    /**
      * The current framework version.
      */
     @Optional
@@ -143,7 +135,6 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
     @Option(option = 'update', description = 'compiles the specified batch classes only')
     void setUpdateOption(String className) {
         logger.info("update: ${className}")
-        setEnabled(true)
         setClean(false)
         setInclude([className])
         setExclude([])
@@ -158,10 +149,6 @@ class CompileBatchappTask extends AbstractAsakusaToolTask {
         if (isClean()) {
             logger.info "Cleaning ${getCompilerName()} output directory"
             project.delete getOutputDirectory()
-        }
-        if (isEnabled() == false) {
-            logger.lifecycle "${getCompilerName()} is disabled"
-            return
         }
         if (getOutputDirectory().exists() == false) {
             project.mkdir getOutputDirectory()

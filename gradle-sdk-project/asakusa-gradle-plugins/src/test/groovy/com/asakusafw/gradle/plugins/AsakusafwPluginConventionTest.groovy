@@ -32,6 +32,7 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.TestToolsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin;
 
 /**
  * Test for {@link AsakusafwPluginConvention}.
@@ -45,9 +46,9 @@ class AsakusafwPluginConventionTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: 'asakusafw'
-            project.asakusafwBase.frameworkVersion = '0.0.0'
-            convention = project.asakusafw
+            project.apply plugin: 'asakusafw-sdk'
+            convention = AsakusaSdkPlugin.get(project)
+            project.asakusafwBase.frameworkVersion = null
 
             // NOTE: must set group after convention is created
             project.group = 'com.example.testing'
@@ -67,7 +68,12 @@ class AsakusafwPluginConventionTest {
     void defaults() {
         assert convention != null
 
-        assert convention.asakusafwVersion == '0.0.0'
+        try {
+            convention.getAsakusafwVersion()
+            fail()
+        } catch (Exception e) {
+            // ok
+        }
         assert convention.maxHeapSize == '1024m'
         assert convention.logbackConf == "src/${project.sourceSets.test.name}/resources/logback-test.xml"
         assert convention.basePackage == project.group
@@ -149,6 +155,16 @@ class AsakusafwPluginConventionTest {
         assert convention.thundergate.target == null
         assert convention.thundergate.timestampColumn == 'UPDT_DATETIME'
         assert convention.thundergate.jdbcFile == null
+    }
+
+    /**
+     * Test for {@code project.asakusafw.asakusafwVersion} value.
+     */
+    @Test
+    void asakusafwVersion_transitive() {
+        project.asakusafwBase.frameworkVersion = '0.1.0'
+        assert convention.asakusafwVersion == '0.1.0'
+
     }
 
     /**

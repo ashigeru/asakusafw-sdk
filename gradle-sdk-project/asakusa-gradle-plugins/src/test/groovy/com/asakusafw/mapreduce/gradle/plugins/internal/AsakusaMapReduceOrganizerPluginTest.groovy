@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.gradle.plugins
+package com.asakusafw.mapreduce.gradle.plugins.internal
 
 import org.gradle.api.Project
-import org.gradle.api.file.SourceDirectorySet
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -24,26 +23,15 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
+import com.asakusafw.gradle.plugins.OrganizerTestRoot
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
-import com.asakusafw.gradle.tasks.CompileBatchappTask
-import com.asakusafw.gradle.tasks.CompileDmdlTask
-import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
-import com.asakusafw.gradle.tasks.GenerateTestbookTask
-import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
-import com.asakusafw.gradle.tasks.RunBatchappTask
-import com.asakusafw.gradle.tasks.internal.ResolutionUtils
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin;
-import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceCompilerPlugin;
 
 /**
- * Test for {@link AsakusafwPlugin}.
+ * Test for {@link AsakusaMapReduceOrganizerPlugin}.
  */
-class AsakusafwPluginTest {
+class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
 
     /**
      * The test initializer.
@@ -52,7 +40,7 @@ class AsakusafwPluginTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: 'asakusafw'
+            project.apply plugin: AsakusaMapReduceOrganizerPlugin
             return stmt
         }
     }
@@ -63,8 +51,28 @@ class AsakusafwPluginTest {
      * test for parent plug-ins.
      */
     @Test
-    void parents() {
-        assert project.plugins.hasPlugin(AsakusaSdkPlugin)
-        assert project.plugins.hasPlugin(AsakusafwMapReducePlugin)
+    public void parents() {
+        assert !project.plugins.hasPlugin(AsakusaSdkPlugin)
+        assert project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
+        assert project.plugins.hasPlugin(AsakusaMapReduceBasePlugin)
+    }
+
+    /**
+     * Test for {@code project.tasks} for organizer facade tasks.
+     */
+    @Test
+    public void tasks_common() {
+        assert project.tasks.attachComponentMapreduce
+        assert project.tasks.attachMapreduceBatchapps
+    }
+
+    /**
+     * Test for {@code project.tasks} for profile tasks.
+     */
+    @Test
+    public void tasks_profile() {
+        AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.testp
+        assert ptask(profile, 'attachComponentMapreduce')
+        assert ptask(profile, 'attachMapreduceBatchapps')
     }
 }

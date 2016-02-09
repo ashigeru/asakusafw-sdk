@@ -16,12 +16,14 @@
 package com.asakusafw.gradle.plugins.internal
 
 import org.gradle.api.Project
-import org.gradle.api.ProjectState;
+import org.gradle.api.ProjectState
+import org.gradle.api.Task;
 import org.gradle.util.GradleVersion
 
 /**
  * Basic utilities for Gradle plug-ins.
  * @since 0.7.4
+ * @version 0.8.0
  */
 final class PluginUtils {
 
@@ -65,7 +67,7 @@ final class PluginUtils {
     /**
      * Calls a closure after the target plug-in is enabled.
      * @param project the current project
-     * @param pluginType the target plug-in class
+     * @param pluginId the target plug-in ID
      * @param closure the closure
      */
     static void afterPluginEnabled(Project project, String pluginId, Closure<?> closure) {
@@ -77,6 +79,21 @@ final class PluginUtils {
             project.plugins.matching({ it == project.plugins.findPlugin(pluginId) }).all {
                 closure.call()
             }
+        }
+    }
+
+    /**
+     * Calls a closure after the target task is enabled.
+     * @param project the current project
+     * @param taskName the target task name
+     * @param closure the closure
+     * @since 0.8.0
+     */
+    static void afterTaskEnabled(Project project, String taskName, Closure<?> closure) {
+        project.tasks.matching { Task t ->
+            t.project == project && t.name == taskName
+        }.all { Task t ->
+            closure.call(t)
         }
     }
 

@@ -17,12 +17,8 @@ package com.asakusafw.gradle.plugins
 
 import static org.junit.Assert.*
 
-import java.util.concurrent.Callable
-
-import org.gradle.api.Buildable
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskDependency
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -31,12 +27,10 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.gradle.plugins.internal.AsakusafwOrganizer
-
 /**
  * Test for {@link AsakusafwOrganizerPlugin}.
  */
-class AsakusafwOrganizerPluginTest {
+class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
 
     /**
      * The test initializer.
@@ -59,7 +53,6 @@ class AsakusafwOrganizerPluginTest {
     @Test
     public void tasks_common() {
         assert project.tasks.cleanAssembleAsakusafw
-        assert project.tasks.attachBatchapps
         assert project.tasks.attachComponentCore
         assert project.tasks.attachComponentDirectIo
         assert project.tasks.attachComponentWindGate
@@ -84,7 +77,6 @@ class AsakusafwOrganizerPluginTest {
     public void tasks_profile() {
         AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.testp
         assert ptask(profile, 'cleanAssembleAsakusafw')
-        assert ptask(profile, 'attachBatchapps')
         assert ptask(profile, 'attachComponentCore')
         assert ptask(profile, 'attachComponentDirectIo')
         assert ptask(profile, 'attachComponentWindGate')
@@ -109,7 +101,6 @@ class AsakusafwOrganizerPluginTest {
     @Test
     public void tasks_dependencies() {
         checkDependencies('cleanAssembleAsakusafw')
-        checkDependencies('attachBatchapps')
         checkDependencies('attachComponentCore')
         checkDependencies('attachComponentDirectIo')
         checkDependencies('attachComponentWindGate')
@@ -172,48 +163,6 @@ class AsakusafwOrganizerPluginTest {
         assert task.ext.distTarget == 'testing'
         project.asakusafwOrganizer.profiles.all { profile ->
             assert dependencies(ptask(profile, 'gatherAsakusafw')).contains(task.name)
-        }
-    }
-
-    private String pname(AsakusafwOrganizerProfile profile, String name) {
-        AsakusafwOrganizer organizer = new AsakusafwOrganizer(project, profile)
-        assert organizer.taskName(name) != name
-        return organizer.taskName(name)
-    }
-
-    private Task ptask(AsakusafwOrganizerProfile profile, String name) {
-        AsakusafwOrganizer organizer = new AsakusafwOrganizer(project, profile)
-        assert organizer.taskName(name) != name
-        return organizer.task(name)
-    }
-
-    private void checkDependencies(String name) {
-        assert dependencies(project.tasks.getByName(name)).containsAll(profileTasks(name))
-    }
-
-    private Set<String> profileTasks(String name) {
-        return project.asakusafwOrganizer.profiles.collect { AsakusafwOrganizerProfile profile ->
-            return new AsakusafwOrganizer(project, profile).taskName(name)
-        }.toSet()
-    }
-
-    private Set<String> dependencies(Task task) {
-        return task.getDependsOn().collect { toTaskNames(task, it) }.flatten().toSet()
-    }
-
-    private Collection<String> toTaskNames(Task origin, Object value) {
-        if (value instanceof Task) {
-            return [ value.name ]
-        } else if (value instanceof Callable<?>) {
-            return toTaskNames(origin, value.call() ?: [])
-        } else if (value instanceof TaskDependency) {
-            return value.getDependencies(origin).collect { it.name }
-        } else if (value instanceof Buildable) {
-            return toTaskNames(origin, value.buildDependencies)
-        } else if (value instanceof Collection<?> || value instanceof Object[]) {
-            return value.collect { toTaskNames(origin, it) }.flatten()
-        } else {
-            return [ String.valueOf(value) ]
         }
     }
 }

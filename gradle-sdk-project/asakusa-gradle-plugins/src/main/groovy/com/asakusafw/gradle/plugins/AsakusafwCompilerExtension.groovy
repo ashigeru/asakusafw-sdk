@@ -23,12 +23,6 @@ package com.asakusafw.gradle.plugins
 class AsakusafwCompilerExtension {
 
     /**
-     * Whether this Asakusa DSL compiler is enabled or not.
-     * @since 0.8.0
-     */
-    boolean enabled
-
-    /**
      * The base output directory for compilation results.
      * This path will be resolved using {@code project.file(...)}.
      */

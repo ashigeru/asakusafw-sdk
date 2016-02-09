@@ -182,7 +182,7 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.thundergate.enabled == convention.thundergate.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
         assert profile.yaess.enabled == convention.yaess.enabled
-        assert profile.batchapps.enabled == convention.batchapps.enabled
+        assert profile.batchapps.enabled == false
         assert profile.testing.enabled == true
         assert profile.components.handlers.isEmpty()
         assert profile.assembly.handlers.isEmpty()
