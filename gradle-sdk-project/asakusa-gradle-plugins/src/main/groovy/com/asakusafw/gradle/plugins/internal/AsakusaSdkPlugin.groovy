@@ -351,6 +351,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         project.task('compileDMDL', type: CompileDmdlTask) {
             group ASAKUSAFW_BUILD_GROUP
             description 'Compiles the DMDL scripts with DMDL Compiler.'
+            launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
             if (isFrameworkInstalled()) {
@@ -379,6 +380,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         project.task('generateTestbook', type: GenerateTestbookTask) {
             group ASAKUSAFW_BUILD_GROUP
             description 'Generates the template Excel books for TestDriver.'
+            launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
             if (isFrameworkInstalled()) {

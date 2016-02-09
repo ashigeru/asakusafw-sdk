@@ -74,6 +74,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
     private void configureProject() {
         configureBaseExtension()
         configureRepositories()
+        configureConfigurations()
         configureTasks()
     }
 
@@ -164,6 +165,17 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             maven { url "http://repo1.maven.org/maven2/" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/releases" }
             maven { url "http://asakusafw.s3.amazonaws.com/maven/snapshots" }
+        }
+    }
+
+    private void configureConfigurations() {
+        project.configurations {
+            asakusaToolLauncher {
+                description 'Asakusa SDK Tool Launcher'
+            }
+        }
+        project.dependencies {
+            asakusaToolLauncher "com.asakusafw.sdk:asakusa-tool-launcher:${extension.pluginVersion}:exec@jar"
         }
     }
 
