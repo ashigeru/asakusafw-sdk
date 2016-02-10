@@ -171,7 +171,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
     private void configureConfigurations() {
         project.configurations {
             asakusaToolLauncher {
-                description 'Asakusa SDK Tool Launcher'
+                description 'Asakusa SDK Tool Launcher.'
             }
         }
         project.dependencies {

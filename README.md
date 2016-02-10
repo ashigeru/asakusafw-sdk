@@ -5,10 +5,16 @@ Asakusa Software Development Kit (Asakusa SDK) helps developing batch applicatio
 This project includes following features:
 
 * Asakusa Gradle Plug-ins
-  * Asakusa Batch Application Plugin
-  * Asakusa Framework Organizer Plugin
+  * Asakusa Batch Application Plug-in
+  * Asakusa Framework Organizer Plug-in
 
 ## How to build
+
+### Maven artifacts
+
+```sh
+mvn clean install [-DskipTests]
+```
 
 ### Gradle plug-ins
 

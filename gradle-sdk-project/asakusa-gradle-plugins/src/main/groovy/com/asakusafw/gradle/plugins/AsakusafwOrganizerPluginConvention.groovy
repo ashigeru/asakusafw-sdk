@@ -29,10 +29,8 @@ class AsakusafwOrganizerPluginConvention {
     /**
      * Asakusa Framework version.
      * <dl>
-     *   <dt> Migration from Maven-Archetype: </dt>
-     *     <dd> pom.xml - {@code properties/asakusafw.version} </dd>
      *   <dt> Default value: </dt>
-     *     <dd> {@code project.asakusafw.asakusafwVersion} - only if {@code asakusafw} plug-in is enabled </dd>
+     *     <dd> {@code project.asakusafw.asakusafwVersion} - only if {@code asakusafw-sdk} plug-in is enabled </dd>
      *     <dd> N/A - otherwise</dd>
      * </dl>
      */
@@ -41,8 +39,6 @@ class AsakusafwOrganizerPluginConvention {
     /**
      * Working directory path prefix of framework organizer.
      * <dl>
-     *   <dt> Migration from Maven-Archetype: </dt>
-     *     <dd> N/A </dd>
      *   <dt> Default value: </dt>
      *     <dd> <code>"${project.buildDir}/asakusafw-assembly"</code> </dd>
      * </dl>
@@ -118,10 +114,6 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether Direct I/O features are enabled or not.
          * Direct I/O facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentDirectIo} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -139,10 +131,6 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether WindGate features are enabled or not.
          * WindGate facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentWindGate} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -152,10 +140,6 @@ class AsakusafwOrganizerPluginConvention {
         /**
          * Configuration whether WindGate SSH feature is enabled or not.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentWindGateSsh} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -165,10 +149,6 @@ class AsakusafwOrganizerPluginConvention {
         /**
          * Configuration whether WindGate retryable feature is enabled or not.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachExtensionWindGateRetryable} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code false} </dd>
          * </dl>
@@ -186,10 +166,6 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether ThunderGate features are enabled or not.
          * ThunderGate facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> build.properties: {@code asakusa.database.enabled} </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentThunderGate} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code false} </dd>
          * </dl>
@@ -236,8 +212,6 @@ class AsakusafwOrganizerPluginConvention {
          * deploy them using {@link AsakusafwOrganizerProfile#assembly} instead in many cases.
          *
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> build.properties: {@code asakusa.database.target} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code null} </dd>
          * </dl>
@@ -266,10 +240,6 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether Direct I/O Hive features are enabled or not.
          * Direct I/O Hive facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachExtensionDirectIoHive} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code false} </dd>
          * </dl>
@@ -324,10 +294,6 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether YAESS features are enabled or not.
          * YAESS facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentYaess} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -337,10 +303,6 @@ class AsakusafwOrganizerPluginConvention {
         /**
          * Configuration whether YAESS Hadoop bridge is enabled or not.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentYaessHadoop} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -350,10 +312,6 @@ class AsakusafwOrganizerPluginConvention {
         /**
          * Configuration whether YAESS extra tools is enabled or not.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachExtensionYaessTools} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code true} </dd>
          * </dl>
@@ -363,10 +321,6 @@ class AsakusafwOrganizerPluginConvention {
         /**
          * Configuration whether YAESS JobQueue client is enabled or not.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachExtensionYaessJobQueue} </dd>
          *   <dt> Default value: </dt>
          *     <dd> {@code false} </dd>
          * </dl>
@@ -382,13 +336,11 @@ class AsakusafwOrganizerPluginConvention {
 
         /**
          * Configuration whether batch applications are included or not.
+         * If it is not enabled, the deployment archive will not contain any batch applications.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachBatchapps} </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code true} </dd>
+         *     <dd> {@code true} - except 'dev' profile </dd>
+         *     <dd> {@code false} - for 'dev profile </dd>
          * </dl>
          */
         boolean enabled
@@ -404,12 +356,9 @@ class AsakusafwOrganizerPluginConvention {
          * Configuration whether test driver features are enabled or not.
          * Testing facilities will be enabled only if this value is {@code true}.
          * <dl>
-         *   <dt> Migration from Maven-Archetype: </dt>
-         *     <dd> N/A </dd>
-         *   <dt> Attachment task: </dt>
-         *     <dd> {@code attachComponentTesting} </dd>
          *   <dt> Default value: </dt>
-         *     <dd> {@code false} </dd>
+         *     <dd> {@code false} - except 'dev' profile </dd>
+         *     <dd> {@code true} - for 'dev profile </dd>
          * </dl>
          */
         boolean enabled
