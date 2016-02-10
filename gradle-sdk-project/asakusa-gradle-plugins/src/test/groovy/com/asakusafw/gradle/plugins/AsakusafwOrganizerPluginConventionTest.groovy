@@ -31,7 +31,6 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoC
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
 
@@ -75,7 +74,6 @@ class AsakusafwOrganizerPluginConventionTest {
         }
         assert convention.assembleDir == "${project.buildDir}/asakusafw-assembly"
         assert convention.directio instanceof DirectIoConfiguration
-        assert convention.thundergate instanceof ThunderGateConfiguration
         assert convention.windgate instanceof WindGateConfiguration
         assert convention.hive instanceof HiveConfiguration
         assert convention.yaess instanceof YaessConfiguration
@@ -91,25 +89,6 @@ class AsakusafwOrganizerPluginConventionTest {
     @Test
     public void directio_defaults() {
         assert convention.directio.enabled == true
-    }
-
-    /**
-     * Test for {@code project.asakusafwOrganizer.thundergate} convention default values.
-     */
-    @Test
-    public void thundergate_defaults() {
-        assert convention.thundergate.enabled == false
-        assert convention.thundergate.target == null
-    }
-
-    /**
-     * Test for {@code project.asakusafwOrganizer.thundergate.enable}.
-     */
-    @Test
-    public void thundergate_enable_by_target() {
-        convention.thundergate.target 'testing'
-        assert convention.thundergate.enabled
-        assert convention.thundergate.target == 'testing'
     }
 
     /**
@@ -180,7 +159,6 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.assembleDir == "${convention.assembleDir}-dev"
         assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-dev.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
-        assert profile.thundergate.enabled == convention.thundergate.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
         assert profile.yaess.enabled == convention.yaess.enabled
         assert profile.batchapps.enabled == false
@@ -201,7 +179,6 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.assembleDir == "${convention.assembleDir}-prod"
         assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
-        assert profile.thundergate.enabled == convention.thundergate.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
         assert profile.yaess.enabled == convention.yaess.enabled
         assert profile.batchapps.enabled == convention.batchapps.enabled
@@ -233,10 +210,6 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.directio.enabled == convention.directio.enabled
         convention.directio.enabled = !convention.directio.enabled
         assert profile.directio.enabled == convention.directio.enabled
-
-        assert profile.thundergate.enabled == convention.thundergate.enabled
-        convention.thundergate.enabled = !convention.thundergate.enabled
-        assert profile.thundergate.enabled == convention.thundergate.enabled
 
         assert profile.windgate.enabled == convention.windgate.enabled
         convention.windgate.enabled = !convention.windgate.enabled
@@ -274,9 +247,6 @@ class AsakusafwOrganizerPluginConventionTest {
 
         profile.directio.enabled = !convention.directio.enabled
         assert profile.directio.enabled != convention.directio.enabled
-
-        profile.thundergate.enabled = !convention.thundergate.enabled
-        assert profile.thundergate.enabled != convention.thundergate.enabled
 
         profile.windgate.enabled = !convention.windgate.enabled
         assert profile.windgate.enabled != convention.windgate.enabled

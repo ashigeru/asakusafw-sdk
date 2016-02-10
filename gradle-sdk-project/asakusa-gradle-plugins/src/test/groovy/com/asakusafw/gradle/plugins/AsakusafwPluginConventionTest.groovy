@@ -31,8 +31,7 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.TestToolsConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
-import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin;
+import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 
 /**
  * Test for {@link AsakusafwPluginConvention}.
@@ -83,7 +82,6 @@ class AsakusafwPluginConventionTest {
         assert convention.javac instanceof JavacConfiguration
         assert convention.compiler instanceof CompilerConfiguration
         assert convention.testtools instanceof TestToolsConfiguration
-        assert convention.thundergate instanceof ThunderGateConfiguration
     }
 
     /**
@@ -136,25 +134,6 @@ class AsakusafwPluginConventionTest {
     void testtools_defaults() {
         assert convention.testtools.testDataSheetFormat == "ALL"
         assert convention.testtools.testDataSheetDirectory == "${project.buildDir}/excel"
-    }
-
-    /**
-     * Test for {@code project.asakusafw.thundergate} convention default values.
-     */
-    @Test
-    void thundergate_defaults() {
-        assert convention.thundergate.ddlEncoding == null
-        assert convention.thundergate.ddlOutputDirectory == "${project.buildDir}/thundergate/sql"
-        assert convention.thundergate.ddlSourceDirectory == "src/${project.sourceSets.main.name}/sql/modelgen"
-        assert convention.thundergate.deleteColumn == 'DELETE_FLAG'
-        assert convention.thundergate.deleteValue == '"1"'
-        assert convention.thundergate.dmdlOutputDirectory == "${project.buildDir}/thundergate/dmdl"
-        assert convention.thundergate.excludes == null
-        assert convention.thundergate.includes == null
-        assert convention.thundergate.sidColumn == 'SID'
-        assert convention.thundergate.target == null
-        assert convention.thundergate.timestampColumn == 'UPDT_DATETIME'
-        assert convention.thundergate.jdbcFile == null
     }
 
     /**

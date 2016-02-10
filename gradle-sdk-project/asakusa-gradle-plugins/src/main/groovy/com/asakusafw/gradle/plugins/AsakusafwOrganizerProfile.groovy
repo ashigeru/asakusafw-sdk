@@ -21,14 +21,13 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoC
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
 
 /**
  * Represents an Asakusa Framework organization profile.
  * @since 0.7.0
- * @version 0.7.1
+ * @version 0.8.0
  */
 class AsakusafwOrganizerProfile {
 
@@ -69,11 +68,6 @@ class AsakusafwOrganizerProfile {
      * Direct I/O settings.
      */
     DirectIoConfiguration directio
-
-    /**
-     * ThunderGate settings.
-     */
-    ThunderGateConfiguration thundergate
 
     /**
      * WindGate settings.

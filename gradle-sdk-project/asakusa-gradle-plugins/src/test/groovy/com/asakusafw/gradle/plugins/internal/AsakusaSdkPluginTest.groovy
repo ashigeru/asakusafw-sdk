@@ -30,12 +30,10 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
 import com.asakusafw.gradle.tasks.CompileDmdlTask
 import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
 import com.asakusafw.gradle.tasks.GenerateTestbookTask
-import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
@@ -103,19 +101,6 @@ class AsakusaSdkPluginTest {
 
         assert dirs.srcDirs.contains(project.file(conf.annotationSourceDirectory))
         assert project.sourceSets.main.allJava.srcDirs.contains(project.file(conf.annotationSourceDirectory))
-    }
-
-    /**
-     * Test for {@code project.sourceSets.main.thundergateDdl}.
-     */
-    @Test
-    void sourceSets_thundergate() {
-        ThunderGateConfiguration conf = project.asakusafw.thundergate
-        SourceDirectorySet dirs = project.sourceSets.main.thundergateDdl
-
-        conf.ddlSourceDirectory 'src/main/testing'
-
-        assert dirs.srcDirs.contains(project.file(conf.ddlSourceDirectory))
     }
 
     /**
@@ -270,78 +255,5 @@ class AsakusaSdkPluginTest {
         assert !'YS-CORE-I09123'.matches(outputArguments.get('code'))
         assert !'YS-OTHER-I04123'.matches(outputArguments.get('code'))
         assert !'OTHER-CORE-I04123'.matches(outputArguments.get('code'))
-    }
-
-    /**
-     * Test for {@code project.tasks.generateThunderGateDataModel}.
-     */
-    @Test
-    void tasks_generateThunderGateDataModel() {
-        def home = setHome('testing/framework')
-        AsakusafwPluginConvention convention = project.asakusafw
-        convention.logbackConf 'testing/logback'
-        convention.maxHeapSize '1G'
-
-        convention.dmdl.dmdlEncoding 'ASCII'
-        convention.thundergate.target 'testing'
-        convention.thundergate.dmdlOutputDirectory 'testing/dmdlout'
-        convention.thundergate.includes 'IN'
-        convention.thundergate.excludes 'EX'
-        convention.thundergate.sidColumn 'ID'
-        convention.thundergate.timestampColumn 'TS'
-        convention.thundergate.deleteColumn 'DEL'
-        convention.thundergate.deleteValue '"D"'
-        convention.thundergate.ddlOutputDirectory 'testing/ddlout'
-
-        GenerateThunderGateDataModelTask task = project.tasks.generateThunderGateDataModel
-        assert task.logbackConf == project.file(convention.logbackConf)
-        assert task.maxHeapSize == convention.maxHeapSize
-        assert task.sourcepath.contains(project.sourceSets.main.thundergateDdl)
-        assert task.systemProperties.isEmpty()
-        assert task.jvmArgs.isEmpty()
-
-        assert task.ddlEncoding == convention.thundergate.ddlEncoding
-        assert task.jdbcConfiguration == new File(home, "bulkloader/conf/${convention.thundergate.target}-jdbc.properties")
-        assert task.dmdlOutputDirectory == project.file(convention.thundergate.dmdlOutputDirectory)
-        assert task.dmdlOutputEncoding == convention.dmdl.dmdlEncoding
-        assert task.includePattern == convention.thundergate.includes
-        assert task.excludePattern == convention.thundergate.excludes
-        assert task.sidColumnName == convention.thundergate.sidColumn
-        assert task.timestampColumnName == convention.thundergate.timestampColumn
-        assert task.deleteFlagColumnName == convention.thundergate.deleteColumn
-        assert task.deleteFlagColumnValue == convention.thundergate.deleteValue
-        assert task.recordLockDdlOutput.canonicalPath.startsWith(project.file(convention.thundergate.ddlOutputDirectory).canonicalPath)
-        assert project.files(task.systemDdlFiles).contains(new File(home, 'bulkloader/sql/create_table.sql'))
-        assert project.files(task.systemDdlFiles).contains(new File(home, 'bulkloader/sql/insert_import_table_lock.sql'))
-    }
-
-    /**
-     * Test for {@code project.tasks.generateThunderGateDataModel}.
-     */
-    @Test
-    void tasks_generateThunderGateDataModel_jdbcFile() {
-        def home = setHome('testing/framework')
-        def jdbc = project.file('testing/jdbc.properties')
-        jdbc.text = '''
-            jdbc.driver = com.mysql.jdbc.Driver
-            jdbc.url = jdbc:mysql://localhost/asakusa
-            jdbc.user = asakusa
-            jdbc.password = asakusa
-            database.name = asakusa
-            db.parameter=
-            '''.stripIndent()
-
-        AsakusafwPluginConvention convention = project.asakusafw
-        convention.thundergate.jdbcFile project.relativePath(jdbc)
-
-        GenerateThunderGateDataModelTask task = project.tasks.generateThunderGateDataModel
-        assert task.jdbcConfiguration == jdbc
-    }
-
-    private File setHome(Object path) {
-        File home = project.file(path)
-        home.mkdirs()
-        project.plugins.getPlugin(AsakusaSdkPlugin).setFrameworkInstallationPath(home)
-        return home
     }
 }

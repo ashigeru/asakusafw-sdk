@@ -19,7 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * A Gradle sub plug-in for Asakusa on MapReduce compiler.
+ * A Gradle sub plug-in for Asakusa on MapReduce facilities.
  * @since 0.8.0
  */
 class AsakusaMapReduceBasePlugin implements Plugin<Project> {

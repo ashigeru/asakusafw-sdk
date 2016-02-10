@@ -25,9 +25,9 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoC
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.TestingConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.WindGateConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConfiguration
+import com.asakusafw.gradle.plugins.internal.AsakusaSdk
 import com.asakusafw.gradle.plugins.internal.AsakusafwOrganizer
 import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.gradle.tasks.GatherAssemblyTask
@@ -76,7 +76,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.extensions.create('asakusafwOrganizer', AsakusafwOrganizerPluginConvention)
         convention.directio = convention.extensions.create('directio', DirectIoConfiguration)
-        convention.thundergate = convention.extensions.create('thundergate', ThunderGateConfiguration)
         convention.windgate = convention.extensions.create('windgate', WindGateConfiguration)
         convention.hive = convention.extensions.create('hive', HiveConfiguration)
         convention.yaess = convention.extensions.create('yaess', YaessConfiguration)
@@ -96,10 +95,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
         convention.directio.conventionMapping.with {
             enabled = { true }
-        }
-        convention.thundergate.conventionMapping.with {
-            enabled = { false }
-            target = { null }
         }
         convention.windgate.conventionMapping.with {
             enabled = { true }
@@ -163,7 +158,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
     private void configureProfile(AsakusafwOrganizerPluginConvention convention,  AsakusafwOrganizerProfile profile) {
         profile.directio = profile.extensions.create('directio', DirectIoConfiguration)
-        profile.thundergate = profile.extensions.create('thundergate', ThunderGateConfiguration)
         profile.windgate = profile.extensions.create('windgate', WindGateConfiguration)
         profile.hive = profile.extensions.create('hive', HiveConfiguration)
         profile.yaess = profile.extensions.create('yaess', YaessConfiguration)
@@ -184,10 +178,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
         profile.directio.conventionMapping.with {
             enabled = { convention.directio.enabled }
-        }
-        profile.thundergate.conventionMapping.with {
-            enabled = { convention.thundergate.enabled }
-            target = { convention.thundergate.target }
         }
         profile.windgate.conventionMapping.with {
             enabled = { convention.windgate.enabled }
@@ -239,7 +229,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                   attachComponentYaessHadoop : 'Attaches Yaess Hadoop bridge components to assemblies.',
                      attachComponentWindGate : 'Attaches WindGate components to assemblies.',
                   attachComponentWindGateSsh : 'Attaches WindGate SSH components to assemblies.',
-                  attachComponentThunderGate : 'Attaches ThunderGate components to assemblies.',
                       attachComponentTesting : 'Attaches testing tools to assemblies.',
                     attachComponentOperation : 'Attaches operation tools to assemblies.',
                     attachComponentExtension : 'Attaches framework extension components to assemblies.',
@@ -310,9 +299,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         organizer.task('gatherAsakusafw').dependsOn organizer.task('cleanAssembleAsakusafw')
         project.tasks.create('backupAsakusafw') {
             shouldRunAfter organizer.task('gatherAsakusafw')
-            onlyIf { getFrameworkHome() != null }
+            onlyIf { AsakusaSdk.getFrameworkInstallationPath(project) != null }
             doLast {
-                File home = getFrameworkHome()
+                File home = AsakusaSdk.getFrameworkInstallationPath(project)
                 String timestamp = new Date().format('yyyyMMddHHmmss')
                 File backup = new File(home.parentFile, "${home.name}_${timestamp}")
                 project.copy {
@@ -322,19 +311,19 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             }
         }
         project.tasks.create('updateAsakusafw') { Task t ->
-            group ASAKUSAFW_ORGANIZER_GROUP
-            description "Updates Asakusa Framework on \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
+            t.group ASAKUSAFW_ORGANIZER_GROUP
+            t.description "Updates Asakusa Framework on \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
             t.dependsOn organizer.task('gatherAsakusafw')
             t.shouldRunAfter 'backupAsakusafw'
             PluginUtils.afterEvaluate(project) {
-                File home = getFrameworkHome()
+                File home = AsakusaSdk.getFrameworkInstallationPath(project)
                 if (home != null) {
                     t.inputs.dir organizer.task('gatherAsakusafw').destination
                     t.outputs.dir home
                 }
             }
             t.doLast {
-                File home = getFrameworkHomeChecked()
+                File home = AsakusaSdk.getFrameworkInstallationPath(project, true)
                 if (home.exists()) {
                     project.delete home
                 }
@@ -350,7 +339,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             description "Installs Asakusa Framework to \$ASAKUSA_HOME using '${organizer.profile.name}' profile."
             dependsOn 'backupAsakusafw', 'updateAsakusafw'
             doLast {
-                File home = getFrameworkHomeChecked()
+                File home = AsakusaSdk.getFrameworkInstallationPath(project, true)
                 if (project.tasks.updateAsakusafw.didWork) {
                     logger.lifecycle "Asakusa Framework is successfully installed: ${home}"
                 } else {
@@ -358,19 +347,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                 }
             }
         }
-    }
-
-    private File getFrameworkHome() {
-        def home = System.env['ASAKUSA_HOME']
-        return home == null ? null : project.file(home).absoluteFile
-    }
-
-    private File getFrameworkHomeChecked() {
-        File home = getFrameworkHome()
-        if (home == null) {
-            throw new RuntimeException('ASAKUSA_HOME is not defined')
-        }
-        return home
     }
 
     private void configureProductionProfileTasks() {

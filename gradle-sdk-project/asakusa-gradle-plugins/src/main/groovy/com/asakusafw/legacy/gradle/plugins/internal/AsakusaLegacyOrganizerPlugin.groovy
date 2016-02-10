@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.legacy.gradle.plugins.internal
 
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Plugin
@@ -23,24 +23,23 @@ import org.gradle.api.Task
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwOrganizerMapReduceExtension
 
 /**
- * A Gradle sub plug-in for Asakusa on MapReduce project organizer.
+ * A Gradle sub plug-in for Asakusa organizer about legacy facilities.
+ * @since 0.8.0
  */
-class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
+class AsakusaLegacyOrganizerPlugin implements Plugin<Project> {
 
     private Project project
 
-    private NamedDomainObjectCollection<AsakusaMapReduceOrganizer> organizers
+    private NamedDomainObjectCollection<AsakusaLegacyOrganizer> organizers
 
     @Override
     void apply(Project project) {
         this.project = project
-        this.organizers = project.container(AsakusaMapReduceOrganizer)
+        this.organizers = project.container(AsakusaLegacyOrganizer)
 
         project.apply plugin: 'asakusafw-organizer'
-        project.apply plugin: AsakusaMapReduceBasePlugin
 
         configureConvention()
         configureProfiles()
@@ -51,16 +50,12 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
      * Returns the organizers for each profile (only for testing).
      * @return the organizers for each profile
      */
-    NamedDomainObjectCollection<AsakusaMapReduceOrganizer> getOrganizers() {
+    NamedDomainObjectCollection<AsakusaLegacyOrganizer> getOrganizers() {
         return organizers
     }
 
     private void configureConvention() {
-        AsakusafwOrganizerPluginConvention convention = project.asakusafwOrganizer
-        convention.extensions.create('mapreduce', AsakusafwOrganizerMapReduceExtension)
-        convention.mapreduce.conventionMapping.with {
-            enabled = { true }
-        }
+        // no special conventions
     }
 
     private void configureProfiles() {
@@ -71,20 +66,14 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
     }
 
     private void configureProfile(AsakusafwOrganizerProfile profile) {
-        AsakusafwOrganizerMapReduceExtension root =
-        profile.extensions.create('mapreduce', AsakusafwOrganizerMapReduceExtension)
-        profile.mapreduce.conventionMapping.with {
-            enabled = { project.asakusafwOrganizer.mapreduce.enabled }
-        }
-        AsakusaMapReduceOrganizer organizer = new AsakusaMapReduceOrganizer(project, profile)
+        AsakusaLegacyOrganizer organizer = new AsakusaLegacyOrganizer(project, profile)
         organizer.configureProfile()
         organizers << organizer
     }
 
     private void configureTasks() {
         defineFacadeTasks([
-            attachComponentMapreduce : 'Attaches Asakusa on MapReduce components to assemblies.',
-            attachMapreduceBatchapps : 'Attaches Asakusa on MapReduce batch applications to assemblies.',
+              attachComponentDevelopment : 'Attaches development tools to assemblies.',
         ])
     }
 
@@ -95,7 +84,7 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
                     task.group AsakusafwOrganizerPlugin.ASAKUSAFW_ORGANIZER_GROUP
                     task.description desc
                 }
-                organizers.all { AsakusaMapReduceOrganizer organizer ->
+                organizers.all { AsakusaLegacyOrganizer organizer ->
                     task.dependsOn organizer.task(task.name)
                 }
             }

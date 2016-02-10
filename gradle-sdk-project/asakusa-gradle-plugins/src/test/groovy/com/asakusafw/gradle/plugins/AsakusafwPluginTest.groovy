@@ -16,7 +16,6 @@
 package com.asakusafw.gradle.plugins
 
 import org.gradle.api.Project
-import org.gradle.api.file.SourceDirectorySet
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -24,21 +23,9 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
-import com.asakusafw.gradle.tasks.CompileBatchappTask
-import com.asakusafw.gradle.tasks.CompileDmdlTask
-import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
-import com.asakusafw.gradle.tasks.GenerateTestbookTask
-import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
-import com.asakusafw.gradle.tasks.RunBatchappTask
-import com.asakusafw.gradle.tasks.internal.ResolutionUtils
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin;
-import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceCompilerPlugin;
+import com.asakusafw.legacy.gradle.plugins.AsakusafwLegacyPlugin
+import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
 
 /**
  * Test for {@link AsakusafwPlugin}.
@@ -66,5 +53,6 @@ class AsakusafwPluginTest {
     void parents() {
         assert project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwMapReducePlugin)
+        assert project.plugins.hasPlugin(AsakusafwLegacyPlugin)
     }
 }

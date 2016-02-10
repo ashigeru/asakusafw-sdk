@@ -57,7 +57,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert project.tasks.attachComponentDirectIo
         assert project.tasks.attachComponentWindGate
         assert project.tasks.attachComponentWindGateSsh
-        assert project.tasks.attachComponentThunderGate
         assert project.tasks.attachComponentYaess
         assert project.tasks.attachComponentYaessHadoop
         assert project.tasks.attachComponentTesting
@@ -81,7 +80,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert ptask(profile, 'attachComponentDirectIo')
         assert ptask(profile, 'attachComponentWindGate')
         assert ptask(profile, 'attachComponentWindGateSsh')
-        assert ptask(profile, 'attachComponentThunderGate')
         assert ptask(profile, 'attachComponentYaess')
         assert ptask(profile, 'attachComponentYaessHadoop')
         assert ptask(profile, 'attachComponentTesting')
@@ -105,7 +103,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         checkDependencies('attachComponentDirectIo')
         checkDependencies('attachComponentWindGate')
         checkDependencies('attachComponentWindGateSsh')
-        checkDependencies('attachComponentThunderGate')
         checkDependencies('attachComponentYaess')
         checkDependencies('attachComponentYaessHadoop')
         checkDependencies('attachComponentTesting')

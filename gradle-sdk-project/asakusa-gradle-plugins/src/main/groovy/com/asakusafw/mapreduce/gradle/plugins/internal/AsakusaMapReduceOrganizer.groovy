@@ -25,6 +25,7 @@ import com.asakusafw.mapreduce.gradle.plugins.AsakusafwOrganizerMapReduceExtensi
 
 /**
  * Processes an {@link AsakusafwOrganizerProfile} for MapReduce environment.
+ * @since 0.8.0
  */
 class AsakusaMapReduceOrganizer extends AbstractOrganizer {
 

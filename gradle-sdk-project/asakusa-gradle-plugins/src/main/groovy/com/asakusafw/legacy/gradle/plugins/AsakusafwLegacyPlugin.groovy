@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.gradle.plugins
+package com.asakusafw.legacy.gradle.plugins
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.legacy.gradle.plugins.AsakusafwLegacyPlugin
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
+import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyOrganizerPlugin
+import com.asakusafw.thundergate.gradle.plugins.AsakusafwThunderGatePlugin
 
 /**
- * Gradle plugin for building application component blocks.
+ * A Gradle plug-in for Asakusa legacy facilities.
+ * @since 0.8.0
  */
-class AsakusafwPlugin implements Plugin<Project> {
+class AsakusafwLegacyPlugin implements Plugin<Project> {
+
+    /**
+     * The plug-in ID.
+     */
+    public static final String ID = 'asakusafw-legacy'
 
     @Override
     void apply(Project project) {
-        project.apply plugin: AsakusaSdkPlugin
-
-        // FIXME purge MapReduce
-        project.apply plugin: AsakusafwMapReducePlugin
-
-        // FIXME purge legacy
-        project.apply plugin: AsakusafwLegacyPlugin
+        project.apply plugin: AsakusafwThunderGatePlugin
+        PluginUtils.afterPluginEnabled(project, 'asakusafw-organizer') {
+            project.apply plugin: AsakusaLegacyOrganizerPlugin
+        }
     }
 }

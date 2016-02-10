@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.legacy.gradle.plugins.internal
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -27,12 +27,11 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.OrganizerTestRoot
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwOrganizerMapReduceExtension
 
 /**
- * Test for {@link AsakusaMapReduceOrganizerPlugin}.
+ * Test for {@link AsakusaLegacyOrganizerPlugin}.
  */
-class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
+class AsakusaLegacyOrganizerPluginTest extends OrganizerTestRoot {
 
     /**
      * The test initializer.
@@ -41,7 +40,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: AsakusaMapReduceOrganizerPlugin
+            project.apply plugin: AsakusaLegacyOrganizerPlugin
             return stmt
         }
     }
@@ -55,26 +54,6 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     public void parents() {
         assert !project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
-        assert project.plugins.hasPlugin(AsakusaMapReduceBasePlugin)
-    }
-
-    /**
-     * Test for {@code project.asakusafwOrganizer.mapreduce} convention default values.
-     */
-    @Test
-    public void extension_defaults() {
-        AsakusafwOrganizerMapReduceExtension extension = project.asakusafwOrganizer.mapreduce
-        assert extension.enabled == true
-    }
-
-    /**
-     * Test for {@code project.asakusafwOrganizer.profiles.*.mapreduce} default values.
-     */
-    @Test
-    public void profile_defaults() {
-        AsakusafwOrganizerMapReduceExtension extension = project.asakusafwOrganizer.mapreduce
-        AsakusafwOrganizerMapReduceExtension profile = project.asakusafwOrganizer.profiles.testp.mapreduce
-        assert profile.enabled == extension.enabled
     }
 
     /**
@@ -82,8 +61,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
      */
     @Test
     public void tasks_common() {
-        assert project.tasks.attachComponentMapreduce
-        assert project.tasks.attachMapreduceBatchapps
+        assert project.tasks.attachComponentDevelopment
     }
 
     /**
@@ -92,8 +70,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     @Test
     public void tasks_profile() {
         AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.testp
-        assert ptask(profile, 'attachComponentMapreduce')
-        assert ptask(profile, 'attachMapreduceBatchapps')
+        assert ptask(profile, 'attachComponentDevelopment')
     }
 
     /**
@@ -101,7 +78,6 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
      */
     @Test
     public void tasks_dependencies() {
-        checkDependencies('attachComponentMapreduce')
-        checkDependencies('attachMapreduceBatchapps')
+        checkDependencies('attachComponentDevelopment')
     }
 }
