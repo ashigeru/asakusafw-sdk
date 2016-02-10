@@ -287,6 +287,7 @@ class AsakusafwOrganizerPluginConvention {
     /**
      * YAESS settings for the Asakusa Framework organizer.
      * @since 0.7.0
+     * @version 0.8.0
      */
     static class YaessConfiguration {
 
@@ -326,6 +327,16 @@ class AsakusafwOrganizerPluginConvention {
          * </dl>
          */
         boolean jobqueueEnabled
+
+        /**
+         * Configuration whether YAESS iterative extension is enabled or not.
+         * <dl>
+         *   <dt> Default value: </dt>
+         *     <dd> {@code false} </dd>
+         * </dl>
+         * @since 0.8.0
+         */
+        boolean iterativeEnabled
     }
 
     /**

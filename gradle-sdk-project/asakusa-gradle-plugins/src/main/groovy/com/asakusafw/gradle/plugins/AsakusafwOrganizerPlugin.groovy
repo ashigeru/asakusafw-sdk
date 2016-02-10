@@ -115,6 +115,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             toolsEnabled = { true }
             hadoopEnabled = { true }
             jobqueueEnabled = { false }
+            iterativeEnabled = { false }
         }
         convention.batchapps.conventionMapping.with {
             enabled = { true }
@@ -202,6 +203,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             toolsEnabled = { convention.yaess.toolsEnabled }
             hadoopEnabled = { convention.yaess.hadoopEnabled }
             jobqueueEnabled = { convention.yaess.jobqueueEnabled }
+            iterativeEnabled = { convention.yaess.iterativeEnabled }
         }
         profile.batchapps.conventionMapping.with {
             enabled = { convention.batchapps.enabled }
@@ -243,6 +245,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                     attachComponentExtension : 'Attaches framework extension components to assemblies.',
                    attachExtensionYaessTools : 'Attaches YAESS extra tools to assemblies.',
                 attachExtensionYaessJobQueue : 'Attaches YAESS JobQueue client extensions to assemblies.',
+               attachExtensionYaessIterative : 'Attaches YAESS iterative extensions to assemblies.',
             attachExtensionWindGateRetryable : 'Attaches WindGate retryable extensions to assemblies.',
                  attachExtensionDirectIoHive : 'Attaches Direct I/O Hive extensions to assemblies.',
         ])
