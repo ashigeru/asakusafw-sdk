@@ -79,7 +79,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             WindGateRetryableDist : "Contents of WindGate retryable modules (${profile.name}).",
              WindGateRetryableLib : "Libraries of WindGate retryable modules (${profile.name}).",
                       TestingDist : "Contents of Asakusa Framework testing tools (${profile.name}).",
-                  DevelopmentDist : "Contents of Asakusa Framework development tools (${profile.name}).",
                   ThunderGateDist : "Contents of Asakusa Framework ThunderGate modules (${profile.name}).",
                ThunderGateCoreLib : "Libraries of Asakusa Framework ThunderGate common modules (${profile.name}).",
                    ThunderGateLib : "Libraries of Asakusa Framework ThunderGate modules (${profile.name}).",
@@ -178,7 +177,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                     "com.asakusafw:asakusa-thundergate-runtime:${frameworkVersion}@jar"
                 ],
                 TestingDist : "com.asakusafw:asakusa-test-driver:${frameworkVersion}:dist@jar",
-                DevelopmentDist : "com.asakusafw:asakusa-development-tools:${frameworkVersion}:dist@jar",
                 OperationDist : "com.asakusafw:asakusa-operation-tools:${frameworkVersion}:dist@jar",
                 OperationLib : [
                     "com.asakusafw:asakusa-operation-tools:${frameworkVersion}@jar",
@@ -268,11 +266,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 }
                 into('core/lib') {
                     put configuration('asakusafwThunderGateCoreLib')
-                }
-            },
-            Development : {
-                into('.') {
-                    extract configuration('asakusafwDevelopmentDist')
                 }
             },
             Testing : {

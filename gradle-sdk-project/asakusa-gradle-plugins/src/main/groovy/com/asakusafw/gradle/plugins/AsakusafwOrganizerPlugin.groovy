@@ -238,7 +238,6 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                      attachComponentWindGate : 'Attaches WindGate components to assemblies.',
                   attachComponentWindGateSsh : 'Attaches WindGate SSH components to assemblies.',
                   attachComponentThunderGate : 'Attaches ThunderGate components to assemblies.',
-                  attachComponentDevelopment : 'Attaches development tools to assemblies.',
                       attachComponentTesting : 'Attaches testing tools to assemblies.',
                     attachComponentOperation : 'Attaches operation tools to assemblies.',
                     attachComponentExtension : 'Attaches framework extension components to assemblies.',

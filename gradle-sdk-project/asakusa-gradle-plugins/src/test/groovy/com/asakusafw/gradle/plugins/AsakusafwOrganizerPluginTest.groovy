@@ -60,7 +60,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert project.tasks.attachComponentThunderGate
         assert project.tasks.attachComponentYaess
         assert project.tasks.attachComponentYaessHadoop
-        assert project.tasks.attachComponentDevelopment
         assert project.tasks.attachComponentTesting
         assert project.tasks.attachComponentOperation
         assert project.tasks.attachExtensionDirectIoHive
@@ -84,7 +83,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert ptask(profile, 'attachComponentThunderGate')
         assert ptask(profile, 'attachComponentYaess')
         assert ptask(profile, 'attachComponentYaessHadoop')
-        assert ptask(profile, 'attachComponentDevelopment')
         assert ptask(profile, 'attachComponentTesting')
         assert ptask(profile, 'attachComponentOperation')
         assert ptask(profile, 'attachExtensionDirectIoHive')
@@ -108,7 +106,6 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         checkDependencies('attachComponentThunderGate')
         checkDependencies('attachComponentYaess')
         checkDependencies('attachComponentYaessHadoop')
-        checkDependencies('attachComponentDevelopment')
         checkDependencies('attachComponentTesting')
         checkDependencies('attachComponentOperation')
         checkDependencies('attachExtensionDirectIoHive')
