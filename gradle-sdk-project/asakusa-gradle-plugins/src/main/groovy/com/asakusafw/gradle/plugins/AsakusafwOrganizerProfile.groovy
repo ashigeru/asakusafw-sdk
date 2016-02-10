@@ -59,7 +59,8 @@ class AsakusafwOrganizerProfile {
      * The final archive name (should be end with {@code .tar.gz}).
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> <code>"asakusafw-${asakusafwVersion}-${name}.tar.gz"</code> </dd>
+     *     <dd> <code>"asakusafw-${asakusafwVersion}-${name}.tar.gz"</code> - except 'prod' profile </dd>
+     *     <dd> <code>"asakusafw-${asakusafwVersion}.tar.gz"</code> - for 'prod' profile </dd>
      * </dl>
      */
     String archiveName

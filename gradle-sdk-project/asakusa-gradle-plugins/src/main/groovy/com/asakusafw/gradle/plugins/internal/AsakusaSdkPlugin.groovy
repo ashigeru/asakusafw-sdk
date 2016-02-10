@@ -191,20 +191,20 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
     private void configureConfigurations() {
         def provided = project.configurations.create('provided')
-        provided.description = '''Emulating Maven's provided scope'''
+        provided.description = '''Emulating Maven's provided scope.'''
 
         def embedded = project.configurations.create('embedded')
-        embedded.description = 'Project embedded libraries'
+        embedded.description = 'Project embedded libraries.'
 
         def asakusaThunderGateFiles = project.configurations.create('asakusaThunderGateFiles')
-        asakusaThunderGateFiles.description = 'Asakusa ThunderGate system files'
+        asakusaThunderGateFiles.description = 'Asakusa ThunderGate system files.'
         asakusaThunderGateFiles.transitive = false
 
         def asakusaYaessLogAnalyzer = project.configurations.create('asakusaYaessLogAnalyzer')
-        asakusaYaessLogAnalyzer.description = 'Asakusa YAESS Log Analyzer Libraries'
+        asakusaYaessLogAnalyzer.description = 'Asakusa YAESS log analyzer libraries.'
 
         def asakusaHiveCli = project.configurations.create('asakusaHiveCli')
-        asakusaHiveCli.description = 'Asakusa Hive CLI Libraries'
+        asakusaHiveCli.description = 'Asakusa Hive CLI libraries.'
         asakusaHiveCli.extendsFrom project.configurations.compile
     }
 
