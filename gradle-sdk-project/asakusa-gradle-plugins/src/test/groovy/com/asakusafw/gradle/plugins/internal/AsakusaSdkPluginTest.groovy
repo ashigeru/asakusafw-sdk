@@ -16,7 +16,9 @@
 package com.asakusafw.gradle.plugins.internal
 
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -30,12 +32,10 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ThunderGateConfiguration
 import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
-import com.asakusafw.gradle.tasks.CompileBatchappTask
 import com.asakusafw.gradle.tasks.CompileDmdlTask
 import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
 import com.asakusafw.gradle.tasks.GenerateTestbookTask
 import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
-import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
@@ -181,6 +181,24 @@ class AsakusaSdkPluginTest {
         assert task.sourceEncoding == convention.dmdl.dmdlEncoding
         assert task.outputSheetFormat == convention.testtools.testDataSheetFormat
         assert task.outputDirectory == project.file(convention.testtools.testDataSheetDirectory)
+    }
+
+    /**
+     * Test for {@code project.tasks.compileBatchapp}.
+     */
+    @Test
+    void tasks_compileBatchapp() {
+        Task task = project.tasks.findByName('compileBatchapp')
+        assert task != null
+    }
+
+    /**
+     * Test for {@code project.tasks.jarBatchapp}.
+     */
+    @Test
+    void tasks_jarBatchapp() {
+        Task task = project.tasks.findByName('jarBatchapp')
+        assert task instanceof Jar
     }
 
     /**

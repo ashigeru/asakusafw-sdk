@@ -20,11 +20,9 @@ import java.util.regex.Pattern
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.ResolvedDependency
-import org.gradle.api.tasks.bundling.Jar
 
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
@@ -73,7 +71,6 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
 
     private void defineTasks() {
         defineCompileBatchappTask()
-        defineJarBatchappTask()
         defineTestRunBatchappTask()
         extendVersionsTask()
     }
@@ -82,7 +79,7 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
         AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.tasks.create(TASK_COMPILE, CompileBatchappTask) { CompileBatchappTask task ->
             task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
-            task.description 'Compiles the Asakusa DSL java source with Asakusa DSL Compiler.'
+            task.description 'Compiles the Asakusa DSL source files for MapReduce environment.'
             task.dependsOn project.tasks.classes
             task.compilerName = 'Asakusa DSL compiler for MapReduce'
 
@@ -116,25 +113,8 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
                     task.logger.warn "batchIdPrefix is not supported in ${task.compilerName}"
                 }
             }
-        }
-        project.tasks.create('compileBatchapp') { Task task ->
-            task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
-            task.description "Alias of '${TASK_COMPILE}'."
-            task.dependsOn project.tasks.getByName(TASK_COMPILE)
-        }
-    }
-
-    private defineJarBatchappTask() {
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-        project.tasks.create('jarBatchapp', Jar) { Jar task ->
-            task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
-            task.description 'Assembles a jar archive containing compiled batch applications.'
-
-            task.dependsOn project.tasks.getByName(TASK_COMPILE)
-
-            task.from { project.tasks.getByName(TASK_COMPILE).outputDirectory }
-            task.destinationDir project.buildDir
-            task.appendix 'batchapps'
+            project.tasks.compileBatchapp.dependsOn task
+            project.tasks.jarBatchapp.from { task.outputDirectory }
         }
     }
 
