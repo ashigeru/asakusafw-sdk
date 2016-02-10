@@ -358,7 +358,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void defineCompileDMDLTask() {
         project.task('compileDMDL', type: CompileDmdlTask) {
             group ASAKUSAFW_BUILD_GROUP
-            description 'Compiles the DMDL scripts with DMDL Compiler.'
+            description 'Compiles Asakusa DMDL scripts.'
             launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
@@ -388,7 +388,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void defineJarBatchappTask() {
         project.tasks.create('jarBatchapp', Jar) { Jar task ->
             task.group ASAKUSAFW_BUILD_GROUP
-            task.description 'Assembles Asakusa Batchapps into JAR file.'
+            task.description 'Assembles Asakusa batch applications into JAR file.'
             task.dependsOn 'compileBatchapp'
 
             task.destinationDir project.buildDir
@@ -409,7 +409,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private defineGenerateTestbookTask() {
         project.task('generateTestbook', type: GenerateTestbookTask) {
             group ASAKUSAFW_BUILD_GROUP
-            description 'Generates the template Excel books for TestDriver.'
+            description 'Generates Asakusa test template Excel books.'
             launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
@@ -429,7 +429,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void defineGenerateHiveDdlTask() {
         project.tasks.create('generateHiveDDL', GenerateHiveDdlTask) { GenerateHiveDdlTask task ->
             task.group ASAKUSAFW_BUILD_GROUP
-            task.description 'Generates Hive DDL file from Data Models [Experimental].'
+            task.description 'Generates a Hive DDL file [Experimental].'
             task.toolClasspath += project.configurations.asakusaHiveCli
             task.toolClasspath += project.sourceSets.main.compileClasspath
             task.sourcepath = project.files({ project.sourceSets.main.output.classesDir })
@@ -445,7 +445,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void defineSummarizeYaessJobTask() {
         project.task('summarizeYaessJob', type: AnalyzeYaessLogTask) { AnalyzeYaessLogTask task ->
             group ASAKUSAFW_BUILD_GROUP
-            description 'Analyzes YAESS job execution from log file [Experimental].'
+            description 'Summarizes a YAESS log file [Experimental].'
             task.toolClasspath += project.configurations.asakusaYaessLogAnalyzer
             task.inputDriver = 'com.asakusafw.yaess.tools.log.basic.BasicYaessLogInput'
             task.outputDriver = 'com.asakusafw.yaess.tools.log.summarize.SummarizeYaessLogOutput'
@@ -470,7 +470,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         def thundergate = extension.thundergate
         def task = project.task('generateThunderGateDataModel', type: GenerateThunderGateDataModelTask) { Task task ->
             group ASAKUSAFW_BUILD_GROUP
-            description 'Executes DDLs and generates ThunderGate data models.'
+            description 'Executes ThunderGate DDL files and generates their data models.'
             sourcepath << project.sourceSets.main.thundergateDdl
             toolClasspath << project.sourceSets.main.compileClasspath
             systemDdlFiles << { getThunderGateFile(task, 'bulkloader/sql/create_table.sql') }

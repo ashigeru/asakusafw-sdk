@@ -79,7 +79,7 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
         AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.tasks.create(TASK_COMPILE, CompileBatchappTask) { CompileBatchappTask task ->
             task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
-            task.description 'Compiles the Asakusa DSL source files for MapReduce environment.'
+            task.description 'Compiles Asakusa DSL source files for MapReduce environment.'
             task.dependsOn project.tasks.classes
             task.compilerName = 'Asakusa DSL compiler for MapReduce'
 
@@ -123,7 +123,7 @@ class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
         AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.tasks.create('testRunBatchapp', RunBatchappTask) { RunBatchappTask task ->
             task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
-            task.description 'Executes Asakusa Batch Application [Experimental].'
+            task.description 'Executes an Asakusa batch application [Experimental].'
 
             task.systemProperties.put 'asakusa.testdriver.batchapps', { project.tasks.getByName(TASK_COMPILE).outputDirectory }
             task.conventionMapping.with {
