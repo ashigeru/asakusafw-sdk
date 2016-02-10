@@ -65,6 +65,7 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert project.tasks.attachExtensionDirectIoHive
         assert project.tasks.attachExtensionWindGateRetryable
         assert project.tasks.attachExtensionYaessJobQueue
+        assert project.tasks.attachExtensionYaessIterative
         assert project.tasks.assembleAsakusafw
         assert project.tasks.installAsakusafw
     }
@@ -89,6 +90,7 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         assert ptask(profile, 'attachExtensionWindGateRetryable')
         assert ptask(profile, 'attachExtensionYaessTools')
         assert ptask(profile, 'attachExtensionYaessJobQueue')
+        assert ptask(profile, 'attachExtensionYaessIterative')
 
         // assembleAsakusafw will be created in 'project.afterEvaluate' block
     }
@@ -112,6 +114,7 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
         checkDependencies('attachExtensionWindGateRetryable')
         checkDependencies('attachExtensionYaessTools')
         checkDependencies('attachExtensionYaessJobQueue')
+        checkDependencies('attachExtensionYaessIterative')
         checkDependencies('assembleAsakusafw')
     }
 

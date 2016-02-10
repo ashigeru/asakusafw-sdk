@@ -71,6 +71,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                     YaessToolsLib : "Libraries of Asakusa Framework YAESS tools (${profile.name}).",
                 YaessJobQueueDist : "Contents of YAESS JobQueue client modules (${profile.name}).",
                  YaessJobQueueLib : "Libraries of YAESS JobQueue client modules (${profile.name}).",
+                YaessIterativeLib : "Libraries of YAESS iterative extension modules (${profile.name})",
                      WindGateDist : "Contents of Asakusa Framework WindGate tools (${profile.name}).",
                       WindGateLib : "Libraries of Asakusa Framework WindGate modules (${profile.name}).",
                    WindGatePlugin : "Default plugin library sets of WindGate (${profile.name}).",
@@ -134,6 +135,9 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                     "com.google.code.gson:gson:${base.gsonVersion}@jar",
                     "commons-codec:commons-codec:${base.commonsCodecVersion}@jar",
                     "commons-logging:commons-logging:${base.commonsLoggingVersion}@jar",
+                ],
+                YaessIterativeLib : [
+                    "com.asakusafw:asakusa-iterative-yaess:${frameworkVersion}:lib@jar",
                 ],
                 WindGateDist : "com.asakusafw:asakusa-windgate-plugin:${frameworkVersion}:dist@jar",
                 WindGateLib : [
@@ -312,6 +316,11 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                     put configuration('asakusafwYaessJobQueueLib')
                 }
             },
+            YaessIterative : {
+                into('yaess/plugin') {
+                    put configuration('asakusafwYaessIterativeLib')
+                }
+            },
             WindGateRetryable : {
                 into('.') {
                     put configuration('asakusafwWindGateRetryableDist')
@@ -401,6 +410,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             if (profile.yaess.isJobqueueEnabled()) {
                 project.logger.info 'Enabling YAESS JobQueue'
                 task('attachComponentYaess').dependsOn task('attachExtensionYaessJobQueue')
+            }
+            if (profile.yaess.isIterativeEnabled()) {
+                project.logger.info 'Enabling YAESS iterative extension'
+                task('attachComponentYaess').dependsOn task('attachExtensionYaessIterative')
             }
             if (profile.testing.isEnabled()) {
                 project.logger.info 'Enabling Testing'

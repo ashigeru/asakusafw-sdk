@@ -149,6 +149,7 @@ class AsakusafwOrganizerPluginConventionTest {
         assert convention.yaess.toolsEnabled == true
         assert convention.yaess.hadoopEnabled == true
         assert convention.yaess.jobqueueEnabled == false
+        assert convention.yaess.iterativeEnabled == false
     }
 
     /**
