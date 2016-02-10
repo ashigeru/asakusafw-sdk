@@ -187,7 +187,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
     private void defineVersionsTask() {
         project.tasks.create(TASK_VERSIONS) { Task t ->
             t.group 'help'
-            t.description 'Displays the versions about Asakusa Framework'
+            t.description 'Displays versions about Asakusa Framework.'
             t.doLast {
                 t.logger.lifecycle "Asakusa Gradle Plug-ins: ${extension.pluginVersion}"
             }
@@ -196,7 +196,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
 
     private void defineUpgradeTask() {
         project.tasks.create(TASK_UPGRADE) { Task t ->
-            t.description 'Upgrades application development project'
+            t.description 'Upgrades the application development project.'
         }
         project.tasks.create('upgradeGradleWrapper', Wrapper) { Wrapper t ->
             t.description 'Upgrades Gradle wrapper'

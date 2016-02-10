@@ -230,7 +230,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
     private void configureCommonTasks() {
         defineFacadeTasks([
-                      cleanAssembleAsakusafw : 'Deletes the assembly files and directories.',
+                      cleanAssembleAsakusafw : 'Deletes assembly files and directories.',
                          attachComponentCore : 'Attaches framework core components to assemblies.',
                      attachComponentDirectIo : 'Attaches Direct I/O components to assemblies.',
                         attachComponentYaess : 'Attaches YAESS components to assemblies.',
@@ -249,7 +249,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         ])
         project.task('assembleAsakusafw') { Task task ->
             task.group ASAKUSAFW_ORGANIZER_GROUP
-            task.description 'Assembles a tarball containing framework files for deployment.'
+            task.description 'Assembles Asakusa deployment archives for each profile.'
             organizers.all { AsakusafwOrganizer organizer ->
                 // task may not resolved yet
                 task.dependsOn organizer.taskName(task.name)
