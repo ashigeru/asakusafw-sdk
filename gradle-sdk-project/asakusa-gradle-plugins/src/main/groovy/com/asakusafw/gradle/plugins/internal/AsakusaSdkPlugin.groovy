@@ -31,6 +31,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 
@@ -61,9 +62,14 @@ import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
 class AsakusaSdkPlugin implements Plugin<Project> {
 
     /**
+     * The plug-in ID.
+     */
+    public static final String ID = 'asakusa-sdk'
+
+    /**
      * The build group name.
      */
-    static final String ASAKUSAFW_BUILD_GROUP = 'Asakusa Framework Build'
+    public static final String ASAKUSAFW_BUILD_GROUP = 'Asakusa Framework Build'
 
     private final FileResolver fileResolver
 
@@ -326,6 +332,8 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void defineAsakusaTasks() {
         extendVersionsTask()
         defineCompileDMDLTask()
+        defineCompileBatchappTask()
+        defineJarBatchappTask()
         extendCompileJavaTask()
         defineGenerateTestbookTask()
         defineGenerateHiveDdlTask()
@@ -365,6 +373,28 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 targetEncoding = { extension.javac.sourceEncoding }
                 outputDirectory = { project.file(extension.modelgen.modelgenSourceDirectory) }
             }
+        }
+    }
+
+    private void defineCompileBatchappTask() {
+        project.tasks.create('compileBatchapp') { Task task ->
+            task.group ASAKUSAFW_BUILD_GROUP
+            task.description 'Compiles Asakusa DSL source files.'
+
+            // sub plug-ins must add '*CompileBatchapps' as a dependency of this task
+        }
+    }
+
+    private void defineJarBatchappTask() {
+        project.tasks.create('jarBatchapp', Jar) { Jar task ->
+            task.group ASAKUSAFW_BUILD_GROUP
+            task.description 'Assembles Asakusa Batchapps into JAR file.'
+            task.dependsOn 'compileBatchapp'
+
+            task.destinationDir project.buildDir
+            task.appendix 'batchapps'
+
+            // sub plug-ins must add outputs of '*CompileBatchapps' as input of this task
         }
     }
 

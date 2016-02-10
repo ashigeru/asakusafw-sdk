@@ -21,7 +21,6 @@ import org.gradle.api.Buildable
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskDependency
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -169,16 +168,6 @@ class AsakusaMapReduceCompilerPluginTest {
     void tasks_compileBatchapp() {
         Task task = project.tasks.findByName('compileBatchapp')
         assert task != null
-        assert dependencies(task).contains('mapreduceCompileBatchapps')
-    }
-
-    /**
-     * Test for {@code project.tasks.jarBatchapp}.
-     */
-    @Test
-    void tasks_jarBatchapp() {
-        Task task = project.tasks.findByName('jarBatchapp')
-        assert task instanceof Jar
         assert dependencies(task).contains('mapreduceCompileBatchapps')
     }
 
