@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.thundergate.gradle.plugins.internal
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -27,12 +27,12 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.OrganizerTestRoot
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwOrganizerMapReduceExtension
+import com.asakusafw.thundergate.gradle.plugins.AsakusafwOrganizerThunderGateExtension
 
 /**
- * Test for {@link AsakusaMapReduceOrganizerPlugin}.
+ * Test for {@link AsakusaThunderGateOrganizerPlugin}.
  */
-class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
+class AsakusaThunderGateOrganizerPluginTest extends OrganizerTestRoot {
 
     /**
      * The test initializer.
@@ -41,7 +41,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: AsakusaMapReduceOrganizerPlugin
+            project.apply plugin: AsakusaThunderGateOrganizerPlugin
             return stmt
         }
     }
@@ -55,26 +55,38 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     public void parents() {
         assert !project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
-        assert project.plugins.hasPlugin(AsakusaMapReduceBasePlugin)
     }
 
     /**
-     * Test for {@code project.asakusafwOrganizer.mapreduce} convention default values.
+     * Test for {@code project.asakusafwOrganizer.thundergate} convention default values.
      */
     @Test
     public void extension_defaults() {
-        AsakusafwOrganizerMapReduceExtension extension = project.asakusafwOrganizer.mapreduce
-        assert extension.enabled == true
+        AsakusafwOrganizerThunderGateExtension extension = project.asakusafwOrganizer.thundergate
+        assert extension.enabled == false
+        assert extension.target == null
     }
 
     /**
-     * Test for {@code project.asakusafwOrganizer.profiles.*.mapreduce} default values.
+     * Test for {@code project.asakusafwOrganizer.profiles.*.thundergate} default values.
      */
     @Test
     public void profile_defaults() {
-        AsakusafwOrganizerMapReduceExtension extension = project.asakusafwOrganizer.mapreduce
-        AsakusafwOrganizerMapReduceExtension profile = project.asakusafwOrganizer.profiles.testp.mapreduce
+        AsakusafwOrganizerThunderGateExtension extension = project.asakusafwOrganizer.thundergate
+        AsakusafwOrganizerThunderGateExtension profile = project.asakusafwOrganizer.profiles.testp.thundergate
         assert profile.enabled == extension.enabled
+        assert profile.target == extension.target
+    }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.thundergate.enable}.
+     */
+    @Test
+    public void thundergate_enable_by_target() {
+        AsakusafwOrganizerThunderGateExtension extension = project.asakusafwOrganizer.thundergate
+        extension.target 'testing'
+        assert extension.enabled
+        assert extension.target == 'testing'
     }
 
     /**
@@ -82,8 +94,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
      */
     @Test
     public void tasks_common() {
-        assert project.tasks.attachComponentMapreduce
-        assert project.tasks.attachMapreduceBatchapps
+        assert project.tasks.attachComponentThunderGate
     }
 
     /**
@@ -92,8 +103,7 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
     @Test
     public void tasks_profile() {
         AsakusafwOrganizerProfile profile = project.asakusafwOrganizer.profiles.testp
-        assert ptask(profile, 'attachComponentMapreduce')
-        assert ptask(profile, 'attachMapreduceBatchapps')
+        assert ptask(profile, 'attachComponentThunderGate')
     }
 
     /**
@@ -101,7 +111,6 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
      */
     @Test
     public void tasks_dependencies() {
-        checkDependencies('attachComponentMapreduce')
-        checkDependencies('attachMapreduceBatchapps')
+        checkDependencies('attachComponentThunderGate')
     }
 }

@@ -80,14 +80,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             WindGateRetryableDist : "Contents of WindGate retryable modules (${profile.name}).",
              WindGateRetryableLib : "Libraries of WindGate retryable modules (${profile.name}).",
                       TestingDist : "Contents of Asakusa Framework testing tools (${profile.name}).",
-                  ThunderGateDist : "Contents of Asakusa Framework ThunderGate modules (${profile.name}).",
-               ThunderGateCoreLib : "Libraries of Asakusa Framework ThunderGate common modules (${profile.name}).",
-                   ThunderGateLib : "Libraries of Asakusa Framework ThunderGate modules (${profile.name}).",
                     OperationDist : "Contents of Asakusa Framework operation tools (${profile.name}).",
                      OperationLib : "Libraries of Asakusa Framework operation tools (${profile.name}).",
                      ExtensionLib : "Asakusa Framework extension libraries (${profile.name}).",
         ])
-        configuration('asakusafwThunderGateCoreLib').transitive = false
         configuration('asakusafwExtensionLib').transitive = false
     }
 
@@ -167,19 +163,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 WindGateRetryableLib : [
                     "com.asakusafw:asakusa-windgate-retryable:${frameworkVersion}@jar",
                 ],
-                ThunderGateDist : "com.asakusafw:asakusa-thundergate:${frameworkVersion}:dist@jar",
-                ThunderGateLib : [
-                    "com.asakusafw:asakusa-thundergate:${frameworkVersion}@jar",
-                    "commons-configuration:commons-configuration:${base.commonsConfigurationVersion}@jar",
-                    "commons-io:commons-io:${base.commonsIoVersion}@jar",
-                    "commons-lang:commons-lang:${base.commonsLangVersion}@jar",
-                    "commons-logging:commons-logging:${base.commonsLoggingVersion}@jar",
-                    "log4j:log4j:${base.log4jVersion}@jar",
-                    "mysql:mysql-connector-java:${base.mysqlConnectorJavaVersion}@jar",
-                ],
-                ThunderGateCoreLib : [
-                    "com.asakusafw:asakusa-thundergate-runtime:${frameworkVersion}@jar"
-                ],
                 TestingDist : "com.asakusafw:asakusa-test-driver:${frameworkVersion}:dist@jar",
                 OperationDist : "com.asakusafw:asakusa-operation-tools:${frameworkVersion}:dist@jar",
                 OperationLib : [
@@ -253,23 +236,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 }
                 into('windgate-ssh/lib') {
                     put configuration('asakusafwWindGateSshLib')
-                }
-            },
-            ThunderGate : {
-                into('.') {
-                    extract configuration('asakusafwThunderGateDist')
-                    String targetName = profile.thundergate.target
-                    if (targetName) {
-                        process {
-                            rename(/\[\w+\]-jdbc\.properties/, "${targetName}-jdbc.properties")
-                        }
-                    }
-                }
-                into('bulkloader/lib') {
-                    put configuration('asakusafwThunderGateLib')
-                }
-                into('core/lib') {
-                    put configuration('asakusafwThunderGateCoreLib')
                 }
             },
             Testing : {
@@ -374,10 +340,6 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             if (profile.directio.isEnabled()) {
                 project.logger.info 'Enabling Direct I/O'
                 task('attachAssemble').dependsOn task('attachComponentDirectIo')
-            }
-            if (profile.thundergate.isEnabled()) {
-                project.logger.info 'Enabling ThunderGate'
-                task('attachAssemble').dependsOn task('attachComponentThunderGate')
             }
             if (profile.windgate.isEnabled()) {
                 project.logger.info 'Enabling WindGate'
