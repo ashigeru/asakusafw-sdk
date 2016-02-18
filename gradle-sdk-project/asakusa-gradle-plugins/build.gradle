@@ -97,6 +97,21 @@ processResources { t ->
     }
 }
 
+if (GradleVersion.current() >= GradleVersion.version('2.0')) {
+    logger.lifecycle "introducing backport-compat23 (${GradleVersion.current()})"
+    configurations {
+        backports
+    }
+    dependencies {
+        backports "org.codehaus.groovy:groovy-backports-compat23:${GroovySystem.version}"
+    }
+    jar {
+        from({ configurations.backports.collect { zipTree(it) } }) {
+            exclude '**/META-INF/MANIFEST.MF'
+        }
+    }
+}
+
 task sourcesJar(type: Jar) {
     classifier 'sources'
     from sourceSets.main.allSource
@@ -220,9 +235,4 @@ task assembleExampleProject (dependsOn: 'generateTemplates', type: Tar) {
 
 task assembleTemplates {
     dependsOn assembleTemplateProject, assembleExampleProject
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion '1.12'
-    jarFile file('.buildtools/gradlew.jar')
 }
