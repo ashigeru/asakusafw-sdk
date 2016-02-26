@@ -104,7 +104,7 @@ class AsakusaThunderGateOrganizer extends AbstractOrganizer {
         PluginUtils.afterEvaluate(project) {
             AsakusafwOrganizerThunderGateExtension extension = profile.thundergate
             if (extension.isEnabled()) {
-                project.logger.info 'Enabling ThunderGate'
+                project.logger.info "Enabling ThunderGate: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentThunderGate')
             }
         }

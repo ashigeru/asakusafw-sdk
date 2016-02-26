@@ -66,12 +66,12 @@ class AsakusaMapReduceOrganizer extends AbstractOrganizer {
         PluginUtils.afterEvaluate(project) {
             AsakusafwOrganizerMapReduceExtension extension = profile.mapreduce
             if (extension.isEnabled()) {
-                project.logger.info 'Enabling Asakusa on MapReduce'
+                project.logger.info "Enabling Asakusa on MapReduce: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentMapreduce')
                 PluginUtils.afterTaskEnabled(project, AsakusaMapReduceCompilerPlugin.TASK_COMPILE) { Task compiler ->
                     task('attachMapreduceBatchapps').dependsOn compiler
                     if (profile.batchapps.isEnabled()) {
-                        project.logger.info 'Enabling MapReduce Batchapps'
+                        project.logger.info "Enabling MapReduce Batchapps: ${profile.name}"
                         task('attachAssemble') dependsOn task('attachMapreduceBatchapps')
                     }
                 }

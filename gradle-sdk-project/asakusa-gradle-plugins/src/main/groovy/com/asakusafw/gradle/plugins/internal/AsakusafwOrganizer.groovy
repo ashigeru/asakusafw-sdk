@@ -338,47 +338,47 @@ class AsakusafwOrganizer extends AbstractOrganizer {
             task('attachAssemble').dependsOn task('attachComponentExtension')
 
             if (profile.directio.isEnabled()) {
-                project.logger.info 'Enabling Direct I/O'
+                project.logger.info "Enabling Direct I/O: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentDirectIo')
             }
             if (profile.windgate.isEnabled()) {
-                project.logger.info 'Enabling WindGate'
+                project.logger.info "Enabling WindGate: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentWindGate')
             }
             if (profile.windgate.isSshEnabled()) {
-                project.logger.info 'Enabling WindGate SSH'
+                project.logger.info "Enabling WindGate SSH: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentWindGateSsh')
             }
             if (profile.windgate.isRetryableEnabled()) {
-                project.logger.info 'Enabling WindGate Retryable'
+                project.logger.info "Enabling WindGate Retryable: ${profile.name}"
                 task('attachComponentWindGate').dependsOn task('attachExtensionWindGateRetryable')
             }
             if (profile.hive.isEnabled()) {
-                project.logger.info 'Enabling Direct I/O Hive'
+                project.logger.info "Enabling Direct I/O Hive: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachExtensionDirectIoHive')
             }
             if (profile.yaess.isEnabled()) {
-                project.logger.info 'Enabling YAESS'
+                project.logger.info "Enabling YAESS: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentYaess')
             }
             if (profile.yaess.isHadoopEnabled()) {
-                project.logger.info 'Enabling YAESS Hadoop'
+                project.logger.info "Enabling YAESS Hadoop: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentYaessHadoop')
             }
             if (profile.yaess.isToolsEnabled()) {
-                project.logger.info 'Enabling YAESS tools'
+                project.logger.info "Enabling YAESS tools: ${profile.name}"
                 task('attachComponentYaess').dependsOn task('attachExtensionYaessTools')
             }
             if (profile.yaess.isJobqueueEnabled()) {
-                project.logger.info 'Enabling YAESS JobQueue'
+                project.logger.info "Enabling YAESS JobQueue: ${profile.name}"
                 task('attachComponentYaess').dependsOn task('attachExtensionYaessJobQueue')
             }
             if (profile.yaess.isIterativeEnabled()) {
-                project.logger.info 'Enabling YAESS iterative extension'
+                project.logger.info "Enabling YAESS iterative extension: ${profile.name}"
                 task('attachComponentYaess').dependsOn task('attachExtensionYaessIterative')
             }
             if (profile.testing.isEnabled()) {
-                project.logger.info 'Enabling Testing'
+                project.logger.info "Enabling Testing: ${profile.name}"
                 task('attachAssemble').dependsOn task('attachComponentTesting')
             }
         }
