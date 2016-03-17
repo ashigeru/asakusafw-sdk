@@ -34,8 +34,6 @@ apply plugin: 'eclipse'
 version = parentPom.projectVersion
 group = 'com.asakusafw'
 
-def templateAsakusafwVersion = '0.7-hadoop1-SNAPSHOT'
-
 configurations {
     deployerJars
 }
@@ -150,11 +148,8 @@ def getMavenServerDef(String id) {
 }
 
 def templateProjectName = 'asakusa-project-template'
-def exampleProjectName = 'asakusa-example-project'
 def outDir = "${buildDir}/templates"
 def outTemplateProjectDir = "${outDir}/${templateProjectName}"
-def outExampleProjectDir = "${outDir}/${exampleProjectName}"
-def archetypeWorkDir = "${buildDir}/archetype-work"
 
 task generateTemplates << {
     delete outDir
@@ -162,9 +157,7 @@ task generateTemplates << {
         from ("src/templates") {
             include '**/build.gradle'
             expand ([
-                repProjectVersion: version,
-                repDefaultAsakusafwVersion: templateAsakusafwVersion,
-                repConventionAsakusafwVersion: 'asakusafw.asakusafwVersion',
+                repSparkGradlePluginVersion: sparkGradlePluginVersion,
                 repMavenRepoType: version.endsWith("SNAPSHOT") ? 'snapshots' : 'releases'
             ])
         }
@@ -179,40 +172,6 @@ task generateTemplates << {
     mkdir "${outTemplateProjectDir}/src/main/dmdl"
     mkdir "${outTemplateProjectDir}/src/main/libs"
     mkdir "${outTemplateProjectDir}/src/test/java"
-    mkdir "${outTemplateProjectDir}/src/test/resources"
-
-    delete archetypeWorkDir
-    mkdir archetypeWorkDir
-    exec {
-        commandLine = ['mvn', 'archetype:generate',
-            "-DinteractiveMode=false",
-            "-DarchetypeGroupId=${project.group}",
-            "-DarchetypeArtifactId=asakusa-archetype-directio",
-            "-DarchetypeVersion=${version}",
-            "-DgroupId=com.example",
-            "-DartifactId=${exampleProjectName}",
-            "-Dversion=1.0-SNAPSHOT",
-            "-Dpackage=com.example"
-        ]
-        workingDir = archetypeWorkDir
-    }
-    copy {
-        from ("${archetypeWorkDir}/${exampleProjectName}/src/test/resources") {
-            include '*.xml'
-        }
-        into "${outTemplateProjectDir}/src/test/resources"
-    }
-
-    copy {
-        from outTemplateProjectDir
-        into outExampleProjectDir
-    }
-    copy {
-        from ("${archetypeWorkDir}/${exampleProjectName}/src") {
-            exclude "**/example-scripts/"
-        }
-        into "${outExampleProjectDir}/src"
-    }
 }
 
 task assembleTemplateProject (dependsOn: 'generateTemplates', type: Tar) {
@@ -224,15 +183,6 @@ task assembleTemplateProject (dependsOn: 'generateTemplates', type: Tar) {
     archiveName "${templateProjectName}-${version}.tar.gz"
 }
 
-task assembleExampleProject (dependsOn: 'generateTemplates', type: Tar) {
-    from (outDir) {
-        include "${exampleProjectName}/"
-    }
-    destinationDir buildDir
-    compression Compression.GZIP
-    archiveName "${exampleProjectName}-${version}.tar.gz"
-}
-
 task assembleTemplates {
-    dependsOn assembleTemplateProject, assembleExampleProject
+    dependsOn assembleTemplateProject
 }
