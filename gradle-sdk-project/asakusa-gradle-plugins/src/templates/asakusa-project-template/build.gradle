@@ -1,46 +1,27 @@
+group 'com.example'
+
 buildscript {
     repositories {
         maven { url 'http://asakusafw.s3.amazonaws.com/maven/${repMavenRepoType}' }
     }
     dependencies {
-        classpath group: 'com.asakusafw', name: 'asakusa-gradle-plugins', version: '${repProjectVersion}'
+        classpath group: 'com.asakusafw.spark', name: 'asakusa-spark-gradle', version: '${repSparkGradlePluginVersion}'
     }
 }
 
-task wrapper(type: Wrapper) {
-    distributionUrl 'http://services.gradle.org/distributions/gradle-2.8-bin.zip'
-    jarFile file('.buildtools/gradlew.jar')
+repositories {
+    mavenLocal()
 }
 
-apply plugin: 'asakusafw'
+apply plugin: 'asakusafw-sdk'
 apply plugin: 'asakusafw-organizer'
+apply plugin: 'asakusafw-mapreduce'
+apply plugin: 'asakusafw-spark'
 apply plugin: 'eclipse'
 
-asakusafw {
-    asakusafwVersion '${repDefaultAsakusafwVersion}'
-
-    modelgen {
-        modelgenSourcePackage 'com.example.modelgen'
-    }
-    compiler {
-        compiledSourcePackage 'com.example.batchapp'
-    }
-}
-
-asakusafwOrganizer {
-    profiles.prod {
-        asakusafwVersion ${repConventionAsakusafwVersion}
-    }
-}
-
 dependencies {
-    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-core', version: ${repConventionAsakusafwVersion}
-    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-directio', version: ${repConventionAsakusafwVersion}
-    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-windgate', version: ${repConventionAsakusafwVersion}
-
-    provided (group: 'org.apache.hadoop', name: 'hadoop-client', version: '1.2.1') {
-        exclude module: 'junit'
-        exclude module: 'mockito-all'
-        exclude module: 'slf4j-log4j12'
-    }
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-core', version: asakusafw.asakusafwVersion
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-directio', version: asakusafw.asakusafwVersion
+    compile group: 'com.asakusafw.sdk', name: 'asakusa-sdk-windgate', version: asakusafw.asakusafwVersion
+    testRuntime group: 'com.asakusafw.sdk', name: 'asakusa-sdk-test-emulation', version: asakusafw.asakusafwVersion
 }
