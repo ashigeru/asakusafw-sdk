@@ -15,13 +15,12 @@
  */
 package com.asakusafw.gradle.plugins.internal
 
-import javax.inject.Inject
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.internal.file.DefaultSourceDirectorySet
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.file.SourceDirectorySetFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.tasks.SourceSet
@@ -38,17 +37,13 @@ class AsakusaSdk implements Plugin<Project> {
      */
     public static final String ENV_HOME = 'ASAKUSA_HOME'
 
-    private final FileResolver fileResolver
+    private Project project
 
     private File frameworkHome
 
-    @Inject
-    AsakusaSdk(FileResolver fileResolver) {
-        this.fileResolver = fileResolver
-    }
-
     @Override
     void apply(Project project) {
+        this.project = project
         this.frameworkHome = [System.getenv(ENV_HOME)].findAll { it }.collect { project.file(it) }.find()
     }
 
@@ -96,8 +91,20 @@ class AsakusaSdk implements Plugin<Project> {
         assert parent instanceof ExtensionAware
         ExtensionContainer extensions = parent.extensions
         // currently, project.sourceSets.main.* is not ExtensionAware
-        SourceDirectorySet extension = new DefaultSourceDirectorySet(name, displayName, instance.fileResolver)
+        SourceDirectorySet extension = instance.newSourceDirectorySet(name, displayName)
         extensions.add(name, extension)
         return extension
+    }
+
+    private SourceDirectorySet newSourceDirectorySet(String name, String displayName) {
+        if (PluginUtils.compareGradleVersion('2.12') >= 0) {
+            // SourceDirectorySetFactory has been introduced since 2.12
+            SourceDirectorySetFactory factory = project.services.get(SourceDirectorySetFactory)
+            return factory.create(name, displayName)
+        } else {
+            // In older versions of Gradle, we must directly create DefaultSourceDirectorySet
+            FileResolver fileResolver = project.services.get(FileResolver)
+            return new DefaultSourceDirectorySet(name, displayName, fileResolver)
+        }
     }
 }
