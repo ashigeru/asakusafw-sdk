@@ -5,18 +5,13 @@ buildscript {
         maven { url 'http://asakusafw.s3.amazonaws.com/maven/${repMavenRepoType}' }
     }
     dependencies {
-        classpath group: 'com.asakusafw.spark', name: 'asakusa-spark-gradle', version: '${repSparkGradlePluginVersion}'
+        classpath group: 'com.asakusafw', name: 'asakusa-gradle-plugins', version: '${repGradlePluginVersion}'
     }
-}
-
-repositories {
-    mavenLocal()
 }
 
 apply plugin: 'asakusafw-sdk'
 apply plugin: 'asakusafw-organizer'
 apply plugin: 'asakusafw-mapreduce'
-apply plugin: 'asakusafw-spark'
 apply plugin: 'eclipse'
 
 dependencies {

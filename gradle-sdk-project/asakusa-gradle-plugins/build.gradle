@@ -139,7 +139,7 @@ def getMavenServerDef(String id) {
     return settingsXml.servers.server.find {it.id.text() == id}
 }
 
-def templateProjectName = 'asakusa-project-template'
+def templateProjectName = 'asakusa-mapreduce-template'
 def outDir = "${buildDir}/templates"
 def outTemplateProjectDir = "${outDir}/${templateProjectName}"
 
@@ -149,7 +149,7 @@ task generateTemplates << {
         from ("src/templates") {
             include '**/build.gradle'
             expand ([
-                repSparkGradlePluginVersion: sparkGradlePluginVersion,
+                repGradlePluginVersion: version,
                 repMavenRepoType: version.endsWith("SNAPSHOT") ? 'snapshots' : 'releases'
             ])
         }
@@ -166,9 +166,19 @@ task generateTemplates << {
     mkdir "${outTemplateProjectDir}/src/test/java"
 }
 
-task assembleTemplateProject (dependsOn: 'generateTemplates', type: Tar) {
+task upgradeTemplateProject(dependsOn: generateTemplates, type: GradleBuild) {
+    dir outTemplateProjectDir
+    file('src/templates/init.d').eachFileMatch({ it.endsWith('.gradle') }) {
+        startParameter.addInitScript it
+    }
+    tasks = ['asakusaUpgrade']
+}
+
+task assembleTemplateProject (dependsOn: upgradeTemplateProject, type: Tar) {
     from (outDir) {
         include "${templateProjectName}/"
+        exclude "${templateProjectName}/build"
+        exclude "${templateProjectName}/.gradle"
     }
     destinationDir buildDir
     compression Compression.GZIP
