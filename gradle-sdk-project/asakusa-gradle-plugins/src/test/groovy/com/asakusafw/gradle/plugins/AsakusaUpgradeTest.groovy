@@ -55,7 +55,7 @@ class AsakusaUpgradeTest {
      */
     @Test
     void 'v2.12'() {
-        doUpgrade()
+        doUpgradeFromTestName()
     }
 
     /**
@@ -63,7 +63,7 @@ class AsakusaUpgradeTest {
      */
     @Test
     void 'v2.8'() {
-        doUpgrade()
+        doUpgradeFromTestName()
     }
 
     /**
@@ -71,7 +71,7 @@ class AsakusaUpgradeTest {
      */
     @Test
     void 'v2.4'() {
-        doUpgrade()
+        doUpgradeFromTestName()
     }
 
     /**
@@ -79,7 +79,7 @@ class AsakusaUpgradeTest {
      */
     @Test
     void 'v2.1'() {
-        doUpgrade()
+        doUpgradeFromTestName()
     }
 
     /**
@@ -87,10 +87,14 @@ class AsakusaUpgradeTest {
      */
     @Test
     void 'v1.12'() {
-        doUpgrade()
+        doUpgradeFromTestName()
     }
 
-    private void doUpgrade(String version = testName.methodName.replaceFirst('v', '')) {
+    private void doUpgradeFromTestName() {
+        doUpgrade(testName.methodName.replaceFirst('v', ''))
+    }
+
+    private void doUpgrade(String version) {
         Set<File> classpath = toClasspath(AsakusafwBasePlugin, 'META-INF/gradle-plugins/asakusafw-sdk.properties')
         String script = """
             buildscript {
