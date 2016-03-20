@@ -150,11 +150,11 @@ class AsakusaUpgradeTest {
 
     private static File toClasspathEntry(Class<?> aClass) {
         URL resource = toUrl(aClass)
-                if (resource == null) {
-                    throw new AssertionError(aClass)
-                }
+        if (resource == null) {
+            throw new AssertionError(aClass)
+        }
         String resourcePath = toResourcePath(aClass)
-                return findLibraryFromUrl(resource, resourcePath)
+        return findLibraryFromUrl(resource, resourcePath)
     }
 
     private static String toResourcePath(Class<?> aClass) {
