@@ -87,6 +87,16 @@ processResources {
     }
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            configuration = project.configurations.deployerJars
+            repository id: 'com.asakusafw.releases', url: 's3://asakusafw/maven/releases'
+            snapshotRepository id: 'com.asakusafw.snapshots', url: 's3://asakusafw/maven/snapshots'
+        }
+    }
+}
+
 if (GradleVersion.current() >= GradleVersion.version('2.0')) {
     logger.lifecycle "introducing backport-compat23 (${GradleVersion.current()})"
     configurations {
@@ -109,34 +119,6 @@ task sourcesJar(type: Jar) {
 
 artifacts {
     archives tasks.sourcesJar
-}
-
-gradle.taskGraph.whenReady {taskGraph ->
-    if (taskGraph.hasTask(uploadArchives)) {
-        uploadArchives {
-            repositories {
-                mavenDeployer {
-                    configuration = configurations.deployerJars
-
-                    def releaseDef = getMavenServerDef('com.asakusafw.releases')
-                    repository(id: 'com.asakusafw.releases', url: 's3://asakusafw/maven/releases') {
-                        authentication(userName: releaseDef.username, passphrase: releaseDef.passphrase)
-                    }
-
-                    def snapshotDef = getMavenServerDef('com.asakusafw.snapshots')
-                    snapshotRepository(id: 'com.asakusafw.snapshots', url: 's3://asakusafw/maven/snapshots') {
-                        authentication(userName: snapshotDef.username, passphrase: snapshotDef.passphrase)
-                    }
-                }
-            }
-        }
-    }
-}
-
-def getMavenServerDef(String id) {
-    def settingsXml = new XmlSlurper().parse(
-        new File(System.getProperty("user.home"), ".m2/settings.xml"))
-    return settingsXml.servers.server.find {it.id.text() == id}
 }
 
 def templateProjectName = 'asakusa-mapreduce-template'
