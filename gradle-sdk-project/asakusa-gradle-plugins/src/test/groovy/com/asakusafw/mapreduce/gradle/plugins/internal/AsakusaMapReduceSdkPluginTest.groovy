@@ -37,9 +37,9 @@ import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
- * Test for {@link AsakusaMapReduceCompilerPlugin}.
+ * Test for {@link AsakusaMapReduceSdkPlugin}.
  */
-class AsakusaMapReduceCompilerPluginTest {
+class AsakusaMapReduceSdkPluginTest {
 
     /**
      * The test initializer.
@@ -48,7 +48,7 @@ class AsakusaMapReduceCompilerPluginTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: AsakusaMapReduceCompilerPlugin
+            project.apply plugin: AsakusaMapReduceSdkPlugin
             project.asakusafwBase.frameworkVersion = '0.0.0'
             return stmt
         }

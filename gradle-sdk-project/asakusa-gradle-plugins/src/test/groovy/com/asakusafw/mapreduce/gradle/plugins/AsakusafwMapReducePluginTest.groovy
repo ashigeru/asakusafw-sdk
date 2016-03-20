@@ -23,8 +23,8 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceCompilerPlugin
 import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceOrganizerPlugin
+import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceSdkPlugin
 
 /**
  * Test for {@link AsakusafwMapReducePlugin}.
@@ -50,11 +50,11 @@ class AsakusafwMapReducePluginTest {
      */
     @Test
     void plugin_compiler() {
-        assert !project.plugins.hasPlugin(AsakusaMapReduceCompilerPlugin)
+        assert !project.plugins.hasPlugin(AsakusaMapReduceSdkPlugin)
         assert !project.plugins.hasPlugin(AsakusaMapReduceOrganizerPlugin)
 
         project.apply plugin: 'asakusafw-sdk'
-        assert project.plugins.hasPlugin(AsakusaMapReduceCompilerPlugin)
+        assert project.plugins.hasPlugin(AsakusaMapReduceSdkPlugin)
         assert !project.plugins.hasPlugin(AsakusaMapReduceOrganizerPlugin)
     }
 
@@ -63,11 +63,11 @@ class AsakusafwMapReducePluginTest {
      */
     @Test
     void plugin_organizer() {
-        assert !project.plugins.hasPlugin(AsakusaMapReduceCompilerPlugin)
+        assert !project.plugins.hasPlugin(AsakusaMapReduceSdkPlugin)
         assert !project.plugins.hasPlugin(AsakusaMapReduceOrganizerPlugin)
 
         project.apply plugin: 'asakusafw-organizer'
-        assert !project.plugins.hasPlugin(AsakusaMapReduceCompilerPlugin)
+        assert !project.plugins.hasPlugin(AsakusaMapReduceSdkPlugin)
         assert project.plugins.hasPlugin(AsakusaMapReduceOrganizerPlugin)
     }
 }

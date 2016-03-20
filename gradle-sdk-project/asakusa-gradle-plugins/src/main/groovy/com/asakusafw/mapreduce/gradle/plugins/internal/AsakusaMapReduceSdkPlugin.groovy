@@ -32,10 +32,10 @@ import com.asakusafw.gradle.tasks.CompileBatchappTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
 
 /**
- * A Gradle sub plug-in for Asakusa on MapReduce compiler.
+ * A Gradle sub plug-in for Asakusa on MapReduce SDK.
  * @since 0.8.0
  */
-class AsakusaMapReduceCompilerPlugin implements Plugin<Project> {
+class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
 
     public static final String TASK_COMPILE = 'mapreduceCompileBatchapps'
 
