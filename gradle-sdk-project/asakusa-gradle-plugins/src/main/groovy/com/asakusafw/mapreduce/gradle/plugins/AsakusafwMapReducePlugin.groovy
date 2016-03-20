@@ -19,8 +19,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 import com.asakusafw.gradle.plugins.internal.PluginUtils
-import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceCompilerPlugin
 import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceOrganizerPlugin
+import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceSdkPlugin
 
 /**
  * A Gradle plug-in for Asakusa projects for MapReduce runtime.
@@ -30,7 +30,7 @@ class AsakusafwMapReducePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         PluginUtils.afterPluginEnabled(project, 'asakusafw-sdk') {
-            project.apply plugin: AsakusaMapReduceCompilerPlugin
+            project.apply plugin: AsakusaMapReduceSdkPlugin
         }
         PluginUtils.afterPluginEnabled(project, 'asakusafw-organizer') {
             project.apply plugin: AsakusaMapReduceOrganizerPlugin
