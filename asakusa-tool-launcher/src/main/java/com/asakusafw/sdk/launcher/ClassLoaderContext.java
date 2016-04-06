@@ -31,7 +31,7 @@ class ClassLoaderContext implements AutoCloseable {
      * Creates a new instance.
      * @param newClassLoader the new context class loader
      */
-    public ClassLoaderContext(ClassLoader newClassLoader) {
+    ClassLoaderContext(ClassLoader newClassLoader) {
         this.active = newClassLoader;
         this.escaped = swap(newClassLoader);
     }
