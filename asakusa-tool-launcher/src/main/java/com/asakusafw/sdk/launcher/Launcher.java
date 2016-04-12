@@ -158,7 +158,7 @@ public final class Launcher {
 
         private final List<String> arguments;
 
-        public Context(List<File> classpath, String mainClass, List<String> arguments) {
+        Context(List<File> classpath, String mainClass, List<String> arguments) {
             List<URL> urls = new ArrayList<>();
             for (File file : classpath) {
                 if (file.exists() == false) {
