@@ -45,6 +45,7 @@ repositories {
 dependencies {
     compile gradleApi()
     testCompile gradleTestKit()
+    testCompile 'junit:junit:4.11'
     deployerJars 'org.springframework.build:aws-maven:5.0.0.RELEASE'
 }
 
@@ -117,8 +118,14 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+task testsJar(type: Jar) {
+    classifier 'tests'
+    from sourceSets.test.output
+}
+
 artifacts {
     archives tasks.sourcesJar
+    archives tasks.testsJar
 }
 
 def templateProjectName = 'asakusa-mapreduce-template'
