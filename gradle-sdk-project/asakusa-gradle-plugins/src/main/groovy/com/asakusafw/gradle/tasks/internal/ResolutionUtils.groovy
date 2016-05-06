@@ -57,12 +57,19 @@ final class ResolutionUtils {
         return results
     }
 
+    /**
+     * Resolves value map into a map which strings maps to strings.
+     * If key or value is null in original map, the resulting map does not contain it.
+     * @param value the target values
+     * @return the resolved string list
+     */
     static Map<String, String> resolveToStringMap(Map<?, ?> values) {
         Map<String, String> results = [:]
         for (Map.Entry<?, ?> entry in values.entrySet()) {
             String key = resolveToString(entry.key)
-            if (key != null) {
-                results.put key, resolveToString(entry.value)
+            String value = resolveToString(entry.value)
+            if (key != null && value != null) {
+                results.put key, value
             }
         }
         return results
