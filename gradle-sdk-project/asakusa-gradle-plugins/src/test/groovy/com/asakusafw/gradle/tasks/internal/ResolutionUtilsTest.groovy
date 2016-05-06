@@ -144,6 +144,6 @@ class ResolutionUtilsTest {
         origin.put({ null }, 'v3')
 
         Map<String, String> values = ResolutionUtils.resolveToStringMap(origin)
-        assert values == ['k1' : '100', 'k2' : null]
+        assert values == ['k1' : '100']
     }
 }
