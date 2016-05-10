@@ -98,6 +98,21 @@ class AsakusaMapReduceSdkPluginTest {
     }
 
     /**
+     * Test for {@code project.asakusafw.mapreduce.options}.
+     */
+    @Test
+    void extension_options() {
+        project.asakusafw.mapreduce.options = [:]
+        project.asakusafw.mapreduce.options 'a': true, 'b': false, 'Xc': 'd'
+        project.asakusafw.mapreduce.options 'e': true
+        project.asakusafw.mapreduce.option 'f', false
+
+        Map<String, String> map = ResolutionUtils.resolveToStringMap(project.asakusafw.mapreduce.options)
+        assert map == ['a': 'true', 'b': 'false', 'Xc': 'd', 'e': 'true', 'f': 'false']
+        assert map == ResolutionUtils.resolveToStringMap(project.asakusafw.mapreduce.compilerProperties)
+    }
+
+    /**
      * Test for {@code project.tasks.mapreduceCompileBatchapps}.
      */
     @Test
