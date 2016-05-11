@@ -13,7 +13,7 @@ This project includes following features:
 ### Maven artifacts
 
 ```sh
-mvn clean install [-DskipTests]
+./mvnw clean install [-DskipTests]
 ```
 
 ### Gradle plug-ins
