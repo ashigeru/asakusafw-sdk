@@ -35,6 +35,7 @@ import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 /**
  * Gradle Task for Asakusa DSL compiler framework.
  * @since 0.8.0
+ * @version 0.8.1
  */
 class AsakusaCompileTask extends DefaultTask {
 
@@ -312,6 +313,17 @@ class AsakusaCompileTask extends DefaultTask {
     @Option(option = 'compiler-properties', description = 'extra compiler properties separated by comma')
     void setExtraCompilerPropertiesOption(String encoded) {
         getCompilerProperties().putAll(decodeMap(encoded))
+    }
+
+    /**
+     * Adds extra {@link #compilerProperties compiler properties}.
+     * This is an alias of {@link #setExtraCompilerPropertiesOption(String)}.
+     * @param encoded the encoded {@code key=value} entries separated by comma
+     * @since 0.8.1
+     */
+    @Option(option = 'options', description = 'extra compiler properties separated by comma')
+    void setExtraCompilerOptionsOption(String encoded) {
+        setExtraCompilerPropertiesOption(encoded)
     }
 
     /**

@@ -18,7 +18,7 @@ package com.asakusafw.gradle.plugins
 /**
  * An extension object for Asakusa DSL compiler framework.
  * @since 0.7.4
- * @version 0.8.0
+ * @version 0.8.1
  */
 class AsakusafwCompilerExtension {
 
@@ -59,4 +59,62 @@ class AsakusafwCompilerExtension {
      * Whether fails on compilation errors or not.
      */
     boolean failOnError
+
+    /**
+     * Adds compiler properties.
+     * @param additions the additional compiler properties
+     * @since 0.8.1
+     */
+    void compilerProperties(Map<?, ?> additions) {
+        additions.each { k, v ->
+            compilerProperty(k, v)
+        }
+    }
+
+    /**
+     * Adds a compiler property.
+     * @param additionalOptions the additional compiler properties
+     * @since 0.8.1
+     */
+    void compilerProperty(Object key, Object value) {
+        getCompilerProperties().put(key, value)
+    }
+
+    /**
+     * Returns the compiler properties.
+     * This is alias of {@link #compilerProperties}.
+     * @return the current compiler properties
+     * @since 0.8.1
+     */
+    Map<Object, Object> getOptions() {
+        return getCompilerProperties()
+    }
+
+    /**
+     * Sets the compiler properties.
+     * This is alias of {@link #compilerProperties}.
+     * @param options the map of compiler properties
+     * @since 0.8.1
+     */
+    void setOptions(Map<?, ?> options) {
+        setCompilerProperties(new LinkedHashMap<>(options))
+    }
+
+    /**
+     * Adds compiler properties.
+     * @param additions the additional compiler properties
+     * @since 0.8.1
+     */
+    void options(Map<?, ?> additions) {
+        compilerProperties(additions)
+    }
+
+    /**
+     * Adds a compiler property.
+     * @param additionalOptions the additional compiler properties
+     * @since 0.8.1
+     */
+    void option(Object key, Object value) {
+        compilerProperty(key, value)
+    }
 }
