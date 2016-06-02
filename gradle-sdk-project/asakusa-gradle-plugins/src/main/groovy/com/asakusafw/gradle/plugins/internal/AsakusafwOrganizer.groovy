@@ -173,7 +173,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                     "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
                 ],
                 DirectIoHiveDist : [],
-                DirectIoHiveLib : ["com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar"] + profile.hive.libraries,
+                DirectIoHiveLib : [
+                    "com.asakusafw:asakusa-hive-info:${frameworkVersion}@jar",
+                    "com.asakusafw:asakusa-hive-core:${frameworkVersion}@jar",
+                ] + profile.hive.libraries,
                 ExtensionLib : profile.extension.libraries,
             ])
         }
