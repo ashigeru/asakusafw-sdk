@@ -112,9 +112,14 @@ final class PluginUtils {
             return getter()
         }
         def setter = instance.&setAsakusafwVersion
-        instance.metaClass.setAsakusafwVersion = { args ->
-            project.logger.warn "changing ${prefix}asakusafwVersion is deprecated"
-            setter(args)
+        instance.metaClass.setAsakusafwVersion = { String arg ->
+            project.logger.warn "changing ${prefix}.asakusafwVersion is deprecated."
+            setter(arg)
+        }
+        // asakusafwVersion(String) does not via Groovy MOP when calls setAsakusafwVersion()
+        instance.metaClass.asakusafwVersion = { String arg ->
+            project.logger.warn "changing ${prefix}.asakusafwVersion is deprecated."
+            setter(arg)
         }
         return instance
     }

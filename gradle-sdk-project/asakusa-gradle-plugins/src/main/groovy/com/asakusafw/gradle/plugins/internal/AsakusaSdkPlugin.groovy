@@ -137,7 +137,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             testDataSheetFormat = { 'ALL' }
             testDataSheetDirectory = { (String) "${project.buildDir}/excel" }
         }
-        PluginUtils.deprecateAsakusafwVersion project, 'asakusafw.', extension
+        PluginUtils.deprecateAsakusafwVersion project, 'asakusafw', extension
         extension.metaClass.toStringDelegate = { -> "asakusafw { ... }" }
     }
 
