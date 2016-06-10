@@ -133,6 +133,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
 
         convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
+        PluginUtils.deprecateAsakusafwVersion project, 'asakusafwOrganizer', convention
     }
 
     private NamedDomainObjectContainer<AsakusafwOrganizerProfile> createProfileContainer(AsakusafwOrganizerPluginConvention convention) {
@@ -204,6 +205,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.extension.conventionMapping.with {
             defaultLibraries = { convention.extension.libraries }
         }
+        PluginUtils.deprecateAsakusafwVersion project, "asakusafwOrganizer.profiles.${profile.name}", profile
     }
 
     private void configureProfiles() {

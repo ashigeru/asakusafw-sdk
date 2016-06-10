@@ -17,13 +17,13 @@ package com.asakusafw.gradle.plugins.internal
 
 import org.gradle.api.Project
 import org.gradle.api.ProjectState
-import org.gradle.api.Task;
+import org.gradle.api.Task
 import org.gradle.util.GradleVersion
 
 /**
  * Basic utilities for Gradle plug-ins.
  * @since 0.7.4
- * @version 0.8.0
+ * @version 0.8.1
  */
 final class PluginUtils {
 
@@ -95,6 +95,33 @@ final class PluginUtils {
         }.all { Task t ->
             closure.call(t)
         }
+    }
+
+    /**
+     * Make modifying <code>asakusafwVersion</code> deprecated.
+     * @param project the current project
+     * @param prefix the instance prefix name
+     * @param instance the target instance
+     * @return the original instance
+     * @since 0.8.1
+     */
+    static <T> T deprecateAsakusafwVersion(Project project, String prefix, T instance) {
+        // must declare getter explicitly for older Gradle versions (e.g. 1.12)
+        def getter = instance.&getAsakusafwVersion
+        instance.metaClass.getAsakusafwVersion = { ->
+            return getter()
+        }
+        def setter = instance.&setAsakusafwVersion
+        instance.metaClass.setAsakusafwVersion = { String arg ->
+            project.logger.warn "DEPRECATED: changing ${prefix}.asakusafwVersion is deprecated."
+            setter(arg)
+        }
+        // asakusafwVersion(String) does not via Groovy MOP when calls setAsakusafwVersion()
+        instance.metaClass.asakusafwVersion = { String arg ->
+            project.logger.warn "DEPRECATED: changing ${prefix}.asakusafwVersion is deprecated."
+            setter(arg)
+        }
+        return instance
     }
 
     private PluginUtils() {
