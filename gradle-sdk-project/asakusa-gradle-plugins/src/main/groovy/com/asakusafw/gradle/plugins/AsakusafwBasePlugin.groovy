@@ -99,7 +99,6 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             'embedded-libs-directory': 'embeddedd libraries directory',
             'slf4j-version': 'SLF4J',
             'logback-version': 'Logback',
-            'log4j-version': 'Log4J',
             'jsch-version': 'JSch',
             'gson-version': 'GSON',
             'http-client-version': 'Commons HTTP Client',
@@ -107,9 +106,7 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             'commons-io-version': 'Commons IO',
             'commons-lang-version': 'Commons Lang',
             'commons-codec-version': 'Commons Codec',
-            'commons-configuration-version': 'Commons Configuration',
             'commons-logging-version': 'Commons Logging',
-            'mysql-connector-java-version': 'MySQL Connector/J',
             'hive-artifact': 'Hive',
         ])
     }

@@ -23,6 +23,7 @@ import org.gradle.api.Task
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBasePlugin
 import com.asakusafw.thundergate.gradle.plugins.AsakusafwOrganizerThunderGateExtension
 
 /**
@@ -41,6 +42,7 @@ class AsakusaThunderGateOrganizerPlugin implements Plugin<Project> {
         this.organizers = project.container(AsakusaThunderGateOrganizer)
 
         project.apply plugin: 'asakusafw-organizer'
+        project.apply plugin: AsakusaLegacyBasePlugin
 
         configureConvention()
         configureProfiles()

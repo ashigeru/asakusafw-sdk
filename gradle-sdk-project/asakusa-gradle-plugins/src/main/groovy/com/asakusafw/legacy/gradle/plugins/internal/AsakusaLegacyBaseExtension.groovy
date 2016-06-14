@@ -36,4 +36,34 @@ class AsakusaLegacyBaseExtension {
      * The SDK libraries version.
      */
     String sdkVersion
+
+    /**
+     * The default Commons Configuration version.
+     */
+    String commonsConfigurationVersion
+
+    /**
+     * The default Commons IO version.
+     */
+    String commonsIoVersion
+
+    /**
+     * The default Commons Lang version.
+     */
+    String commonsLangVersion
+
+    /**
+     * The default Commons Logging version.
+     */
+    String commonsLoggingVersion
+
+    /**
+     * The default Log4J version.
+     */
+    String log4jVersion
+
+    /**
+     * The default MySQL Connector/J version.
+     */
+    String mysqlConnectorJavaVersion
 }

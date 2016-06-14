@@ -16,10 +16,7 @@
 package com.asakusafw.legacy.gradle.plugins.internal
 
 import org.gradle.api.Project
-import org.gradle.api.Task
 
-import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
-import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.internal.AbstractOrganizer
 import com.asakusafw.gradle.plugins.internal.PluginUtils
@@ -53,10 +50,9 @@ class AsakusaLegacyOrganizer extends AbstractOrganizer {
             DevelopmentDist : "Contents of Asakusa Framework development tools (${profile.name}).",
         ])
         PluginUtils.afterEvaluate(project) {
-            String frameworkVersion = profile.asakusafwVersion
-            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            AsakusaLegacyBaseExtension base = AsakusaLegacyBasePlugin.get(project)
             createDependencies('asakusafw', [
-                DevelopmentDist : "com.asakusafw:asakusa-development-tools:${frameworkVersion}:dist@jar",
+                DevelopmentDist : "com.asakusafw:asakusa-development-tools:${base.featureVersion}:dist@jar",
             ])
         }
     }

@@ -29,6 +29,8 @@ import com.asakusafw.gradle.plugins.internal.AsakusaSdk
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBaseExtension
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBasePlugin
 import com.asakusafw.thundergate.gradle.plugins.AsakusafwSdkThunderGateExtension
 
 /**
@@ -44,9 +46,11 @@ class AsakusaThunderGateSdkPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         this.project = project
-        this.extension = AsakusaSdkPlugin.get(project).extensions.create('thundergate', AsakusafwSdkThunderGateExtension)
 
-        project.apply plugin: AsakusaSdkPlugin
+        project.apply plugin: 'asakusafw-sdk'
+        project.apply plugin: AsakusaLegacyBasePlugin
+        extension = AsakusaSdkPlugin.get(project).extensions.create('thundergate', AsakusafwSdkThunderGateExtension)
+
         configureConvention()
         configureConfigurations()
         configureSourceSets()
@@ -78,9 +82,9 @@ class AsakusaThunderGateSdkPlugin implements Plugin<Project> {
             }
         }
         PluginUtils.afterEvaluate(project) {
-            AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
+            AsakusaLegacyBaseExtension base = AsakusaLegacyBasePlugin.get(project)
             project.dependencies {
-                asakusaThunderGateFiles "com.asakusafw:asakusa-thundergate:${sdk.asakusafwVersion}:dist@jar"
+                asakusaThunderGateFiles "com.asakusafw:asakusa-thundergate:${base.featureVersion}:dist@jar"
             }
         }
     }
@@ -100,6 +104,7 @@ class AsakusaThunderGateSdkPlugin implements Plugin<Project> {
     }
 
     private void defineGenerateThunderGateDataModelTask() {
+        // FIXME: should refer DMDL plug-in versions from the legacy base extension?
         AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.task('generateThunderGateDataModel', type: GenerateThunderGateDataModelTask) { GenerateThunderGateDataModelTask task ->
             task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP

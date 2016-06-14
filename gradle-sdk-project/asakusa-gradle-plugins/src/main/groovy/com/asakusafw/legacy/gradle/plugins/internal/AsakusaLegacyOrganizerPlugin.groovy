@@ -40,6 +40,7 @@ class AsakusaLegacyOrganizerPlugin implements Plugin<Project> {
         this.organizers = project.container(AsakusaLegacyOrganizer)
 
         project.apply plugin: 'asakusafw-organizer'
+        project.apply plugin: AsakusaLegacyBasePlugin
 
         configureConvention()
         configureProfiles()

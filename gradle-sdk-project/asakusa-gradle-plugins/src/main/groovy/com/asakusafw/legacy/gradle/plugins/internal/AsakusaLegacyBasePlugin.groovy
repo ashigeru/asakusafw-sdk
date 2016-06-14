@@ -26,7 +26,11 @@ import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
  */
 class AsakusaLegacyBasePlugin implements Plugin<Project> {
 
-    private static final String ARTIFACT_INFO_PATH = 'META-INF/asakusa-legacy-gradle/artifact.properties'
+    private static final String PREFIX_INFO_PATH = 'META-INF/asakusa-legacy-gradle/'
+
+    private static final String ARTIFACT_INFO_PATH = PREFIX_INFO_PATH + 'artifact.properties'
+
+    private static final String DEFAULTS_INFO_PATH = PREFIX_INFO_PATH + 'defaults.properties'
 
     private static final String INVALID_VERSION = 'INVALID'
 
@@ -54,6 +58,7 @@ class AsakusaLegacyBasePlugin implements Plugin<Project> {
 
     private void configureExtension() {
         configureArtifactVersions()
+        configureDefaults()
     }
 
     private void configureArtifactVersions() {
@@ -64,6 +69,17 @@ class AsakusaLegacyBasePlugin implements Plugin<Project> {
             'sdk-version': 'Asakusa SDK',
         ])
         project.logger.info "Asakusa Legacy modules: ${extension.featureVersion}"
+    }
+
+    private void configureDefaults() {
+        driveProperties(DEFAULTS_INFO_PATH, [
+            'commons-configuration-version': 'Commons Configuration',
+            'commons-io-version': 'Commons IO',
+            'commons-lang-version': 'Commons Lang',
+            'commons-logging-version': 'Commons Logging',
+            'log4j-version': 'Log4J',
+            'mysql-connector-java-version': 'MySQL Connector/J',
+        ])
     }
 
     private void driveProperties(String path, Map<String, String> configurations) {
