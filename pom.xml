@@ -45,7 +45,6 @@
     <plugin.javadoc.version>2.10.3</plugin.javadoc.version>
 
     <!-- artifact versions -->
-    <asakusafw.groupId>com.asakusafw</asakusafw.groupId>
     <asakusafw.version>0.8.1-SNAPSHOT</asakusafw.version>
     <asakusafw-legacy.version>0.8.1-SNAPSHOT</asakusafw-legacy.version>
     <hadoop.version>2.7.2</hadoop.version>
@@ -334,7 +333,7 @@ encoding/<project>=UTF-8
           <version>2.11</version>
           <dependencies>
             <dependency>
-              <groupId>${asakusafw.groupId}</groupId>
+              <groupId>com.asakusafw</groupId>
               <artifactId>build-tools</artifactId>
               <version>${asakusafw.version}</version>
             </dependency>
@@ -390,7 +389,7 @@ encoding/<project>=UTF-8
           <version>3.0.0</version>
           <dependencies>
             <dependency>
-              <groupId>${asakusafw.groupId}</groupId>
+              <groupId>com.asakusafw</groupId>
               <artifactId>build-tools</artifactId>
               <version>${asakusafw.version}</version>
             </dependency>
@@ -398,7 +397,6 @@ encoding/<project>=UTF-8
           <configuration>
             <xmlOutput>true</xmlOutput>
             <findbugsXmlOutput>true</findbugsXmlOutput>
-            <excludeFilterFile>com/asakusafw/fb_exclude.xml</excludeFilterFile>
             <sourceEncoding>UTF-8</sourceEncoding>
             <outputEncoding>UTF-8</outputEncoding>
           </configuration>
@@ -414,7 +412,7 @@ encoding/<project>=UTF-8
               <version>${checkstyle.version}</version>
             </dependency>
             <dependency>
-              <groupId>${asakusafw.groupId}</groupId>
+              <groupId>com.asakusafw</groupId>
               <artifactId>build-tools</artifactId>
               <version>${asakusafw.version}</version>
             </dependency>
