@@ -16,13 +16,12 @@
 package com.asakusafw.thundergate.gradle.plugins.internal
 
 import org.gradle.api.Project
-import org.gradle.api.Task
 
-import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
-import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.internal.AbstractOrganizer
 import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBaseExtension
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBasePlugin
 import com.asakusafw.thundergate.gradle.plugins.AsakusafwOrganizerThunderGateExtension
 
 /**
@@ -58,12 +57,11 @@ class AsakusaThunderGateOrganizer extends AbstractOrganizer {
         ])
         configuration('asakusafwThunderGateCoreLib').transitive = false
         PluginUtils.afterEvaluate(project) {
-            String frameworkVersion = profile.asakusafwVersion
-            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            AsakusaLegacyBaseExtension base = AsakusaLegacyBasePlugin.get(project)
             createDependencies('asakusafw', [
-                ThunderGateDist : "com.asakusafw:asakusa-thundergate:${frameworkVersion}:dist@jar",
+                ThunderGateDist : "com.asakusafw:asakusa-thundergate:${base.featureVersion}:dist@jar",
                 ThunderGateLib : [
-                    "com.asakusafw:asakusa-thundergate:${frameworkVersion}@jar",
+                    "com.asakusafw:asakusa-thundergate:${base.featureVersion}@jar",
                     "commons-configuration:commons-configuration:${base.commonsConfigurationVersion}@jar",
                     "commons-io:commons-io:${base.commonsIoVersion}@jar",
                     "commons-lang:commons-lang:${base.commonsLangVersion}@jar",
@@ -72,7 +70,7 @@ class AsakusaThunderGateOrganizer extends AbstractOrganizer {
                     "mysql:mysql-connector-java:${base.mysqlConnectorJavaVersion}@jar",
                 ],
                 ThunderGateCoreLib : [
-                    "com.asakusafw:asakusa-thundergate-runtime:${frameworkVersion}@jar"
+                    "com.asakusafw:asakusa-thundergate-runtime:${base.featureVersion}@jar"
                 ],
             ])
         }

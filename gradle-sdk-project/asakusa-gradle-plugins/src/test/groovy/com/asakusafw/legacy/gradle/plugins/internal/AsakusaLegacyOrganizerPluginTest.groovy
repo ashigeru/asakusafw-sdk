@@ -54,6 +54,7 @@ class AsakusaLegacyOrganizerPluginTest extends OrganizerTestRoot {
     public void parents() {
         assert !project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
+        assert project.plugins.hasPlugin(AsakusaLegacyBasePlugin)
     }
 
     /**

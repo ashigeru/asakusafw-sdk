@@ -19,6 +19,7 @@ package com.asakusafw.gradle.plugins
  * An extension object for the Asakusa features.
  * This is only for internal use.
  * @since 0.8.0
+ * @version 0.8.1
  */
 class AsakusafwBaseExtension {
 
@@ -58,11 +59,6 @@ class AsakusafwBaseExtension {
     String logbackVersion
 
     /**
-     * The default Log4J version.
-     */
-    String log4jVersion
-
-    /**
      * The default JSCH version.
      */
     String jschVersion
@@ -88,11 +84,6 @@ class AsakusafwBaseExtension {
     String commonsCodecVersion
 
     /**
-     * The default Commons Configuration version.
-     */
-    String commonsConfigurationVersion
-
-    /**
      * The default Commons IO version.
      */
     String commonsIoVersion
@@ -106,11 +97,6 @@ class AsakusafwBaseExtension {
      * The default Commons Logging version.
      */
     String commonsLoggingVersion
-
-    /**
-     * The default MySQL Connector/J version.
-     */
-    String mysqlConnectorJavaVersion
 
     /**
      * The default Hive artifact notation.

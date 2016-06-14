@@ -29,6 +29,7 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdk
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 import com.asakusafw.gradle.tasks.GenerateThunderGateDataModelTask
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBasePlugin
 import com.asakusafw.thundergate.gradle.plugins.AsakusafwSdkThunderGateExtension
 
 /**
@@ -59,6 +60,7 @@ class AsakusaThunderGateSdkPluginTest {
     public void parents() {
         assert project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert !project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
+        assert project.plugins.hasPlugin(AsakusaLegacyBasePlugin)
     }
 
     /**

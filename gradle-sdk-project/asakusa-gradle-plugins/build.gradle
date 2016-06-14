@@ -21,6 +21,7 @@ ext.parentPom = { f ->
     return [
         projectVersion : xml.version.text(),
         coreVersion : xml['properties']['asakusafw.version'].text().replaceFirst('-hadoop[12]', ''),
+        legacyVersion : xml['properties']['asakusafw-legacy.version'].text(),
     ]
 }(project.file('../../pom.xml'))
 
@@ -82,6 +83,25 @@ processResources {
         Properties p = new Properties()
         p.put("plugin-version", parentPom.projectVersion)
         p.put("framework-version", parentPom.coreVersion)
+        outputFile.withOutputStream { s ->
+            p.store(s, null)
+        }
+    }
+}
+
+processResources {
+    File outputFile = new File(destinationDir, 'META-INF/asakusa-legacy-gradle/artifact.properties')
+    inputs.properties parentPom
+    outputs.file outputFile
+    doLast {
+        logger.info "injecting artifact versions: ${parentPom}"
+        if (!outputFile.parentFile.exists()) {
+            mkdir outputFile.parentFile
+        }
+        Properties p = new Properties()
+        p.put('feature-version', parentPom.legacyVersion)
+        p.put("core-version", parentPom.coreVersion)
+        p.put("sdk-version", parentPom.projectVersion)
         outputFile.withOutputStream { s ->
             p.store(s, null)
         }
