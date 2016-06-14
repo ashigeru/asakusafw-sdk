@@ -27,6 +27,7 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.OrganizerTestRoot
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
+import com.asakusafw.legacy.gradle.plugins.internal.AsakusaLegacyBasePlugin
 import com.asakusafw.thundergate.gradle.plugins.AsakusafwOrganizerThunderGateExtension
 
 /**
@@ -55,6 +56,7 @@ class AsakusaThunderGateOrganizerPluginTest extends OrganizerTestRoot {
     public void parents() {
         assert !project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwOrganizerPlugin)
+        assert project.plugins.hasPlugin(AsakusaLegacyBasePlugin)
     }
 
     /**
