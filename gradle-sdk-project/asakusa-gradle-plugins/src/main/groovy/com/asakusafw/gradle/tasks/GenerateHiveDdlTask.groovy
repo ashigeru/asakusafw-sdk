@@ -15,7 +15,6 @@
  */
 package com.asakusafw.gradle.tasks
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Nullable
 import org.gradle.api.file.FileCollection
@@ -28,13 +27,16 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaExecSpec
 
+import com.asakusafw.gradle.tasks.internal.AbstractToolLauncherTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
+import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 
 /**
  * Gradle Task for generating Hive DDL files.
  * @since 0.7.0
+ * @version 0.8.1
  */
-class GenerateHiveDdlTask extends DefaultTask {
+class GenerateHiveDdlTask extends AbstractToolLauncherTask {
 
     /**
      * The logback configuration for the tool.
@@ -166,31 +168,48 @@ class GenerateHiveDdlTask extends DefaultTask {
         if (getOutputFile() == null) {
             throw new InvalidUserDataException("${this.name} requires --output <output-file>")
         }
+        String javaMain = 'com.asakusafw.directio.hive.tools.cli.GenerateCreateTable'
+        FileCollection javaClasspath = project.files(getToolClasspath())
+        List<String> javaArguments = createArguments()
+        FileCollection launcher = project.files(getLauncherClasspath())
+        if (!launcher.empty) {
+            logger.info "Starting Hive DDL generator using launcher"
+            File script = ToolLauncherUtils.createLaunchFile(this, javaClasspath, javaMain, javaArguments)
+            javaMain = ToolLauncherUtils.MAIN_CLASS
+            javaClasspath = launcher
+            javaArguments = [script.absolutePath]
+        }
         project.javaexec { JavaExecSpec spec ->
-            spec.main = 'com.asakusafw.directio.hive.tools.cli.GenerateCreateTable'
-            spec.classpath = this.getToolClasspath()
+            spec.main = javaMain
+            spec.classpath = javaClasspath
             spec.jvmArgs = ResolutionUtils.resolveToStringList(this.getJvmArgs())
-            if (this.getMaxHeapSize()) {
+            if (this.getMaxHeapSize() != null) {
                 spec.maxHeapSize = this.getMaxHeapSize()
             }
             if (this.getLogbackConf()) {
-                spec.systemProperties += ['logback.configurationFile' : this.getLogbackConf().absolutePath]
+                spec.systemProperties 'logback.configurationFile' : this.getLogbackConf().absolutePath
             }
-            spec.systemProperties += ResolutionUtils.resolveToStringMap(this.getSystemProperties())
-            spec.args += ['--classpath', this.getSourcepath().asPath]
-            spec.args += ['--output', this.getOutputFile().absolutePath]
-            if (this.getInclude() != null) {
-                spec.args += ['--include', this.getInclude()]
-            }
-            if (this.getLocation() != null) {
-                spec.args += ['--location', this.getLocation()]
-            }
-            if (this.getDatabaseName() != null) {
-                spec.args += ['--database', this.getDatabaseName()]
-            }
-            if (getPluginClasspath().isEmpty() == false) {
-                spec.args += ['--pluginpath', this.getPluginClasspath().asPath]
-            }
+            spec.systemProperties ResolutionUtils.resolveToStringMap(this.getSystemProperties())
+            spec.args = javaArguments
         }
+    }
+
+    private List<String> createArguments() {
+        List<String> results = []
+        results += ['--classpath', getSourcepath().asPath]
+        results += ['--output', getOutputFile().absolutePath]
+        if (this.getInclude() != null) {
+            results += ['--include', getInclude()]
+        }
+        if (this.getLocation() != null) {
+            results += ['--location', getLocation()]
+        }
+        if (this.getDatabaseName() != null) {
+            results += ['--database', getDatabaseName()]
+        }
+        if (getPluginClasspath().isEmpty() == false) {
+            results += ['--pluginpath', getPluginClasspath().asPath]
+        }
+        return results
     }
 }

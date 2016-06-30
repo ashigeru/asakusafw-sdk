@@ -32,12 +32,6 @@ import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 class GenerateTestbookTask extends AbstractAsakusaToolTask {
 
     /**
-     * The tool launcher class libraries (can empty).
-     * @since 0.8.0
-     */
-    List<Object> launcherClasspath = []
-
-    /**
      * The DMDL script source encoding.
      */
     @Input

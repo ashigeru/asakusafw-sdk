@@ -17,7 +17,6 @@ package com.asakusafw.gradle.tasks
 
 import groovy.transform.PackageScope
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.tasks.options.Option
@@ -29,6 +28,7 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaExecSpec
 
+import com.asakusafw.gradle.tasks.internal.AbstractToolLauncherTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 
@@ -37,7 +37,7 @@ import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
  * @since 0.8.0
  * @version 0.8.1
  */
-class AsakusaCompileTask extends DefaultTask {
+class AsakusaCompileTask extends AbstractToolLauncherTask {
 
     /**
      * The compiler name.
@@ -49,20 +49,6 @@ class AsakusaCompileTask extends DefaultTask {
      * The maximum heap size.
      */
     String maxHeapSize
-
-    /**
-     * The tool launcher class libraries (can empty).
-     */
-    List<Object> launcherClasspath = []
-
-    /**
-     * Returns each file of {@link #launcherClasspath}.
-     * @return each file
-     */
-    @InputFiles
-    FileCollection getLauncherClasspathFiles() {
-        return collectFiles(getLauncherClasspath())
-    }
 
     /**
      * The compiler class libraries.

@@ -44,6 +44,7 @@ import com.asakusafw.gradle.tasks.GenerateTestbookTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.gradle.tasks.TestToolTask
 import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
+import com.asakusafw.gradle.tasks.internal.AbstractToolLauncherTask
 
 /**
  * A Gradle plug-in for application development project using Asakusa SDK.
@@ -266,6 +267,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
     private void defineAsakusaTasks() {
         extendVersionsTask()
+        extendToolLauncherTask()
         defineCompileDMDLTask()
         defineCompileBatchappTask()
         defineJarBatchappTask()
@@ -289,11 +291,16 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         }
     }
 
+    private void extendToolLauncherTask() {
+        project.tasks.withType(AbstractToolLauncherTask) { AbstractToolLauncherTask t ->
+            t.launcherClasspath << project.configurations.asakusaToolLauncher
+        }
+    }
+
     private void defineCompileDMDLTask() {
         project.task('compileDMDL', type: CompileDmdlTask) {
             group ASAKUSAFW_BUILD_GROUP
             description 'Compiles Asakusa DMDL scripts.'
-            launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
             conventionMapping.with {
@@ -341,7 +348,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         project.task('generateTestbook', type: GenerateTestbookTask) {
             group ASAKUSAFW_BUILD_GROUP
             description 'Generates Asakusa test template Excel books.'
-            launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
             toolClasspath << project.sourceSets.main.compileClasspath
             conventionMapping.with {

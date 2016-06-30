@@ -27,15 +27,9 @@ import com.asakusafw.gradle.tasks.internal.ToolLauncherUtils
 /**
  * Gradle Task for DMDL Compile.
  * @since 0.5.3
- * @version 0.8.0
+ * @version 0.8.1
  */
 class CompileDmdlTask extends AbstractAsakusaToolTask {
-
-    /**
-     * The tool launcher class libraries (can empty).
-     * @since 0.8.0
-     */
-    List<Object> launcherClasspath = []
 
     /**
      * The data model base package name.
