@@ -124,6 +124,7 @@ class AnalyzeYaessLogTask extends DefaultTask {
      */
     @TaskAction
     void perform() {
+        logger.warn "task '${name}' is deprecated"
         def inputArgs = ResolutionUtils.resolveToStringMap(getInputArguments())
         if (getInputFile() != null) {
             inputArgs += [ file : getInputFile().absolutePath ]
