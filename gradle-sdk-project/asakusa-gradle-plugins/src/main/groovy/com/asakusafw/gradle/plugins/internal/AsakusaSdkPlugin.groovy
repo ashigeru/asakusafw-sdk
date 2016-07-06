@@ -163,9 +163,11 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 embedded project.sourceSets.main.libs
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: base.slf4jVersion
                 compile group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
+                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
+
+                // TODO: remove this feature
                 asakusaYaessLogAnalyzer group: 'com.asakusafw', name: 'asakusa-yaess-log-analyzer', version: extension.asakusafwVersion
                 asakusaYaessLogAnalyzer group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
-                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
             }
         }
     }
@@ -371,9 +373,10 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     }
 
     private void defineSummarizeYaessJobTask() {
+        // TODO: remove this feature
         project.task('summarizeYaessJob', type: AnalyzeYaessLogTask) { AnalyzeYaessLogTask task ->
             group ASAKUSAFW_BUILD_GROUP
-            description 'Summarizes a YAESS log file [Experimental].'
+            description 'Summarizes a YAESS log file [DEPRECATED].'
             task.toolClasspath += project.configurations.asakusaYaessLogAnalyzer
             task.inputDriver = 'com.asakusafw.yaess.tools.log.basic.BasicYaessLogInput'
             task.outputDriver = 'com.asakusafw.yaess.tools.log.summarize.SummarizeYaessLogOutput'
