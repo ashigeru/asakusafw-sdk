@@ -175,7 +175,7 @@ class AsakusafwPluginConvention {
          * Java version compatibility to use when compiling Java source.
          * <dl>
          *   <dt> Default value: </dt>
-         *     <dd> {@code '1.7'} </dd>
+         *     <dd> {@code '1.8'} </dd>
          * </dl>
          */
         JavaVersion sourceCompatibility
@@ -184,7 +184,7 @@ class AsakusafwPluginConvention {
          * Java version to generate classes for.
          * <dl>
          *   <dt> Default value: </dt>
-         *     <dd> {@code '1.7'} </dd>
+         *     <dd> {@code '1.8'} </dd>
          * </dl>
          */
         JavaVersion targetCompatibility
