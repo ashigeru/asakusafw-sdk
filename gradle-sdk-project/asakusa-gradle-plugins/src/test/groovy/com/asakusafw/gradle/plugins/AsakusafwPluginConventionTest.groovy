@@ -109,8 +109,8 @@ class AsakusafwPluginConventionTest {
     void javac_defaults() {
         assert convention.javac.annotationSourceDirectory == "${project.buildDir}/generated-sources/annotations"
         assert convention.javac.sourceEncoding == "UTF-8"
-        assert convention.javac.sourceCompatibility == JavaVersion.VERSION_1_7
-        assert convention.javac.targetCompatibility == JavaVersion.VERSION_1_7
+        assert convention.javac.sourceCompatibility == JavaVersion.VERSION_1_8
+        assert convention.javac.targetCompatibility == JavaVersion.VERSION_1_8
     }
 
     /**
@@ -122,7 +122,7 @@ class AsakusafwPluginConventionTest {
         assert convention.compiler.compiledSourcePackage == "${project.asakusafw.basePackage}.batchapp"
         assert convention.compiler.compiledSourceDirectory == "${project.buildDir}/batchc"
         assert convention.compiler.compilerOptions == [
-                String.format("XjavaVersion=%s", JavaVersion.VERSION_1_7.toString())]
+                String.format("XjavaVersion=%s", JavaVersion.VERSION_1_8.toString())]
         assert convention.compiler.compilerWorkDirectory == null
         assert convention.compiler.hadoopWorkDirectory == 'target/hadoopwork/${execution_id}'
     }
