@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Gradle plug-ins for Asakusa ThunderGate facilities.
+ * Gradle tasks for Asakusa on MapReduce.
  */
-package com.asakusafw.thundergate.gradle.plugins;
+package com.asakusafw.mapreduce.gradle.tasks;

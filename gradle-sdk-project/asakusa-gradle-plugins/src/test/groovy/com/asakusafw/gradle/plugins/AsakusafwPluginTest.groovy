@@ -24,7 +24,6 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.legacy.gradle.plugins.AsakusafwLegacyPlugin
 import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
 
 /**
@@ -53,6 +52,5 @@ class AsakusafwPluginTest {
     void parents() {
         assert project.plugins.hasPlugin(AsakusaSdkPlugin)
         assert project.plugins.hasPlugin(AsakusafwMapReducePlugin)
-        assert project.plugins.hasPlugin(AsakusafwLegacyPlugin)
     }
 }

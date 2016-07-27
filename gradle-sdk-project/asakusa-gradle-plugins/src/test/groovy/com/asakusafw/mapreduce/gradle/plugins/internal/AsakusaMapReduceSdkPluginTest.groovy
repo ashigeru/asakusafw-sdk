@@ -32,9 +32,9 @@ import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.gradle.tasks.CompileBatchappTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
+import com.asakusafw.mapreduce.gradle.tasks.CompileBatchappTask
 
 /**
  * Test for {@link AsakusaMapReduceSdkPlugin}.
