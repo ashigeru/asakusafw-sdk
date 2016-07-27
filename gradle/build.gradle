@@ -20,10 +20,12 @@ ext.parentPom = { f ->
     def xml = new XmlSlurper().parse(f)
     return [
         projectVersion : xml.version.text(),
-        coreVersion : xml['properties']['asakusafw.version'].text().replaceFirst('-hadoop[12]', ''),
-        legacyVersion : xml['properties']['asakusafw-legacy.version'].text(),
+        coreVersion : xml['properties']['asakusafw.version'].text(),
     ]
-}(project.file('../../pom.xml'))
+}(project.file('../pom.xml'))
+
+group = 'com.asakusafw'
+version = parentPom.projectVersion
 
 defaultTasks 'clean', 'build', 'install', 'assembleTemplates'
 
@@ -31,9 +33,6 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-
-version = parentPom.projectVersion
-group = 'com.asakusafw'
 
 configurations {
     deployerJars
@@ -61,7 +60,7 @@ tasks.withType(AbstractCompile) { task ->
 }
 
 eclipse.jdt {
-    javaRuntimeName = 'JavaSE-1.7'
+    javaRuntimeName = "JavaSE-${sourceCompatibility}"
 }
 
 groovydoc {
@@ -83,25 +82,6 @@ processResources {
         Properties p = new Properties()
         p.put("plugin-version", parentPom.projectVersion)
         p.put("framework-version", parentPom.coreVersion)
-        outputFile.withOutputStream { s ->
-            p.store(s, null)
-        }
-    }
-}
-
-processResources {
-    File outputFile = new File(destinationDir, 'META-INF/asakusa-legacy-gradle/artifact.properties')
-    inputs.properties parentPom
-    outputs.file outputFile
-    doLast {
-        logger.info "injecting artifact versions: ${parentPom}"
-        if (!outputFile.parentFile.exists()) {
-            mkdir outputFile.parentFile
-        }
-        Properties p = new Properties()
-        p.put('feature-version', parentPom.legacyVersion)
-        p.put("core-version", parentPom.coreVersion)
-        p.put("sdk-version", parentPom.projectVersion)
         outputFile.withOutputStream { s ->
             p.store(s, null)
         }
@@ -196,4 +176,8 @@ task assembleTemplateProject (dependsOn: upgradeTemplateProject, type: Tar) {
 
 task assembleTemplates {
     dependsOn assembleTemplateProject
+}
+
+tasks.withType(Wrapper) {
+    jarFile file('.buildtools/gradlew.jar')
 }
