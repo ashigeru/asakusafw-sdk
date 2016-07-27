@@ -28,8 +28,8 @@ import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.gradle.tasks.CompileBatchappTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
+import com.asakusafw.mapreduce.gradle.tasks.CompileBatchappTask
 
 /**
  * A Gradle sub plug-in for Asakusa on MapReduce SDK.

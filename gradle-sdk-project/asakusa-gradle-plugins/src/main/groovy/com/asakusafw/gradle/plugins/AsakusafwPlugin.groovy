@@ -19,7 +19,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.legacy.gradle.plugins.AsakusafwLegacyPlugin
 import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
 
 /**
@@ -33,8 +32,5 @@ class AsakusafwPlugin implements Plugin<Project> {
 
         // FIXME purge MapReduce
         project.apply plugin: AsakusafwMapReducePlugin
-
-        // FIXME purge legacy
-        project.apply plugin: AsakusafwLegacyPlugin
     }
 }
