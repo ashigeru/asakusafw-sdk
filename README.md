@@ -19,7 +19,7 @@ This project includes following features:
 ### Gradle plug-ins
 
 ```sh
-cd gradle-sdk-project
+cd gradle
 ./gradlew clean [build] install
 ```
 
