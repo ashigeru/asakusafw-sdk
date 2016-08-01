@@ -135,7 +135,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 YaessIterativeLib : [
                     "com.asakusafw:asakusa-iterative-yaess:${frameworkVersion}:lib@jar",
                 ],
-                WindGateDist : "com.asakusafw:asakusa-windgate-plugin:${frameworkVersion}:dist@jar",
+                WindGateDist : "com.asakusafw:asakusa-windgate-bootstrap:${frameworkVersion}:dist@jar",
                 WindGateLib : [
                     "com.asakusafw:asakusa-windgate-bootstrap:${frameworkVersion}@jar",
                     "com.asakusafw:asakusa-windgate-core:${frameworkVersion}@jar",
