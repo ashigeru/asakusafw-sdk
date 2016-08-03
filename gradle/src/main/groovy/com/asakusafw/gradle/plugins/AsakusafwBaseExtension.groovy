@@ -19,7 +19,7 @@ package com.asakusafw.gradle.plugins
  * An extension object for the Asakusa features.
  * This is only for internal use.
  * @since 0.8.0
- * @version 0.8.1
+ * @version 0.9.0
  */
 class AsakusafwBaseExtension {
 
@@ -102,4 +102,9 @@ class AsakusafwBaseExtension {
      * The default Hive artifact notation.
      */
     String hiveArtifact
+
+    /**
+     * Whether or not new Operator DSL compiler is enabled.
+     */
+    boolean enableNewOperatorCompiler
 }

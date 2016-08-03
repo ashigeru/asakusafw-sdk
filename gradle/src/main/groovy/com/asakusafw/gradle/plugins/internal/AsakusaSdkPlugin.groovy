@@ -161,8 +161,15 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             project.dependencies {
                 embedded project.sourceSets.main.libs
+
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: base.slf4jVersion
                 compile group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
+                if (base.enableNewOperatorCompiler) {
+                    compile "com.asakusafw.operator:asakusa-operator-all:${extension.asakusafwVersion}"
+                } else {
+                    compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${extension.asakusafwVersion}"
+                }
+
                 asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
 
                 // TODO: remove this feature

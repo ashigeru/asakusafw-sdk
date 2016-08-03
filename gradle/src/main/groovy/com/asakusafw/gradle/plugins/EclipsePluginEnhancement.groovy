@@ -55,7 +55,11 @@ class EclipsePluginEnhancement {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             AsakusafwPluginConvention sdk =  project.asakusafw
             project.dependencies {
-                eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+                if (base.enableNewOperatorCompiler) {
+                    eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${sdk.asakusafwVersion}:lib@jar"
+                } else {
+                    eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+                }
             }
         }
     }
