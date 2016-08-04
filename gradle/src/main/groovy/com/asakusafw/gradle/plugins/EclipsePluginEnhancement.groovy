@@ -55,19 +55,11 @@ class EclipsePluginEnhancement {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             AsakusafwPluginConvention sdk =  project.asakusafw
             project.dependencies {
-                eclipseAnnotationProcessor "com.asakusafw:asakusa-runtime:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:asakusa-dsl-vocabulary:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:ashigel-compiler:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:java-dom:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:javadoc-parser:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:jsr269-bridge:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:collections:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "com.asakusafw:simple-graph:${sdk.asakusafwVersion}"
-                eclipseAnnotationProcessor "commons-io:commons-io:${base.commonsIoVersion}"
-                eclipseAnnotationProcessor "commons-lang:commons-lang:${base.commonsLangVersion}"
-                eclipseAnnotationProcessor "ch.qos.logback:logback-classic:${base.logbackVersion}"
-                eclipseAnnotationProcessor "ch.qos.logback:logback-core:${base.logbackVersion}"
-                eclipseAnnotationProcessor "org.slf4j:slf4j-api:${base.slf4jVersion}"
+                if (base.enableNewOperatorCompiler) {
+                    eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${sdk.asakusafwVersion}:lib@jar"
+                } else {
+                    eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+                }
             }
         }
     }

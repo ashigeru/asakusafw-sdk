@@ -45,7 +45,7 @@ final class GradleTestkitHelper {
         lines << '  }'
         lines << '  dependencies {'
         if (!classpath.empty) {
-            lines << "    classpath files(${classpath.collect { "'''${it.absolutePath}'''" }.join(', ')})"
+            lines << "    classpath files(${classpath.collect { "'''${it.absolutePath.replace('\\', '/')}'''" }.join(', ')})"
         }
         lines << "    classpath 'org.codehaus.groovy:groovy-backports-compat23:${GroovySystem.version}'"
         lines << '  }'
