@@ -37,7 +37,6 @@ import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.TestToolsConfiguration
-import com.asakusafw.gradle.tasks.AnalyzeYaessLogTask
 import com.asakusafw.gradle.tasks.CompileDmdlTask
 import com.asakusafw.gradle.tasks.GenerateHiveDdlTask
 import com.asakusafw.gradle.tasks.GenerateTestbookTask
@@ -148,9 +147,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         def embedded = project.configurations.create('embedded')
         embedded.description = 'Project embedded libraries.'
 
-        def asakusaYaessLogAnalyzer = project.configurations.create('asakusaYaessLogAnalyzer')
-        asakusaYaessLogAnalyzer.description = 'Asakusa YAESS log analyzer libraries.'
-
         def asakusaHiveCli = project.configurations.create('asakusaHiveCli')
         asakusaHiveCli.description = 'Asakusa Hive CLI libraries.'
         asakusaHiveCli.extendsFrom project.configurations.compile
@@ -171,10 +167,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 }
 
                 asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
-
-                // TODO: remove this feature
-                asakusaYaessLogAnalyzer group: 'com.asakusafw', name: 'asakusa-yaess-log-analyzer', version: extension.asakusafwVersion
-                asakusaYaessLogAnalyzer group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
             }
         }
     }
@@ -281,7 +273,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         extendCompileJavaTask()
         defineGenerateTestbookTask()
         defineGenerateHiveDdlTask()
-        defineSummarizeYaessJobTask()
         configureTestToolTasks()
     }
 
@@ -376,31 +367,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 outputFile = { project.file("${project.buildDir}/hive-ddl/${project.name}.sql") }
             }
             task.dependsOn project.tasks.compileJava
-        }
-    }
-
-    private void defineSummarizeYaessJobTask() {
-        // TODO: remove this feature
-        project.task('summarizeYaessJob', type: AnalyzeYaessLogTask) { AnalyzeYaessLogTask task ->
-            group ASAKUSAFW_BUILD_GROUP
-            description 'Summarizes a YAESS log file [DEPRECATED].'
-            task.toolClasspath += project.configurations.asakusaYaessLogAnalyzer
-            task.inputDriver = 'com.asakusafw.yaess.tools.log.basic.BasicYaessLogInput'
-            task.outputDriver = 'com.asakusafw.yaess.tools.log.summarize.SummarizeYaessLogOutput'
-            task.inputArguments.put 'encoding', 'UTF-8'
-            task.outputArguments.put 'encoding', 'UTF-8'
-            task.outputArguments.put 'code', /YS-CORE-\w04\d{3}/
-            task.conventionMapping.with {
-                logbackConf = { this.findLogbackConf() }
-                maxHeapSize = { extension.maxHeapSize }
-                // Note: no default value for 'inputFile' property
-                outputFile = { new File(project.buildDir, 'reports/yaess-jobs.csv') }
-            }
-            task.doFirst {
-                if (task.getInputFile() == null) {
-                    throw new InvalidUserDataException("${task.name} --input </path/to/yaess-log> must be specified")
-                }
-            }
         }
     }
 
