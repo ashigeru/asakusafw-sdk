@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.gradle.plugins
 
 /**
- * An extension object for the Asakusa on MapReduce features.
- * This is only for internal use.
- * @since 0.8.0
- * @version 0.9.0
+ * A specialized interface of {@link PluginParticipant} for {@link AsakusafwSdkPlugin}.
+ * Implementations will be implicitly applied when {@link AsakusafwSdkPlugin} was applied.
+ * @since 0.9.0
  */
-class AsakusaMapReduceBaseExtension {
-
-    /**
-     * The module version.
-     * @since 0.9.0
-     */
-    String featureVersion
+interface AsakusafwSdkPluginParticipant extends PluginParticipant {
+    // no special members
 }

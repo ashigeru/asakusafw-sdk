@@ -18,6 +18,7 @@ package com.asakusafw.mapreduce.gradle.plugins
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+import com.asakusafw.gradle.plugins.AsakusafwPluginParticipant
 import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceOrganizerPlugin
 import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceSdkPlugin
@@ -34,6 +35,23 @@ class AsakusafwMapReducePlugin implements Plugin<Project> {
         }
         PluginUtils.afterPluginEnabled(project, 'asakusafw-organizer') {
             project.apply plugin: AsakusaMapReduceOrganizerPlugin
+        }
+    }
+
+    /**
+     * A participant descriptor for {@link AsakusafwMapReducePlugin}.
+     * @since 0.9.0
+     */
+    static class Participant implements AsakusafwPluginParticipant {
+
+        @Override
+        String getName() {
+            return descriptor.simpleName
+        }
+
+        @Override
+        Class<?> getDescriptor() {
+            return AsakusafwMapReducePlugin
         }
     }
 }

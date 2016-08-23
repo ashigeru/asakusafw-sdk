@@ -23,14 +23,14 @@ import org.gradle.api.JavaVersion
 /**
  * Convention class for {@link AsakusafwPlugin}.
  * @since 0.5.2
- * @version 0.8.0
+ * @version 0.9.0
  */
 class AsakusafwPluginConvention {
 
     /**
      * Schema version of this convention.
      */
-    static final CONVENTION_SCHEMA_VERSION = '1.3.0'
+    static final CONVENTION_SCHEMA_VERSION = '1.4.0'
 
     /**
      * The schema version of this convention.
@@ -76,6 +76,18 @@ class AsakusafwPluginConvention {
     String basePackage
 
     /**
+     * Core settings.
+     * @since 0.9.0
+     */
+    CoreConfiguration core
+
+    /**
+     * SDK settings.
+     * @since 0.9.0
+     */
+    AsakusafwSdkExtension sdk
+
+    /**
      * DMDL settings.
      */
     DmdlConfiguration dmdl
@@ -99,6 +111,14 @@ class AsakusafwPluginConvention {
      * Test tools settings.
      */
     TestToolsConfiguration testtools
+
+    /**
+     * Asakusa SDK core settings.
+     * @since 0.9.0
+     */
+    static class CoreConfiguration {
+        // no special members
+    }
 
     /**
      * DMDL settings for building Asakusa batch applications.

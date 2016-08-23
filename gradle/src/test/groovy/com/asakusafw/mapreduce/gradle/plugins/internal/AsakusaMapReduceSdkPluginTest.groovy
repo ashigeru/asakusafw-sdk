@@ -98,6 +98,15 @@ class AsakusaMapReduceSdkPluginTest {
     }
 
     /**
+     * Test for {@code project.asakusafw.mapreduce.version}.
+     */
+    @Test
+    void extension_version() {
+        project.asakusaMapReduceBase.featureVersion = '__VERSION__'
+        assert project.asakusafw.mapreduce.version == '__VERSION__'
+    }
+
+    /**
      * Test for {@code project.asakusafw.mapreduce.options}.
      */
     @Test

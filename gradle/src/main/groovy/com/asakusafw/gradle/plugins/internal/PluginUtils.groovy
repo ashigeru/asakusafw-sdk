@@ -18,14 +18,26 @@ package com.asakusafw.gradle.plugins.internal
 import org.gradle.api.Project
 import org.gradle.api.ProjectState
 import org.gradle.api.Task
+import org.gradle.api.plugins.Convention
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.util.GradleVersion
+
+import com.asakusafw.gradle.plugins.PluginParticipant
+import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
  * Basic utilities for Gradle plug-ins.
  * @since 0.7.4
- * @version 0.8.1
+ * @version 0.9.0
  */
 final class PluginUtils {
+
+    /**
+     * The property name of module versions.
+     * @since 0.9.0
+     */
+    public static final String PROPERTY_VERSION = 'version'
 
     /**
      * Executes a closure after the project was evaluated only if evaluation was not failed.
@@ -122,6 +134,50 @@ final class PluginUtils {
             setter(arg)
         }
         return instance
+    }
+
+    /**
+     * Finds for services.
+     * @param <T> the service interface type
+     * @param project the current project
+     * @param serviceInterface the service interface
+     * @param loader the service class loader
+     * @return the loaded services
+     * @since 0.9.0
+     */
+    static void applyParticipants(Project project, Class<? extends PluginParticipant> type) {
+        // We always load implementations from the interface class loader.
+        // A class loader relying on the project might not load the target interface.
+        ClassLoader loader = type.classLoader
+        ServiceLoader<? extends PluginParticipant> services = ServiceLoader.load(type)
+        for (Iterator<? extends PluginParticipant> iter = services.iterator(); iter.hasNext();) {
+            try {
+                PluginParticipant participant = iter.next()
+                project.logger.info "applying participant: ${participant.name} (${participant.descriptor})"
+                project.apply plugin: participant.descriptor
+            } catch (ServiceConfigurationError e) {
+                project.logger.warn "error occurred while loading service: ${type.name}", e
+            }
+        }
+    }
+
+    /**
+     * Injects the {@code version} property into the given container.
+     * @param container the target container
+     * @param version the version value
+     * @since 0.9.0
+     */
+    static void injectVersionProperty(ExtensionAware container, Object version) {
+        if (!(container instanceof ExtensionAware)) {
+            throw new IllegalStateException()
+        }
+        ExtensionContainer extensions = container.extensions
+        FeatureVersionExtension value = new FeatureVersionExtension(version)
+        if (extensions instanceof Convention) {
+            extensions.plugins['asakusafw-version'] = value
+        } else {
+            extensions.add(PROPERTY_VERSION, value.version)
+        }
     }
 
     private PluginUtils() {

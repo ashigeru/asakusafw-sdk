@@ -102,9 +102,4 @@ class AsakusafwBaseExtension {
      * The default Hive artifact notation.
      */
     String hiveArtifact
-
-    /**
-     * Whether or not new Operator DSL compiler is enabled.
-     */
-    boolean enableNewOperatorCompiler
 }

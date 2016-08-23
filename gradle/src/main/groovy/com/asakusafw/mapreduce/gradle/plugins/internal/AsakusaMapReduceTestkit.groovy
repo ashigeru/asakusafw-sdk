@@ -13,21 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.gradle.plugins
+package com.asakusafw.mapreduce.gradle.plugins.internal
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.gradle.plugins.AsakusaTestkit
 
 /**
- * Gradle plugin for building application component blocks.
+ * An implementation of {@link AsakusaTestkit} which uses MapReduce compiler and runtime.
+ * @since 0.9.0
  */
-class AsakusafwPlugin implements Plugin<Project> {
+class AsakusaMapReduceTestkit implements AsakusaTestkit {
+
+    @Override
+    String getName() {
+        return 'mapreduce'
+    }
+
+    @Override
+    int getPriority() {
+        return 100
+    }
 
     @Override
     void apply(Project project) {
-        project.apply plugin: AsakusafwSdkPlugin
-        PluginUtils.applyParticipants(project, AsakusafwPluginParticipant)
+        project.logger.info "enabling MapReduce Testkit (${name})"
+        project.configurations {
+            testCompile.extendsFrom asakusaMapreduceTestkit
+        }
+    }
+
+    @Override
+    String toString() {
+        return "Testkit(${name})"
     }
 }

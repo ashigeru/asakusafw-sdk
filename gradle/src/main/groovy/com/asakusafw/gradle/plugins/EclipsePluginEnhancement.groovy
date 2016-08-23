@@ -52,13 +52,14 @@ class EclipsePluginEnhancement {
 
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
-            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             AsakusafwPluginConvention sdk =  project.asakusafw
-            project.dependencies {
-                if (base.enableNewOperatorCompiler) {
-                    eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${sdk.asakusafwVersion}:lib@jar"
-                } else {
-                    eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+            if (sdk.sdk.operator) {
+                project.dependencies {
+                    if (sdk.sdk.operator == 'NEW') {
+                        eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${sdk.asakusafwVersion}:lib@jar"
+                    } else {
+                        eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+                    }
                 }
             }
         }
@@ -115,16 +116,28 @@ class EclipsePluginEnhancement {
     }
 
     private void extendEclipseJdtConfiguration() {
-        project.eclipse.jdt.file.withProperties { Properties props ->
-            props.setProperty('org.eclipse.jdt.core.compiler.processAnnotations', 'enabled')
+        PluginUtils.afterEvaluate(project) {
+            AsakusafwPluginConvention sdk =  project.asakusafw
+            if (sdk.sdk.operator) {
+                project.eclipse.jdt.file.withProperties { Properties props ->
+                    props.setProperty('org.eclipse.jdt.core.compiler.processAnnotations', 'enabled')
+                }
+            }
         }
     }
 
     private void extendEclipseJdtTask() {
         project.tasks.eclipseJdt.doLast {
-            generateFactorypath()
-            generateAptPref()
             generateAsakusafwProjectPref()
+        }
+        PluginUtils.afterEvaluate(project) {
+            AsakusafwPluginConvention sdk =  project.asakusafw
+            if (sdk.sdk.operator) {
+                project.tasks.eclipseJdt.doLast {
+                    generateFactorypath()
+                    generateAptPref()
+                }
+            }
         }
     }
 

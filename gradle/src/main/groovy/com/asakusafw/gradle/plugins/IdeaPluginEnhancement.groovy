@@ -46,6 +46,7 @@ class IdeaPluginEnhancement {
             jdkName = project.asakusafw.javac.sourceCompatibility
             languageLevel = project.asakusafw.javac.sourceCompatibility
 
+            // FIXME only if asakusafw.sdk.{operator, dmdl}
             ipr.withXml { projectXml ->
                 projectXml.asNode().component.find {
                     it.@name == 'CompilerConfiguration'
