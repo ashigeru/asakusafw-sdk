@@ -122,7 +122,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             testing true
             testkit true
             directio true
-            windgate false
+            windgate true
             hive false
         }
         extension.dmdl.conventionMapping.with {
