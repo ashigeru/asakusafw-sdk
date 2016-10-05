@@ -62,6 +62,7 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
     }
 
     private defineCompileBatchappTask() {
+        AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
         AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.tasks.create(TASK_COMPILE, CompileBatchappTask) { CompileBatchappTask task ->
             task.group AsakusaSdkPlugin.ASAKUSAFW_BUILD_GROUP
@@ -81,7 +82,7 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
             task.conventionMapping.with {
                 logbackConf = { sdk.logbackConf ? project.file(sdk.logbackConf) : null }
                 maxHeapSize = { sdk.maxHeapSize }
-                frameworkVersion = { sdk.asakusafwVersion }
+                frameworkVersion = { base.featureVersion }
                 packageName = { sdk.compiler.compiledSourcePackage }
                 compilerOptions = { restoreOptions(extension.compilerProperties) }
                 workingDirectory = {

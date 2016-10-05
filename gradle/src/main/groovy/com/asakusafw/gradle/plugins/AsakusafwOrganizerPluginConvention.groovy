@@ -22,18 +22,19 @@ import com.asakusafw.gradle.assembly.AsakusafwAssembly
 /**
  * Convention class for {@link AsakusafwOrganizerPlugin}.
  * @since 0.5.2
- * @version 0.8.0
+ * @version 0.9.0
  */
 class AsakusafwOrganizerPluginConvention {
 
     /**
-     * Asakusa Framework version.
+     * Asakusa Framework version (read only).
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> {@code project.asakusafw.asakusafwVersion} - only if {@code asakusafw-sdk} plug-in is enabled </dd>
-     *     <dd> N/A - otherwise</dd>
+     *     <dd> Asakusa Framework Core libraries version </dd>
      * </dl>
+     * @deprecated use {@code asakusafwOrganizer.core.version} instead
      */
+    @Deprecated
     String asakusafwVersion
 
     /**

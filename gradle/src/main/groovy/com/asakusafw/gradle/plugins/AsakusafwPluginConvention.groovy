@@ -43,9 +43,11 @@ class AsakusafwPluginConvention {
      * This property must be specified in project configuration.
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> (same as the Asakusa Gradle plug-ins version) </dd>
+     *     <dd> Asakusa Framework Core libraries version </dd>
      * </dl>
+     * @deprecated use {@code asakusafw.core.version} instead
      */
+    @Deprecated
     String asakusafwVersion
 
     /**

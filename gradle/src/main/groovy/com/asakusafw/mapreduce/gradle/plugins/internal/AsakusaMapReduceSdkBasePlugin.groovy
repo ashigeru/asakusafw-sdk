@@ -85,26 +85,25 @@ class AsakusaMapReduceSdkBasePlugin implements Plugin<Project> {
         }
         PluginUtils.afterEvaluate(project) {
             AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
-            AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-            AsakusafwSdkExtension features = sdk.sdk
+            AsakusafwSdkExtension features = AsakusaSdkPlugin.get(project).sdk
             project.dependencies {
                 if (features.core) {
-                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-core:${sdk.asakusafwVersion}"
-                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-inspection:${sdk.asakusafwVersion}"
-                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-yaess:${sdk.asakusafwVersion}"
-                    asakusaMapreduceCompiler "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-cli:${sdk.asakusafwVersion}"
+                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-core:${base.featureVersion}"
+                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-inspection:${base.featureVersion}"
+                    asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-yaess:${base.featureVersion}"
+                    asakusaMapreduceCompiler "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-cli:${base.featureVersion}"
                     if (features.directio) {
-                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-directio:${sdk.asakusafwVersion}"
+                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-directio:${base.featureVersion}"
                     }
                     if (features.windgate) {
-                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-windgate:${sdk.asakusafwVersion}"
+                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-windgate:${base.featureVersion}"
                     }
                     if (features.hive) {
-                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-hive:${sdk.asakusafwVersion}"
+                        asakusaMapreduceCommon "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-extension-hive:${base.featureVersion}"
                     }
                 }
                 if (features.testing) {
-                    asakusaMapreduceTestkit "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-test-adapter:${sdk.asakusafwVersion}"
+                    asakusaMapreduceTestkit "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-test-adapter:${base.featureVersion}"
                 }
             }
         }

@@ -85,11 +85,10 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
 
         convention.conventionMapping.with {
             asakusafwVersion = {
-                if (project.plugins.hasPlugin('asakusafw-sdk')) {
-                    return project.asakusafw.asakusafwVersion
-                } else {
-                    throw new InvalidUserDataException('"asakusafwOrganizer.asakusafwVersion" must be set')
+                if (base.frameworkVersion == null) {
+                    throw new InvalidUserDataException('Asakusa Framework core libraries version is not defined')
                 }
+                return base.frameworkVersion
             }
             assembleDir = { (String) "${project.buildDir}/asakusafw-assembly" }
         }
@@ -128,6 +127,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
         convention.profiles.create(PROFILE_NAME_PRODUCTION) { AsakusafwOrganizerProfile profile ->
             profile.conventionMapping.with {
+                // FIXME default archive name
                 archiveName = { (String) "asakusafw-${profile.asakusafwVersion}.tar.gz" }
             }
         }
@@ -167,8 +167,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.extension = profile.extensions.create('extension', ExtensionConfiguration)
 
         profile.conventionMapping.with {
-            asakusafwVersion = { convention.asakusafwVersion }
+            asakusafwVersion = { convention.asakusafwVersion } // ok, this just inherits parent version
             assembleDir = { (String) "${convention.assembleDir}-${profile.name}" }
+            // FIXME default archive name
             archiveName = { (String) "asakusafw-${profile.asakusafwVersion}-${profile.name}.tar.gz" }
         }
         profile.components.process {

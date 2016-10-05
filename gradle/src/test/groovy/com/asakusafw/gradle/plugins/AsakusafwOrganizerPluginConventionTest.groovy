@@ -66,12 +66,8 @@ class AsakusafwOrganizerPluginConventionTest {
     public void defaults() {
         assert convention != null
 
-        try {
-            convention.getAsakusafwVersion()
-            fail()
-        } catch (InvalidUserDataException e) {
-            // ok
-        }
+        project.asakusafwBase.frameworkVersion = 'AFW_TEST'
+        assert convention.asakusafwVersion == project.asakusafwBase.frameworkVersion
         assert convention.assembleDir == "${project.buildDir}/asakusafw-assembly"
         assert convention.directio instanceof DirectIoConfiguration
         assert convention.windgate instanceof WindGateConfiguration
@@ -152,11 +148,12 @@ class AsakusafwOrganizerPluginConventionTest {
      */
     @Test
     public void dev_defaults() {
+        project.asakusafwBase.frameworkVersion = 'AFW_TEST'
         AsakusafwOrganizerProfile profile = convention.profiles.dev
-        convention.asakusafwVersion = 'AFW-TEST'
         assert profile.name == "dev"
         assert profile.asakusafwVersion == convention.asakusafwVersion
         assert profile.assembleDir == "${convention.assembleDir}-dev"
+        // FIXME change archive name
         assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-dev.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
@@ -172,11 +169,12 @@ class AsakusafwOrganizerPluginConventionTest {
      */
     @Test
     public void prod_defaults() {
+        project.asakusafwBase.frameworkVersion = 'AFW_TEST'
         AsakusafwOrganizerProfile profile = convention.profiles.prod
-        convention.asakusafwVersion = 'AFW-TEST'
         assert profile.name == "prod"
         assert profile.asakusafwVersion == convention.asakusafwVersion
         assert profile.assembleDir == "${convention.assembleDir}-prod"
+        // FIXME change archive name
         assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
@@ -200,11 +198,9 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile != null
         assert profile.name == "testProfile"
 
-        convention.asakusafwVersion = 'AFW-TEST'
-        assert profile.asakusafwVersion == convention.asakusafwVersion
-
         convention.assembleDir = 'AFW-TEST'
         assert profile.assembleDir == "${convention.assembleDir}-testProfile"
+        // FIXME change archive name
         assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-testProfile.tar.gz"
 
         assert profile.directio.enabled == convention.directio.enabled
@@ -238,10 +234,6 @@ class AsakusafwOrganizerPluginConventionTest {
     public void profiles_split() {
         AsakusafwOrganizerProfile profile = convention.profiles.testProfile
 
-        convention.asakusafwVersion = 'AFW-TEST'
-        profile.asakusafwVersion = 'PRF-TEST'
-        assert profile.asakusafwVersion != convention.asakusafwVersion
-
         profile.assembleDir = 'AFW-TEST'
         assert profile.assembleDir != "${convention.assembleDir}-testProfile"
 
@@ -266,14 +258,14 @@ class AsakusafwOrganizerPluginConventionTest {
      */
     @Test
     public void profiles_configure_property() {
-        convention.asakusafwVersion = 'AFW-TEST'
-        convention.profiles.testProfile.asakusafwVersion 'TEST-PROFILE'
+        convention.extension.libraries = ['AFW-TEST']
+        convention.profiles.testProfile.extension.libraries = ['TEST-PROFILE']
         AsakusafwOrganizerProfile profile = convention.profiles.testProfile
         assert profile != null
         assert profile.name == "testProfile"
-        assert profile.asakusafwVersion == 'TEST-PROFILE'
-        assert convention.asakusafwVersion == 'AFW-TEST'
-        assert convention.profiles.other.asakusafwVersion == convention.asakusafwVersion
+        assert profile.extension.libraries == ['TEST-PROFILE']
+        assert convention.extension.libraries == ['AFW-TEST']
+        assert convention.profiles.other.extension.libraries == convention.extension.libraries
     }
 
     /**
@@ -281,16 +273,16 @@ class AsakusafwOrganizerPluginConventionTest {
      */
     @Test
     public void profiles_configure_closure() {
-        convention.asakusafwVersion = 'AFW-TEST'
+        convention.extension.libraries = ['AFW-TEST']
         convention.profiles.testProfile {
-            asakusafwVersion 'TEST-PROFILE'
+            extension.libraries = ['TEST-PROFILE']
         }
         AsakusafwOrganizerProfile profile = convention.profiles.testProfile
         assert profile != null
         assert profile.name == "testProfile"
-        assert profile.asakusafwVersion == 'TEST-PROFILE'
-        assert convention.asakusafwVersion == 'AFW-TEST'
-        assert convention.profiles.other.asakusafwVersion == convention.asakusafwVersion
+        assert profile.extension.libraries == ['TEST-PROFILE']
+        assert convention.extension.libraries == ['AFW-TEST']
+        assert convention.profiles.other.extension.libraries == convention.extension.libraries
     }
 
     /**
