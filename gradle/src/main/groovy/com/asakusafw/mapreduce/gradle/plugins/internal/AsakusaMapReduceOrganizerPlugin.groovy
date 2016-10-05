@@ -23,6 +23,7 @@ import org.gradle.api.Task
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.mapreduce.gradle.plugins.AsakusafwOrganizerMapReduceExtension
 
 /**
@@ -39,7 +40,7 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
         this.project = project
         this.organizers = project.container(AsakusaMapReduceOrganizer)
 
-        project.apply plugin: 'asakusafw-organizer'
+        project.apply plugin: AsakusafwOrganizerPlugin
         project.apply plugin: AsakusaMapReduceBasePlugin
 
         configureConvention()
@@ -56,11 +57,13 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
     }
 
     private void configureConvention() {
+        AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.asakusafwOrganizer
         convention.extensions.create('mapreduce', AsakusafwOrganizerMapReduceExtension)
         convention.mapreduce.conventionMapping.with {
             enabled = { true }
         }
+        PluginUtils.injectVersionProperty(convention.mapreduce, { base.featureVersion })
     }
 
     private void configureProfiles() {
@@ -71,11 +74,13 @@ class AsakusaMapReduceOrganizerPlugin implements Plugin<Project> {
     }
 
     private void configureProfile(AsakusafwOrganizerProfile profile) {
-        AsakusafwOrganizerMapReduceExtension root =
+        AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
         profile.extensions.create('mapreduce', AsakusafwOrganizerMapReduceExtension)
         profile.mapreduce.conventionMapping.with {
             enabled = { project.asakusafwOrganizer.mapreduce.enabled }
         }
+        PluginUtils.injectVersionProperty(profile.mapreduce, { base.featureVersion })
+
         AsakusaMapReduceOrganizer organizer = new AsakusaMapReduceOrganizer(project, profile)
         organizer.configureProfile()
         organizers << organizer

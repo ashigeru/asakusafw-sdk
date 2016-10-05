@@ -17,6 +17,7 @@ package com.asakusafw.gradle.plugins
 
 import com.asakusafw.gradle.assembly.AsakusafwAssembly
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.CoreConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
@@ -27,7 +28,7 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.YaessConf
 /**
  * Represents an Asakusa Framework organization profile.
  * @since 0.7.0
- * @version 0.8.0
+ * @version 0.9.0
  */
 class AsakusafwOrganizerProfile {
 
@@ -66,6 +67,12 @@ class AsakusafwOrganizerProfile {
      * </dl>
      */
     String archiveName
+
+    /**
+     * Core settings.
+     * @since 0.9.0
+     */
+    CoreConfiguration core
 
     /**
      * Direct I/O settings.

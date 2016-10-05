@@ -15,6 +15,9 @@
  */
 package com.asakusafw.mapreduce.gradle.plugins.internal
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -25,6 +28,7 @@ import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.mapreduce.gradle.tasks.CompileBatchappTask
 
@@ -41,6 +45,8 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
      */
     public static final String TASK_COMPILE = 'mapreduceCompileBatchapps'
 
+    private static final Pattern OPTION_PATTERN = ~/([\+\-])\s*([0-9A-Za-z_\\-]+)|(X[0-9A-Za-z_\\-]+)=([^,]*)/
+
     private Project project
 
     private AsakusafwCompilerExtension extension
@@ -50,9 +56,49 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
         this.project = project
 
         project.apply plugin: AsakusaMapReduceSdkBasePlugin
-        this.extension = AsakusaMapReduceSdkBasePlugin.get(project)
+        this.extension = AsakusaSdkPlugin.get(project).extensions.create('mapreduce', AsakusafwCompilerExtension)
 
+        configureConvention()
         defineTasks()
+    }
+
+    private void configureConvention() {
+        AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
+        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
+        extension.conventionMapping.with {
+            outputDirectory = { project.file(sdk.compiler.compiledSourceDirectory) }
+            runtimeWorkingDirectory = { sdk.compiler.hadoopWorkDirectory }
+            compilerProperties = { parseOptions(sdk.compiler.compilerOptions) }
+            failOnError = { true }
+        }
+        PluginUtils.injectVersionProperty(extension, { base.featureVersion })
+    }
+
+    private Map<String, Object> parseOptions(List<String> options) {
+        Map<String, Object> results = [:]
+        for (String s : options) {
+            if (s == null || s.trim().isEmpty()) {
+                continue
+            }
+            String option = s.trim()
+            Matcher m = OPTION_PATTERN.matcher(option)
+            if (m.matches()) {
+                if (m.group(1) != null) {
+                    String key = m.group(2)
+                    boolean value = m.group(1) == '+'
+                    results[key] = value
+                } else if (m.group(3) != null) {
+                    String key = m.group(3)
+                    String value = m.group(4)
+                    results[key] = value
+                } else {
+                    throw new AssertionError(option)
+                }
+            } else {
+                project.logger.warn "unrecognizable compiler option: ${option}"
+            }
+        }
+        return results
     }
 
     private void defineTasks() {
@@ -142,7 +188,6 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
     }
 
     private void extendVersionsTask() {
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
         project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
             def hadoopVersion = 'UNKNOWN'
             try {

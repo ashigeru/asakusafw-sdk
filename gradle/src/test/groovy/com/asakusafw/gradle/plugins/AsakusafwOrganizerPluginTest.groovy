@@ -162,4 +162,16 @@ class AsakusafwOrganizerPluginTest extends OrganizerTestRoot {
             assert dependencies(ptask(profile, 'gatherAsakusafw')).contains(task.name)
         }
     }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.core.version}.
+     */
+    @Test
+    void version() {
+        project.asakusafwBase.frameworkVersion = '__VERSION__'
+        assert project.asakusafwOrganizer.core.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.dev.core.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.prod.core.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.other.core.version == '__VERSION__'
+    }
 }

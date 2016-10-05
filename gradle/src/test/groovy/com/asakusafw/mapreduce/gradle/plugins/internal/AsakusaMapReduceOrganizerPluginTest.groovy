@@ -104,4 +104,16 @@ class AsakusaMapReduceOrganizerPluginTest extends OrganizerTestRoot {
         checkDependencies('attachComponentMapreduce')
         checkDependencies('attachMapreduceBatchapps')
     }
+
+    /**
+     * Test for {@code project.asakusafwOrganizer.mapreduce.version}.
+     */
+    @Test
+    void version() {
+        project.asakusaMapReduceBase.featureVersion = '__VERSION__'
+        assert project.asakusafwOrganizer.mapreduce.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.dev.mapreduce.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.prod.mapreduce.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.other.mapreduce.version == '__VERSION__'
+    }
 }

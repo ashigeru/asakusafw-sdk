@@ -53,6 +53,7 @@ class EclipsePluginEnhancement {
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            AsakusafwPluginConvention sdk =  project.asakusafw
             if (sdk.sdk.operator) {
                 project.dependencies {
                     if (sdk.sdk.operator == 'NEW') {

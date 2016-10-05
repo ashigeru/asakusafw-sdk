@@ -47,6 +47,12 @@ class AsakusafwOrganizerPluginConvention {
     String assembleDir
 
     /**
+     * Core settings.
+     * @since 0.9.0
+     */
+    CoreConfiguration core
+
+    /**
      * Direct I/O settings.
      * @since 0.7.0
      */
@@ -98,6 +104,14 @@ class AsakusafwOrganizerPluginConvention {
      * Custom framework files.
      */
     final AsakusafwAssembly assembly = new AsakusafwAssembly("assembly")
+
+    /**
+     * Asakusa Framework organizer core settings.
+     * @since 0.9.0
+     */
+    static class CoreConfiguration {
+        // no special members
+    }
 
     /**
      * Direct I/O settings for the Asakusa Framework organizer.

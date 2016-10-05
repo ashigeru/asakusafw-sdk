@@ -21,6 +21,7 @@ import org.gradle.api.tasks.bundling.*
 import org.gradle.util.ConfigureUtil
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.CoreConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.DirectIoConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.ExtensionConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.HiveConfiguration
@@ -75,6 +76,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     private void configureExtentionProperties() {
         AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.extensions.create('asakusafwOrganizer', AsakusafwOrganizerPluginConvention)
+        convention.core = convention.extensions.create('core', CoreConfiguration)
         convention.directio = convention.extensions.create('directio', DirectIoConfiguration)
         convention.windgate = convention.extensions.create('windgate', WindGateConfiguration)
         convention.hive = convention.extensions.create('hive', HiveConfiguration)
@@ -131,9 +133,9 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
                 archiveName = { (String) "asakusafw-${profile.asakusafwVersion}.tar.gz" }
             }
         }
-
-        convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
         PluginUtils.deprecateAsakusafwVersion project, 'asakusafwOrganizer', convention
+        PluginUtils.injectVersionProperty(convention.core, { base.frameworkVersion })
+        convention.metaClass.toStringDelegate = { -> "asakusafwOrganizer { ... }" }
     }
 
     private NamedDomainObjectContainer<AsakusafwOrganizerProfile> createProfileContainer(AsakusafwOrganizerPluginConvention convention) {
@@ -158,6 +160,8 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
     }
 
     private void configureProfile(AsakusafwOrganizerPluginConvention convention,  AsakusafwOrganizerProfile profile) {
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+        profile.core = profile.extensions.create('core', CoreConfiguration)
         profile.directio = profile.extensions.create('directio', DirectIoConfiguration)
         profile.windgate = profile.extensions.create('windgate', WindGateConfiguration)
         profile.hive = profile.extensions.create('hive', HiveConfiguration)
@@ -207,6 +211,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             defaultLibraries = { convention.extension.libraries }
         }
         PluginUtils.deprecateAsakusafwVersion project, "asakusafwOrganizer.profiles.${profile.name}", profile
+        PluginUtils.injectVersionProperty(profile.core, { base.frameworkVersion })
     }
 
     private void configureProfiles() {

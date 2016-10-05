@@ -154,7 +154,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             testDataSheetDirectory = { (String) "${project.buildDir}/excel" }
         }
         PluginUtils.deprecateAsakusafwVersion project, 'asakusafw', extension
-
         PluginUtils.injectVersionProperty(extension.core, { base.frameworkVersion })
         extension.metaClass.toStringDelegate = { -> "asakusafw { ... }" }
     }
