@@ -27,12 +27,15 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 
+import com.asakusafw.gradle.plugins.AsakusaTestkit
 import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
+import com.asakusafw.gradle.plugins.AsakusafwSdkExtension
 import com.asakusafw.gradle.plugins.EclipsePluginEnhancement
 import com.asakusafw.gradle.plugins.IdeaPluginEnhancement
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.CompilerConfiguration
+import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.CoreConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.DmdlConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.ModelgenConfiguration
@@ -47,6 +50,7 @@ import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
 /**
  * A Gradle plug-in for application development project using Asakusa SDK.
  * @since 0.8.0
+ * @version 0.9.0
  */
 class AsakusaSdkPlugin implements Plugin<Project> {
 
@@ -82,11 +86,14 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         configureExtentionProperties()
         configureConfigurations()
         configureDependencies()
+        configureClasspath()
         configureSourceSets()
     }
 
     private void configureExtentionProperties() {
         AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+        extension.core = extension.extensions.create('core', CoreConfiguration)
+        extension.sdk = extension.extensions.create('sdk', AsakusafwSdkExtension)
         extension.dmdl = extension.extensions.create('dmdl', DmdlConfiguration)
         extension.modelgen = extension.extensions.create('modelgen', ModelgenConfiguration)
         extension.javac = extension.extensions.create('javac', JavacConfiguration)
@@ -107,6 +114,16 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 }
                 return project.group
             }
+        }
+        extension.sdk.with {
+            core true
+            dmdl true
+            operator true
+            testing true
+            testkit true
+            directio true
+            windgate false
+            hive false
         }
         extension.dmdl.conventionMapping.with {
             dmdlEncoding = { 'UTF-8' }
@@ -137,6 +154,8 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             testDataSheetDirectory = { (String) "${project.buildDir}/excel" }
         }
         PluginUtils.deprecateAsakusafwVersion project, 'asakusafw', extension
+
+        PluginUtils.injectVersionProperty(extension.core, { base.frameworkVersion })
         extension.metaClass.toStringDelegate = { -> "asakusafw { ... }" }
     }
 
@@ -146,6 +165,10 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
         def embedded = project.configurations.create('embedded')
         embedded.description = 'Project embedded libraries.'
+
+        def asakusaDmdlCompiler = project.configurations.create('asakusaDmdlCompiler')
+        asakusaDmdlCompiler.description = 'Asakusa DMDL compiler.'
+        asakusaDmdlCompiler.extendsFrom project.configurations.compile
 
         def asakusaHiveCli = project.configurations.create('asakusaHiveCli')
         asakusaHiveCli.description = 'Asakusa Hive CLI libraries.'
@@ -160,14 +183,83 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: base.slf4jVersion
                 compile group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
-                if (base.enableNewOperatorCompiler) {
-                    compile "com.asakusafw.operator:asakusa-operator-all:${extension.asakusafwVersion}"
-                } else {
-                    compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${extension.asakusafwVersion}"
-                }
-
                 asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
             }
+        }
+    }
+
+    private void configureClasspath() {
+        PluginUtils.afterEvaluate(project) {
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            String version = extension.asakusafwVersion
+            AsakusafwSdkExtension features = extension.sdk
+            project.dependencies {
+                if (features.core) {
+                    compile "com.asakusafw.sdk:asakusa-sdk-app-core:${version}"
+                    if (features.operator) {
+                        // FIXME temporary
+                        if (features.operator == 'NEW') {
+                            compile "com.asakusafw.operator:asakusa-operator-all:${extension.asakusafwVersion}"
+                        } else {
+                            compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${extension.asakusafwVersion}"
+                        }
+                    }
+                    if (features.directio) {
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-directio:${version}"
+                    }
+                    if (features.windgate) {
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-windgate:${version}"
+                    }
+                    if (features.hive) {
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-hive:${version}"
+                    }
+                }
+                if (features.testing) {
+                    testCompile "com.asakusafw.sdk:asakusa-sdk-test-core:${version}"
+                    if (features.directio) {
+                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-directio:${version}"
+                    }
+                    if (features.windgate) {
+                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-windgate:${version}"
+                    }
+                    if (features.testkit) {
+                        AsakusaTestkit found = findTestkit(features.testkit, features.availableTestkits)?.apply(project)
+                    }
+                }
+                if (features.dmdl) {
+                    asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-core:${version}"
+                    if (features.directio) {
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-directio:${version}"
+                    }
+                    if (features.windgate) {
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-windgate:${version}"
+                    }
+                    if (features.hive) {
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-hive:${version}"
+                    }
+                }
+            }
+        }
+    }
+
+    private AsakusaTestkit findTestkit(Object value, Set<AsakusaTestkit> availables) {
+        if (value instanceof AsakusaTestkit) {
+            return (AsakusaTestkit) value
+        } else if (value instanceof String || value instanceof GString) {
+            AsakusaTestkit kit = availables.find { it.name == value }
+            if (kit) {
+                return kit
+            } else {
+                throw new InvalidUserDataException("testkit \"${value}\" is not found")
+            }
+        } else if (value) {
+            AsakusaTestkit found = null
+            for (AsakusaTestkit k : availables) {
+                if (k.priority >= 0 && (found == null || found.priority < k.priority)) {
+                    found = k
+                }
+            }
+            return found
         }
     }
 
@@ -186,15 +278,22 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             'DMDL scripts')
         dmdl.filter.include '**/*.dmdl'
         dmdl.srcDirs { extension.dmdl.dmdlSourceDirectory }
-        container.java.srcDirs { extension.modelgen.modelgenSourceDirectory }
 
         // Annotation processors
-        SourceDirectorySet annotations = AsakusaSdk.createSourceDirectorySet(project, container, 'annotations',
+        SourceDirectorySet annotations = AsakusaSdk.createSourceDirectorySet(project, container,'annotations',
             'Java annotation processor results')
         annotations.srcDirs { extension.javac.annotationSourceDirectory }
-        container.allJava.source annotations
-        container.allSource.source annotations
-        // Note: Don't add generated directory into container.output.dirs for eclipse plug-in
+
+        PluginUtils.afterEvaluate(project) {
+            if (extension.sdk.dmdl) {
+                container.java.srcDirs { extension.modelgen.modelgenSourceDirectory }
+            }
+            if (extension.sdk.operator) {
+                container.allJava.source annotations
+                container.allSource.source annotations
+                // Note: Don't add generated directory into container.output.dirs for eclipse plug-in
+            }
+        }
     }
 
     private void configureJavaPlugin() {
@@ -234,7 +333,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 task.options.encoding = extension.javac.sourceEncoding
             }
             Set<File> annotations = project.sourceSets.main.annotations.getSrcDirs()
-            if (annotations.size() >= 1) {
+            if (extension.sdk.operator && annotations.size() >= 1) {
                 if (annotations.size() >= 2) {
                     throw new InvalidUserDataException("sourceSets.main.annotations has only upto 1 directory: ${annotations}")
                 }
@@ -294,8 +393,8 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             group ASAKUSAFW_BUILD_GROUP
             description 'Compiles Asakusa DMDL scripts.'
             launcherClasspath << project.configurations.asakusaToolLauncher
-            sourcepath << project.sourceSets.main.dmdl
-            toolClasspath << project.sourceSets.main.compileClasspath
+            sourcepath << { project.sourceSets.main.dmdl }
+            toolClasspath << project.configurations.asakusaDmdlCompiler
             conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
                 maxHeapSize = { extension.maxHeapSize }
@@ -343,7 +442,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             description 'Generates Asakusa test template Excel books.'
             launcherClasspath << project.configurations.asakusaToolLauncher
             sourcepath << project.sourceSets.main.dmdl
-            toolClasspath << project.sourceSets.main.compileClasspath
+            toolClasspath << project.configurations.asakusaDmdlCompiler
             conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
                 maxHeapSize = { extension.maxHeapSize }

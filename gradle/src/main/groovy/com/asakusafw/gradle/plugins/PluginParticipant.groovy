@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.gradle.plugins
+
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
 /**
- * An extension object for the Asakusa on MapReduce features.
- * This is only for internal use.
- * @since 0.8.0
- * @version 0.9.0
+ * An abstract super interface of Gradle plug-in participants.
+ * @since 0.9.0
  */
-class AsakusaMapReduceBaseExtension {
+interface PluginParticipant {
 
     /**
-     * The module version.
-     * @since 0.9.0
+     * Returns the name of this participant.
+     * @return the participant name
      */
-    String featureVersion
+    String getName()
+
+    /**
+     * Returns a descriptor of the target participant.
+     * The participant will be applied by {@code project.apply plugin: participant.getDescriptor()}.
+     * @return a participant descriptor
+     */
+    Object getDescriptor()
 }

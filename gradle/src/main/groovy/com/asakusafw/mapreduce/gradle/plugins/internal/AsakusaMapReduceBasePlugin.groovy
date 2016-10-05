@@ -18,9 +18,13 @@ package com.asakusafw.mapreduce.gradle.plugins.internal
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
+import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
+
 /**
  * A Gradle sub plug-in for Asakusa on MapReduce facilities.
  * @since 0.8.0
+ * @version 0.9.0
  */
 class AsakusaMapReduceBasePlugin implements Plugin<Project> {
 
@@ -41,14 +45,16 @@ class AsakusaMapReduceBasePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         this.project = project
+        project.apply plugin: AsakusafwBasePlugin
+
         this.extension = project.extensions.create('asakusaMapReduceBase', AsakusaMapReduceBaseExtension)
+        configureExtension()
     }
 
-    /**
-     * Returns the extension.
-     * @return the extension
-     */
-    AsakusaMapReduceBaseExtension getExtension() {
-        return extension
+    private void configureExtension() {
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+
+        // FIXME refer asakusafw-mapreduce
+        extension.featureVersion = base.frameworkVersion
     }
 }

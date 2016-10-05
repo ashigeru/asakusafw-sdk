@@ -15,6 +15,8 @@
  */
 package com.asakusafw.gradle.plugins
 
+import static org.junit.Assert.*
+
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -23,12 +25,13 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
+import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
+import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceSdkBasePlugin
 
 /**
- * Test for {@link AsakusafwPlugin}.
+ * Test for {@link AsakusafwSdkPlugin}.
  */
-class AsakusafwPluginTest {
+class AsakusafwSdkPluginTest extends OrganizerTestRoot {
 
     /**
      * The test initializer.
@@ -37,7 +40,7 @@ class AsakusafwPluginTest {
     public final TestRule initializer = new TestRule() {
         Statement apply(Statement stmt, Description desc) {
             project = ProjectBuilder.builder().withName(desc.methodName).build()
-            project.apply plugin: 'asakusafw'
+            project.apply plugin: 'asakusafw-sdk'
             return stmt
         }
     }
@@ -49,7 +52,7 @@ class AsakusafwPluginTest {
      */
     @Test
     void parents() {
-        assert project.plugins.hasPlugin(AsakusafwSdkPlugin)
-        assert project.plugins.hasPlugin(AsakusafwMapReducePlugin)
+        assert project.plugins.hasPlugin(AsakusaSdkPlugin)
+        assert project.plugins.hasPlugin(AsakusaMapReduceSdkBasePlugin)
     }
 }

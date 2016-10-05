@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.mapreduce.gradle.plugins.internal
+package com.asakusafw.gradle.plugins.internal
+
+import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
- * An extension object for the Asakusa on MapReduce features.
- * This is only for internal use.
- * @since 0.8.0
- * @version 0.9.0
+ * An extension to provide a lazy {@code version} property.
+ * @since 0.9.0
  */
-class AsakusaMapReduceBaseExtension {
+class FeatureVersionExtension {
+
+    private final Object value
+
+    FeatureVersionExtension(Object value) {
+        this.value = value
+    }
 
     /**
-     * The module version.
-     * @since 0.9.0
+     * Returns the version string.
+     * @return the version string
      */
-    String featureVersion
+    String getVersion() {
+        return ResolutionUtils.resolveToString(value)
+    }
 }

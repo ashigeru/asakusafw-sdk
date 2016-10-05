@@ -15,9 +15,6 @@
  */
 package com.asakusafw.mapreduce.gradle.plugins.internal
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -34,12 +31,15 @@ import com.asakusafw.mapreduce.gradle.tasks.CompileBatchappTask
 /**
  * A Gradle sub plug-in for Asakusa on MapReduce SDK.
  * @since 0.8.0
+ * @version 0.9.0
+ * @see AsakusaMapReduceSdkBasePlugin
  */
 class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
 
+    /**
+     * The compile task name.
+     */
     public static final String TASK_COMPILE = 'mapreduceCompileBatchapps'
-
-    private static final Pattern OPTION_PATTERN = ~/([\+\-])\s*([0-9A-Za-z_\\-]+)|(X[0-9A-Za-z_\\-]+)=([^,]*)/
 
     private Project project
 
@@ -49,24 +49,10 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
 
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-        this.extension = sdk.extensions.create('mapreduce', AsakusafwCompilerExtension)
+        project.apply plugin: AsakusaMapReduceSdkBasePlugin
+        this.extension = AsakusaMapReduceSdkBasePlugin.get(project)
 
-        project.apply plugin: AsakusaSdkPlugin
-        project.apply plugin: AsakusaMapReduceBasePlugin
-
-        configureConvention()
         defineTasks()
-    }
-
-    private void configureConvention() {
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-        extension.conventionMapping.with {
-            outputDirectory = { project.file(sdk.compiler.compiledSourceDirectory) }
-            runtimeWorkingDirectory = { sdk.compiler.hadoopWorkDirectory }
-            compilerProperties = { parseOptions(sdk.compiler.compilerOptions) }
-            failOnError = { true }
-        }
     }
 
     private void defineTasks() {
@@ -86,7 +72,7 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
             task.sourcepath << { project.sourceSets.main.output.classesDir }
             task.embed << { project.sourceSets.main.output.resourcesDir }
 
-            task.toolClasspath << project.sourceSets.main.compileClasspath
+            task.toolClasspath << project.configurations.asakusaMapreduceCompiler
             task.toolClasspath << project.sourceSets.main.output
 
             task.include << { extension.include }
@@ -132,33 +118,6 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
             }
             task.dependsOn project.tasks.getByName(TASK_COMPILE)
         }
-    }
-
-    private Map<String, Object> parseOptions(List<String> options) {
-        Map<String, Object> results = [:]
-        for (String s : options) {
-            if (s == null || s.trim().isEmpty()) {
-                continue
-            }
-            String option = s.trim()
-            Matcher m = OPTION_PATTERN.matcher(option)
-            if (m.matches()) {
-                if (m.group(1) != null) {
-                    String key = m.group(2)
-                    boolean value = m.group(1) == '+'
-                    results[key] = value
-                } else if (m.group(3) != null) {
-                    String key = m.group(3)
-                    String value = m.group(4)
-                    results[key] = value
-                } else {
-                    throw new AssertionError(option)
-                }
-            } else {
-                project.logger.warn "unrecognizable compiler option: ${option}"
-            }
-        }
-        return results
     }
 
     private List<String> restoreOptions(Map<String, Object> options) {
