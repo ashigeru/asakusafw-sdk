@@ -17,7 +17,6 @@ package com.asakusafw.gradle.plugins
 
 import static org.junit.Assert.*
 
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -329,5 +328,25 @@ class AsakusafwOrganizerPluginConventionTest {
         convention.extension.libraries = ['e0']
         assert convention.extension.libraries.toSet() == ['e0'].toSet()
         assert profile.extension.libraries.toSet() == ['d0', 'd1'].toSet()
+    }
+
+    /**
+     * Test for changing {@code project.asakusafwOrganizer.asakusafwVersion}.
+     */
+    @Test
+    void asakusafwVersion_change() {
+        project.asakusafwBase.frameworkVersion = '0.1.0'
+        convention.asakusafwVersion = 'CHANGED' // ignored
+        assert convention.asakusafwVersion == '0.1.0'
+    }
+
+    /**
+     * Test for changing {@code project.asakusafwOrganizer.profiles.*.asakusafwVersion}.
+     */
+    @Test
+    void profiles_asakusafwVersion_change() {
+        project.asakusafwBase.frameworkVersion = '0.1.0'
+        convention.profiles.testing.asakusafwVersion = 'CHANGED' // ignored
+        assert convention.profiles.testing.asakusafwVersion == '0.1.0'
     }
 }
