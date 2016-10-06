@@ -126,11 +126,12 @@ class AsakusaMapReduceSdkPluginTest {
      */
     @Test
     void tasks_mapreduceCompileBatchapps() {
+        AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
+        base.featureVersion = '__VERSION__'
+
         AsakusafwPluginConvention sdk = project.asakusafw
         sdk.logbackConf 'testing/logback'
         sdk.maxHeapSize '1G'
-
-        sdk.asakusafwVersion 'testing/compiled'
 
         sdk.compiler.compiledSourcePackage 'testing.batchapps'
         sdk.compiler.compilerOptions = ['Xtesting=true', '+e', '-d']
@@ -150,7 +151,7 @@ class AsakusaMapReduceSdkPluginTest {
         assert task.systemProperties.isEmpty()
         assert task.jvmArgs.isEmpty()
 
-        assert task.frameworkVersion == sdk.asakusafwVersion
+        assert task.frameworkVersion == base.featureVersion
         assert task.packageName == sdk.compiler.compiledSourcePackage
         assert task.workingDirectory == project.file(sdk.compiler.compilerWorkDirectory)
         assert task.hadoopWorkingDirectory == sdk.compiler.hadoopWorkDirectory

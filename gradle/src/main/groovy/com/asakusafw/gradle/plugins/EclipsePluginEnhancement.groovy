@@ -52,13 +52,14 @@ class EclipsePluginEnhancement {
 
     private void configureDependencies() {
         PluginUtils.afterEvaluate(project) {
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             AsakusafwPluginConvention sdk =  project.asakusafw
             if (sdk.sdk.operator) {
                 project.dependencies {
                     if (sdk.sdk.operator == 'NEW') {
-                        eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${sdk.asakusafwVersion}:lib@jar"
+                        eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${base.frameworkVersion}:lib@jar"
                     } else {
-                        eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${sdk.asakusafwVersion}:lib@jar"
+                        eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${base.frameworkVersion}:lib@jar"
                     }
                 }
             }

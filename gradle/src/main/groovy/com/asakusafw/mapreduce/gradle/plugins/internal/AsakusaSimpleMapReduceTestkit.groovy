@@ -18,6 +18,8 @@ package com.asakusafw.mapreduce.gradle.plugins.internal
 import org.gradle.api.Project
 
 import com.asakusafw.gradle.plugins.AsakusaTestkit
+import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
+import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 
@@ -42,9 +44,9 @@ class AsakusaSimpleMapReduceTestkit implements AsakusaTestkit {
     @Override
     public void apply(Project project) {
         NORMAL.apply project
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
+        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
         project.dependencies {
-            testCompile "com.asakusafw.sdk:asakusa-sdk-test-emulation:${sdk.asakusafwVersion}"
+            testCompile "com.asakusafw.sdk:asakusa-sdk-test-emulation:${base.frameworkVersion}"
         }
     }
 

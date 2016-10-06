@@ -22,18 +22,19 @@ import com.asakusafw.gradle.assembly.AsakusafwAssembly
 /**
  * Convention class for {@link AsakusafwOrganizerPlugin}.
  * @since 0.5.2
- * @version 0.8.0
+ * @version 0.9.0
  */
 class AsakusafwOrganizerPluginConvention {
 
     /**
-     * Asakusa Framework version.
+     * Asakusa Framework version (read only).
      * <dl>
      *   <dt> Default value: </dt>
-     *     <dd> {@code project.asakusafw.asakusafwVersion} - only if {@code asakusafw-sdk} plug-in is enabled </dd>
-     *     <dd> N/A - otherwise</dd>
+     *     <dd> Asakusa Framework Core libraries version </dd>
      * </dl>
+     * @deprecated use {@code asakusafwOrganizer.core.version} instead
      */
+    @Deprecated
     String asakusafwVersion
 
     /**
@@ -44,6 +45,12 @@ class AsakusafwOrganizerPluginConvention {
      * </dl>
      */
     String assembleDir
+
+    /**
+     * Core settings.
+     * @since 0.9.0
+     */
+    CoreConfiguration core
 
     /**
      * Direct I/O settings.
@@ -97,6 +104,14 @@ class AsakusafwOrganizerPluginConvention {
      * Custom framework files.
      */
     final AsakusafwAssembly assembly = new AsakusafwAssembly("assembly")
+
+    /**
+     * Asakusa Framework organizer core settings.
+     * @since 0.9.0
+     */
+    static class CoreConfiguration {
+        // no special members
+    }
 
     /**
      * Direct I/O settings for the Asakusa Framework organizer.

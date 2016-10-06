@@ -143,7 +143,16 @@ class AsakusafwPluginConventionTest {
     void asakusafwVersion_transitive() {
         project.asakusafwBase.frameworkVersion = '0.1.0'
         assert convention.asakusafwVersion == '0.1.0'
+    }
 
+    /**
+     * Test for changing {@code project.asakusafw.asakusafwVersion}.
+     */
+    @Test
+    void asakusafwVersion_change() {
+        project.asakusafwBase.frameworkVersion = '0.1.0'
+        convention.asakusafwVersion = 'CHANGED' // ignored
+        assert convention.asakusafwVersion == '0.1.0'
     }
 
     /**

@@ -102,7 +102,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
         extension.conventionMapping.with {
             asakusafwVersion = {
                 if (base.frameworkVersion == null) {
-                    throw new InvalidUserDataException('"asakusafw.asakusafwVersion" must be set')
+                    throw new InvalidUserDataException('Asakusa Framework core libraries version is not defined')
                 }
                 return base.frameworkVersion
             }
@@ -154,7 +154,6 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             testDataSheetDirectory = { (String) "${project.buildDir}/excel" }
         }
         PluginUtils.deprecateAsakusafwVersion project, 'asakusafw', extension
-
         PluginUtils.injectVersionProperty(extension.core, { base.frameworkVersion })
         extension.metaClass.toStringDelegate = { -> "asakusafw { ... }" }
     }
@@ -183,7 +182,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
                 compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: base.slf4jVersion
                 compile group: 'ch.qos.logback', name: 'logback-classic', version: base.logbackVersion
-                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: extension.asakusafwVersion
+                asakusaHiveCli group: 'com.asakusafw', name: 'asakusa-hive-cli', version: base.frameworkVersion
             }
         }
     }
@@ -191,51 +190,50 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     private void configureClasspath() {
         PluginUtils.afterEvaluate(project) {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
-            String version = extension.asakusafwVersion
             AsakusafwSdkExtension features = extension.sdk
             project.dependencies {
                 if (features.core) {
-                    compile "com.asakusafw.sdk:asakusa-sdk-app-core:${version}"
+                    compile "com.asakusafw.sdk:asakusa-sdk-app-core:${base.frameworkVersion}"
                     if (features.operator) {
                         // FIXME temporary
                         if (features.operator == 'NEW') {
-                            compile "com.asakusafw.operator:asakusa-operator-all:${extension.asakusafwVersion}"
+                            compile "com.asakusafw.operator:asakusa-operator-all:${base.frameworkVersion}"
                         } else {
-                            compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${extension.asakusafwVersion}"
+                            compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${base.frameworkVersion}"
                         }
                     }
                     if (features.directio) {
-                        compile "com.asakusafw.sdk:asakusa-sdk-app-directio:${version}"
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-directio:${base.frameworkVersion}"
                     }
                     if (features.windgate) {
-                        compile "com.asakusafw.sdk:asakusa-sdk-app-windgate:${version}"
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-windgate:${base.frameworkVersion}"
                     }
                     if (features.hive) {
-                        compile "com.asakusafw.sdk:asakusa-sdk-app-hive:${version}"
+                        compile "com.asakusafw.sdk:asakusa-sdk-app-hive:${base.frameworkVersion}"
                     }
                 }
                 if (features.testing) {
-                    testCompile "com.asakusafw.sdk:asakusa-sdk-test-core:${version}"
+                    testCompile "com.asakusafw.sdk:asakusa-sdk-test-core:${base.frameworkVersion}"
                     if (features.directio) {
-                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-directio:${version}"
+                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-directio:${base.frameworkVersion}"
                     }
                     if (features.windgate) {
-                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-windgate:${version}"
+                        testCompile "com.asakusafw.sdk:asakusa-sdk-test-windgate:${base.frameworkVersion}"
                     }
                     if (features.testkit) {
                         AsakusaTestkit found = findTestkit(features.testkit, features.availableTestkits)?.apply(project)
                     }
                 }
                 if (features.dmdl) {
-                    asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-core:${version}"
+                    asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-core:${base.frameworkVersion}"
                     if (features.directio) {
-                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-directio:${version}"
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-directio:${base.frameworkVersion}"
                     }
                     if (features.windgate) {
-                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-windgate:${version}"
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-windgate:${base.frameworkVersion}"
                     }
                     if (features.hive) {
-                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-hive:${version}"
+                        asakusaDmdlCompiler "com.asakusafw.sdk:asakusa-sdk-dmdl-hive:${base.frameworkVersion}"
                     }
                 }
             }
@@ -377,13 +375,8 @@ class AsakusaSdkPlugin implements Plugin<Project> {
 
     private void extendVersionsTask() {
         project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
-            def frameworkVersion
-            try {
-                frameworkVersion = extension.asakusafwVersion
-            } catch (Exception e) {
-                frameworkVersion = 'INVALID'
-            }
-            logger.lifecycle "Asakusa SDK: ${frameworkVersion}"
+            AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
+            logger.lifecycle "Asakusa SDK: ${base.frameworkVersion ?: 'INVALID'}"
             logger.lifecycle "JVM: ${extension.javac.targetCompatibility}"
         }
     }
