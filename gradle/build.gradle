@@ -36,16 +36,24 @@ apply plugin: 'eclipse'
 
 configurations {
     deployerJars
+    asakusafw
 }
 
 repositories {
+    if (project.hasProperty('mavenLocal')) {
+        logger.lifecycle 'enabling maven local repository'
+        mavenLocal()
+    }
     mavenCentral()
+    maven { url 'http://asakusafw.s3.amazonaws.com/maven/releases' }
+    maven { url 'http://asakusafw.s3.amazonaws.com/maven/snapshots' }
 }
 
 dependencies {
     compile gradleApi()
     testCompile gradleTestKit()
     testCompile 'junit:junit:4.11'
+    asakusafw "com.asakusafw:asakusa-parent:${parentPom.coreVersion}@pom"
     deployerJars 'org.springframework.build:aws-maven:5.0.0.RELEASE'
 }
 
@@ -73,6 +81,7 @@ processResources {
     File outputFile = new File(destinationDir, 'META-INF/asakusa-gradle/artifact.properties')
     inputs.properties parentPom
     outputs.file outputFile
+    outputs.files configurations.asakusafw
     doLast {
         logger.info "injecting artifact versions: ${parentPom}"
         if (!outputFile.parentFile.exists()) {
@@ -82,6 +91,22 @@ processResources {
         Properties p = new Properties()
         p.put("plugin-version", parentPom.projectVersion)
         p.put("framework-version", parentPom.coreVersion)
+        configurations.asakusafw.each { File pom ->
+            if (pom.name.endsWith('.pom')) {
+                def props = new XmlSlurper().parse(pom)['properties']
+                p.put('slf4j-version', props['slf4j.version'].text())
+                p.put('logback-version', props['logback.version'].text())
+                p.put('jsch-version', props['jsch.version'].text())
+                p.put('gson-version', props['gson.version'].text())
+                p.put('http-client-version', props['httpclient.version'].text())
+                p.put('commons-cli-version', props['commons.cli.version'].text())
+                p.put('commons-codec-version', props['commons.codec.version'].text())
+                p.put('commons-io-version', props['commons.io.version'].text())
+                p.put('common-lang-version', props['commons.lang.version'].text())
+                p.put('commons-logging-version', props['commons.logging.version'].text())
+                p.put('hive-artifact', 'org.apache.hive:hive-exec:' + props['sdk.hive.version'].text())
+            }
+        }
         outputFile.withOutputStream { s ->
             p.store(s, null)
         }
