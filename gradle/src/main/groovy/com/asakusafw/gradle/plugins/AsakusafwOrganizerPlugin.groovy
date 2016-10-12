@@ -105,7 +105,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         convention.hive.conventionMapping.with {
             enabled = { false }
         }
-        convention.hive.defaultLibraries.add(base.hiveArtifact + '@jar')
+        convention.hive.defaultLibraries.add((String) "org.apache.hive:hive-exec:${base.hiveVersion}@jar")
         convention.yaess.conventionMapping.with {
             enabled = { true }
             toolsEnabled = { true }
@@ -129,8 +129,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         }
         convention.profiles.create(PROFILE_NAME_PRODUCTION) { AsakusafwOrganizerProfile profile ->
             profile.conventionMapping.with {
-                // FIXME default archive name
-                archiveName = { (String) "asakusafw-${profile.asakusafwVersion}.tar.gz" }
+                archiveName = { (String) "asakusafw-${project.name}.tar.gz" }
             }
         }
         PluginUtils.deprecateAsakusafwVersion project, 'asakusafwOrganizer', convention
@@ -173,8 +172,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
         profile.conventionMapping.with {
             asakusafwVersion = { convention.asakusafwVersion } // ok, this just inherits parent version
             assembleDir = { (String) "${convention.assembleDir}-${profile.name}" }
-            // FIXME default archive name
-            archiveName = { (String) "asakusafw-${profile.asakusafwVersion}-${profile.name}.tar.gz" }
+            archiveName = { (String) "asakusafw-${project.name}-${profile.name}.tar.gz" }
         }
         profile.components.process {
             exclude 'META-INF/**'
