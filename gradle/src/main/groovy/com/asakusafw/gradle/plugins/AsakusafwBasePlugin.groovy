@@ -88,15 +88,8 @@ class AsakusafwBasePlugin implements Plugin<Project> {
         driveProperties(ARTIFACT_INFO_PATH, [
             'plugin-version': 'Asakusa Gradle plug-ins',
             'framework-version': 'Asakusa SDK',
-        ])
-        project.logger.info "Asakusa Gradle plug-ins: ${extension.pluginVersion}"
-    }
 
-    private void configureDefaults() {
-        driveProperties(DEFAULTS_INFO_PATH, [
-            'java-version': 'JVM version',
-            'gradle-version': 'recommended Gradle',
-            'embedded-libs-directory': 'embeddedd libraries directory',
+            // internal dependencies
             'slf4j-version': 'SLF4J',
             'logback-version': 'Logback',
             'jsch-version': 'JSch',
@@ -108,6 +101,15 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             'commons-codec-version': 'Commons Codec',
             'commons-logging-version': 'Commons Logging',
             'hive-artifact': 'Hive',
+        ])
+        project.logger.info "Asakusa Gradle plug-ins: ${extension.pluginVersion}"
+    }
+
+    private void configureDefaults() {
+        driveProperties(DEFAULTS_INFO_PATH, [
+            'java-version': 'JVM version',
+            'gradle-version': 'recommended Gradle',
+            'embedded-libs-directory': 'embeddedd libraries directory',
         ])
     }
 
