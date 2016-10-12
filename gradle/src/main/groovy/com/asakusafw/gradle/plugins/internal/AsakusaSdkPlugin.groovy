@@ -24,6 +24,7 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 
@@ -46,6 +47,7 @@ import com.asakusafw.gradle.tasks.GenerateTestbookTask
 import com.asakusafw.gradle.tasks.RunBatchappTask
 import com.asakusafw.gradle.tasks.TestToolTask
 import com.asakusafw.gradle.tasks.internal.AbstractTestToolTask
+import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
  * A Gradle plug-in for application development project using Asakusa SDK.
@@ -336,8 +338,14 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                     throw new InvalidUserDataException("sourceSets.main.annotations has only upto 1 directory: ${annotations}")
                 }
                 File directory = annotations.iterator().next()
-                project.tasks.compileJava.options.compilerArgs += ['-s', directory.absolutePath, '-Xmaxerrs', '10000']
                 project.tasks.compileJava.inputs.property 'annotationSourceDirectory', directory.absolutePath
+
+                CompileOptions opts = project.tasks.compileJava.options
+                opts.compilerArgs.addAll(['-s', directory.absolutePath])
+                opts.compilerArgs.addAll(['-Xmaxerrs', '10000'])
+                ResolutionUtils.resolveToStringMap(extension.javac.processorOptions).each { String k, String v ->
+                    opts.compilerArgs.add("-A${k}=${v}")
+                }
             }
         }
     }

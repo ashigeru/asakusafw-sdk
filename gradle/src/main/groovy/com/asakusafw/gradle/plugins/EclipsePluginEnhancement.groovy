@@ -20,7 +20,9 @@ import groovy.xml.MarkupBuilder
 import org.gradle.api.*
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 
+import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
 import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
  * Gradle Eclipse plugin enhancements for Asakusa Framework.
@@ -153,10 +155,14 @@ class EclipsePluginEnhancement {
     }
 
     private void generateAptPref() {
+        JavacConfiguration javac = project.asakusafw.javac
         preferences('.settings/org.eclipse.jdt.apt.core.prefs') { Properties props ->
             props.setProperty('org.eclipse.jdt.apt.aptEnabled', 'true')
-            props.setProperty('org.eclipse.jdt.apt.genSrcDir', relativePath(project.asakusafw.javac.annotationSourceDirectory))
+            props.setProperty('org.eclipse.jdt.apt.genSrcDir', relativePath(javac.annotationSourceDirectory))
             props.setProperty('org.eclipse.jdt.apt.reconcileEnabled', 'true')
+            ResolutionUtils.resolveToStringMap(javac.processorOptions).each { String k, String v ->
+                props.setProperty("org.eclipse.jdt.apt.processorOptions/${k}", v)
+            }
         }
     }
 
