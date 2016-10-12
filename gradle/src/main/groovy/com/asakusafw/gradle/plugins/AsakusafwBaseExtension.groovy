@@ -99,7 +99,7 @@ class AsakusafwBaseExtension {
     String commonsLoggingVersion
 
     /**
-     * The default Hive artifact notation.
+     * The default Hive version.
      */
-    String hiveArtifact
+    String hiveVersion
 }

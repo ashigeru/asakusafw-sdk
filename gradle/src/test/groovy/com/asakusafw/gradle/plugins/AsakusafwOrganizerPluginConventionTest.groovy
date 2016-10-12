@@ -152,8 +152,7 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.name == "dev"
         assert profile.asakusafwVersion == convention.asakusafwVersion
         assert profile.assembleDir == "${convention.assembleDir}-dev"
-        // FIXME change archive name
-        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-dev.tar.gz"
+        assert profile.archiveName == "asakusafw-${project.name}-dev.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
         assert profile.yaess.enabled == convention.yaess.enabled
@@ -173,8 +172,7 @@ class AsakusafwOrganizerPluginConventionTest {
         assert profile.name == "prod"
         assert profile.asakusafwVersion == convention.asakusafwVersion
         assert profile.assembleDir == "${convention.assembleDir}-prod"
-        // FIXME change archive name
-        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}.tar.gz"
+        assert profile.archiveName == "asakusafw-${project.name}.tar.gz"
         assert profile.directio.enabled == convention.directio.enabled
         assert profile.windgate.enabled == convention.windgate.enabled
         assert profile.yaess.enabled == convention.yaess.enabled
@@ -199,8 +197,7 @@ class AsakusafwOrganizerPluginConventionTest {
 
         convention.assembleDir = 'AFW-TEST'
         assert profile.assembleDir == "${convention.assembleDir}-testProfile"
-        // FIXME change archive name
-        assert profile.archiveName == "asakusafw-${convention.asakusafwVersion}-testProfile.tar.gz"
+        assert profile.archiveName == "asakusafw-${project.name}-testProfile.tar.gz"
 
         assert profile.directio.enabled == convention.directio.enabled
         convention.directio.enabled = !convention.directio.enabled

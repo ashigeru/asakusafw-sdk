@@ -104,7 +104,7 @@ processResources {
                 p.put('commons-io-version', props['commons.io.version'].text())
                 p.put('common-lang-version', props['commons.lang.version'].text())
                 p.put('commons-logging-version', props['commons.logging.version'].text())
-                p.put('hive-artifact', 'org.apache.hive:hive-exec:' + props['sdk.hive.version'].text())
+                p.put('hive-version', props['sdk.hive.version'].text())
             }
         }
         outputFile.withOutputStream { s ->
