@@ -218,6 +218,33 @@ class AsakusafwPluginConvention {
         void targetCompatibility(Object value) {
             this.targetCompatibility = JavaVersion.toVersion(value)
         }
+
+        /**
+         * The annotation processor options.
+         * @since 0.9.0
+         */
+        Map<Object, Object> processorOptions = [:]
+
+        /**
+         * Adds an annotation processor option pair.
+         * @param key the option key
+         * @param value the option value
+         * @since 0.9.0
+         */
+        void processorOption(Object key, Object value) {
+            getProcessorOptions().put(key, value)
+        }
+
+        /**
+         * Adds a set of annotation processor option pairs.
+         * @param additions the additional processor options
+         * @since 0.9.0
+         */
+        void processorOptions(Map<?, ?> additions) {
+            additions.each { k, v ->
+                processorOption(k, v)
+            }
+        }
     }
 
     /**
