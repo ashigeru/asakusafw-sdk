@@ -27,7 +27,7 @@ ext.parentPom = { f ->
 group = 'com.asakusafw'
 version = parentPom.projectVersion
 
-defaultTasks 'clean', 'build', 'install', 'assembleTemplates'
+defaultTasks 'clean', 'build', 'install'
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -151,56 +151,6 @@ task testsJar(type: Jar) {
 artifacts {
     archives tasks.sourcesJar
     archives tasks.testsJar
-}
-
-def templateProjectName = 'asakusa-mapreduce-template'
-def outDir = "${buildDir}/templates"
-def outTemplateProjectDir = "${outDir}/${templateProjectName}"
-
-task generateTemplates << {
-    delete outDir
-    copy {
-        from ("src/templates") {
-            include '**/build.gradle'
-            expand ([
-                repGradlePluginVersion: version,
-                repMavenRepoType: version.endsWith("SNAPSHOT") ? 'snapshots' : 'releases'
-            ])
-        }
-        from ("src/templates") {
-            exclude '**/build.gradle'
-        }
-        into outDir
-    }
-
-    mkdir "${outTemplateProjectDir}/src/main/java"
-    mkdir "${outTemplateProjectDir}/src/main/resources"
-    mkdir "${outTemplateProjectDir}/src/main/dmdl"
-    mkdir "${outTemplateProjectDir}/src/main/libs"
-    mkdir "${outTemplateProjectDir}/src/test/java"
-}
-
-task upgradeTemplateProject(dependsOn: generateTemplates, type: GradleBuild) {
-    dir outTemplateProjectDir
-    file('src/templates/init.d').eachFileMatch({ it.endsWith('.gradle') }) {
-        startParameter.addInitScript it
-    }
-    tasks = ['asakusaUpgrade']
-}
-
-task assembleTemplateProject (dependsOn: upgradeTemplateProject, type: Tar) {
-    from (outDir) {
-        include "${templateProjectName}/"
-        exclude "${templateProjectName}/build"
-        exclude "${templateProjectName}/.gradle"
-    }
-    destinationDir buildDir
-    compression Compression.GZIP
-    archiveName "${templateProjectName}-${version}.tar.gz"
-}
-
-task assembleTemplates {
-    dependsOn assembleTemplateProject
 }
 
 tasks.withType(Wrapper) {
