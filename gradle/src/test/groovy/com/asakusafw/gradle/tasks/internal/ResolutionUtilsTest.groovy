@@ -124,7 +124,7 @@ class ResolutionUtilsTest {
      */
     @Test
     public void resolve_map_w_null_key() {
-        Map<Object, Object> origin = new HashMap<Object, Object>()
+        Map<Object, Object> origin = [:]
         origin.put 'k1', 'v1'
         origin.put null, 'v2'
         origin.put 'k3', 'v3'
@@ -138,7 +138,7 @@ class ResolutionUtilsTest {
      */
     @Test
     public void resolve_map_any() {
-        Map<Object, Object> origin = new HashMap<Object, Object>()
+        Map<Object, Object> origin = [:]
         origin.put({ 'k1' }, { 100 })
         origin.put({ 'k2' } as Callable<?>, { null })
         origin.put({ null }, 'v3')

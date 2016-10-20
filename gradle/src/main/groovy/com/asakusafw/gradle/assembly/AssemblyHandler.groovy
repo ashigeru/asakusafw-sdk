@@ -43,18 +43,18 @@ class AssemblyHandler implements Buildable {
      * Source files and directories.
      * This will be resolved using {@code project.files(...)}.
      */
-    final List<Object> sourceFiles = new ArrayList<Object>()
+    final List<Object> sourceFiles = new ArrayList<>()
 
     /**
      * Source archives in ZIP format.
      * This will be resolved using {@code project.files(...)}.
      */
-    final List<Object> sourceArchives = new ArrayList<Object>()
+    final List<Object> sourceArchives = new ArrayList<>()
 
     /**
      * The extra operations which are only available for this handler.
      */
-    final LinkedList<Closure<?>> extraOperations = new LinkedList<Closure<?>>()
+    final LinkedList<Closure<?>> extraOperations = new LinkedList<>()
 
     /**
      * Creates a new instance.

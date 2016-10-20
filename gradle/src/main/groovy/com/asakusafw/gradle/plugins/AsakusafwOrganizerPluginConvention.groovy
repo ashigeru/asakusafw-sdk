@@ -213,7 +213,7 @@ class AsakusafwOrganizerPluginConvention {
          */
         void setLibraries(Object... libraries) {
             // copy on write
-            List<Object> list = new ArrayList<Object>()
+            List<Object> list = new ArrayList<>()
             list.addAll(libraries.flatten())
             this.@libraries = list
         }
@@ -348,7 +348,7 @@ class AsakusafwOrganizerPluginConvention {
          */
         void setLibraries(Object... libraries) {
             // copy on write
-            List<Object> list = new ArrayList<Object>()
+            List<Object> list = new ArrayList<>()
             list.addAll(libraries.flatten())
             this.@libraries = list
         }
