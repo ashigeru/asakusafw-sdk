@@ -382,7 +382,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
     }
 
     private void extendVersionsTask() {
-        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
+        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS).doLast {
             AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
             logger.lifecycle "Asakusa SDK: ${base.frameworkVersion ?: 'INVALID'}"
             logger.lifecycle "JVM: ${extension.javac.targetCompatibility}"

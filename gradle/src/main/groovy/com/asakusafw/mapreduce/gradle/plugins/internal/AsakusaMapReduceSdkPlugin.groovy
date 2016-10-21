@@ -188,7 +188,7 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
     }
 
     private void extendVersionsTask() {
-        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
+        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS).doLast {
             def hadoopVersion = 'UNKNOWN'
             try {
                 logger.info 'detecting Hadoop version'
@@ -208,9 +208,9 @@ class AsakusaMapReduceSdkPlugin implements Plugin<Project> {
     }
 
     private String findHadoopVersion(ResolvedConfiguration conf) {
-        LinkedList<ResolvedDependency> work = new LinkedList<ResolvedDependency>()
+        LinkedList<ResolvedDependency> work = new LinkedList<>()
         work.addAll(conf.firstLevelModuleDependencies)
-        Set<ResolvedDependency> saw = new HashSet<ResolvedDependency>()
+        Set<ResolvedDependency> saw = new HashSet<>()
         while (!work.empty) {
             ResolvedDependency d = work.removeFirst()
             if (saw.contains(d)) {

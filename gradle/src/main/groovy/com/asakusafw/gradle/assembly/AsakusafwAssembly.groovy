@@ -34,12 +34,12 @@ class AsakusafwAssembly implements Buildable {
     /**
      * The assembly definition fragments.
      */
-    final List<AssemblyHandler> handlers = new ArrayList<AssemblyHandler>()
+    final List<AssemblyHandler> handlers = new ArrayList<>()
 
     /**
      * The common extra operations which are available for all handlers in this assembly.
      */
-    final LinkedList<Closure<?>> extraOperations = new LinkedList<Closure<?>>()
+    final LinkedList<Closure<?>> extraOperations = new LinkedList<>()
 
     /**
      * Creates a new instance.

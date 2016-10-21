@@ -37,7 +37,7 @@ class GatherAssemblyTask extends DefaultTask {
     /**
      * The source assemblies information.
      */
-    final List<AsakusafwAssembly> assemblies = new ArrayList<AsakusafwAssembly>()
+    final List<AsakusafwAssembly> assemblies = new ArrayList<>()
 
     /**
      * The destination base directory.
