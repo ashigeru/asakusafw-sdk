@@ -18,10 +18,6 @@ package com.asakusafw.mapreduce.gradle.plugins.internal
 import org.gradle.api.Project
 
 import com.asakusafw.gradle.plugins.AsakusaTestkit
-import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
-import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
-import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 
 /**
  * An implementation of {@link AsakusaTestkit} which uses MapReduce compiler and emulation mode runtime.
@@ -43,10 +39,9 @@ class AsakusaSimpleMapReduceTestkit implements AsakusaTestkit {
 
     @Override
     public void apply(Project project) {
-        NORMAL.apply project
-        AsakusafwBaseExtension base = AsakusafwBasePlugin.get(project)
-        project.dependencies {
-            testCompile "com.asakusafw.sdk:asakusa-sdk-test-emulation:${base.frameworkVersion}"
+        project.logger.info "enabling MapReduce (emulation mode) Testkit (${name})"
+        project.configurations {
+            testCompile.extendsFrom asakusaMapreduceEmulationTestkit
         }
     }
 

@@ -64,6 +64,10 @@ class AsakusaMapReduceSdkBasePlugin implements Plugin<Project> {
                 description 'Asakusa DSL testkit classpath for MapReduce'
                 extendsFrom project.configurations.asakusaMapreduceCommon
             }
+            asakusaMapreduceEmulationTestkit {
+                description 'Asakusa DSL testkit classpath for MapReduce Emulator'
+                extendsFrom project.configurations.asakusaMapreduceTestkit
+            }
         }
         PluginUtils.afterEvaluate(project) {
             AsakusaMapReduceBaseExtension base = AsakusaMapReduceBasePlugin.get(project)
@@ -86,6 +90,12 @@ class AsakusaMapReduceSdkBasePlugin implements Plugin<Project> {
                 }
                 if (features.testing) {
                     asakusaMapreduceTestkit "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-test-adapter:${base.featureVersion}"
+
+                    asakusaMapreduceEmulationTestkit "com.asakusafw:asakusa-test-inprocess:${base.featureVersion}"
+                    asakusaMapreduceEmulationTestkit "com.asakusafw:asakusa-test-windows:${base.featureVersion}"
+                    if (features.windgate) {
+                        asakusaMapreduceEmulationTestkit "com.asakusafw:asakusa-windgate-test-inprocess:${base.featureVersion}"
+                    }
                 }
             }
         }
