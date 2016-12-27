@@ -23,7 +23,7 @@ import org.gradle.api.JavaVersion
 /**
  * Convention class for {@link AsakusafwPlugin}.
  * @since 0.5.2
- * @version 0.9.0
+ * @version 0.9.1
  */
 class AsakusafwPluginConvention {
 
@@ -391,7 +391,8 @@ class AsakusafwPluginConvention {
     private static boolean isConventionMember(Class<?> target) {
         if (target == null || target.isPrimitive() || target == String) {
             return false
-        } else if (AsakusafwPluginConvention.class.isAssignableFrom(target)) {
+        } else if (AsakusafwPluginConvention.class.isAssignableFrom(target)
+                || target == AsakusafwSdkExtension.class) {
             return true
         }
         return isConventionMember(target.getEnclosingClass())
