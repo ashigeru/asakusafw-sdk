@@ -17,7 +17,9 @@ package com.asakusafw.gradle.plugins
 
 import groovy.xml.MarkupBuilder
 
-import org.gradle.api.*
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.FileCollection
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention.JavacConfiguration
@@ -28,6 +30,14 @@ import com.asakusafw.gradle.tasks.internal.ResolutionUtils
  * Gradle Eclipse plugin enhancements for Asakusa Framework.
  */
 class EclipsePluginEnhancement {
+
+    private static final String PREFIX_SETTINGS = '.settings/com.asakusafw.'
+
+    private static final String SETTINGS_PROJECT = PREFIX_SETTINGS + 'asakusafw.prefs'
+
+    private static final String SETTINGS_DMDL = PREFIX_SETTINGS + 'dmdl.prefs'
+
+    private static final String PREFIX_CLASSPATH = 'classpath.'
 
     private Project project
 
@@ -130,8 +140,13 @@ class EclipsePluginEnhancement {
     }
 
     private void extendEclipseJdtTask() {
-        project.tasks.eclipseJdt.doLast {
-            generateAsakusafwProjectPref()
+        project.tasks.eclipseJdt { Task t ->
+            t.outputs.files SETTINGS_PROJECT
+            t.outputs.files SETTINGS_DMDL
+            t.doLast {
+                generateAsakusafwProjectPref()
+                generateAsakusafwDmdlPref()
+            }
         }
         PluginUtils.afterEvaluate(project) {
             AsakusafwPluginConvention sdk =  project.asakusafw
@@ -167,13 +182,35 @@ class EclipsePluginEnhancement {
     }
 
     private void generateAsakusafwProjectPref() {
-        preferences('.settings/com.asakusafw.asakusafw.prefs') { Properties props ->
+        preferences(SETTINGS_PROJECT) { Properties props ->
             project.asakusafw.conventionProperties.each { key, value ->
                 if (key.endsWith('File') || key.endsWith('Directory') || key.endsWith('Dir')) {
                     value = (value == null || value.isEmpty()) ? '' : relativePath(value)
                 }
                 props.setProperty(key, value)
             }
+        }
+    }
+
+    private void generateAsakusafwDmdlPref() {
+        preferences(SETTINGS_DMDL) { Properties props ->
+            FileCollection classpath = project.configurations.asakusaDmdlCompiler - project.configurations.compile
+            generateClasspathList(props, classpath)
+        }
+    }
+
+    private void generateClasspathList(Properties target, Iterable<File> files) {
+        for (Iterator<Map.Entry<?, ?>> iter = target.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<?, ?> entry = iter.next()
+            def key = entry.getKey()
+            if (key instanceof String && key.startsWith(PREFIX_CLASSPATH)) {
+                iter.remove()
+            }
+        }
+        int index = 0
+        for (File file : files) {
+            String key = PREFIX_CLASSPATH + index++
+            target.setProperty(key, file.absolutePath)
         }
     }
 
