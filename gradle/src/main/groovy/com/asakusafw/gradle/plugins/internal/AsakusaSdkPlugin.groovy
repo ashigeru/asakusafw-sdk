@@ -126,6 +126,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             directio true
             windgate true
             hive false
+            incubating false
         }
         extension.dmdl.conventionMapping.with {
             dmdlEncoding = { 'UTF-8' }
@@ -197,8 +198,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                 if (features.core) {
                     compile "com.asakusafw.sdk:asakusa-sdk-app-core:${base.frameworkVersion}"
                     if (features.operator) {
-                        // FIXME temporary
-                        if (features.operator == 'NEW') {
+                        if (features.incubating) {
                             compile "com.asakusafw.operator:asakusa-operator-all:${base.frameworkVersion}"
                         } else {
                             compile "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${base.frameworkVersion}"
