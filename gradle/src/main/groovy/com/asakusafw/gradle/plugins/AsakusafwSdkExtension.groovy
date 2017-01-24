@@ -19,6 +19,7 @@ package com.asakusafw.gradle.plugins
 /**
  * An extension object for Asakusa SDK.
  * @since 0.9.0
+ * @version 0.9.1
  */
 class AsakusafwSdkExtension {
 
@@ -109,4 +110,15 @@ class AsakusafwSdkExtension {
      * The set available testkit.
      */
     Set<AsakusaTestkit> availableTestkits = new HashSet<>()
+
+    /**
+     * Whether or not incubating features are enabled.
+     * This value will be resolved as {@code it as boolean}.
+     * <dl>
+     *   <dt> Default value: </dt>
+     *     <dd> {@code false} </dd>
+     * </dl>
+     * @since 0.9.1
+     */
+    Object incubating
 }

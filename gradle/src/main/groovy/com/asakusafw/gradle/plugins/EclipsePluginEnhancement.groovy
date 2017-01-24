@@ -68,7 +68,7 @@ class EclipsePluginEnhancement {
             AsakusafwPluginConvention sdk =  project.asakusafw
             if (sdk.sdk.operator) {
                 project.dependencies {
-                    if (sdk.sdk.operator == 'NEW') {
+                    if (sdk.sdk.incubating) {
                         eclipseAnnotationProcessor "com.asakusafw.operator:asakusa-operator-all:${base.frameworkVersion}:lib@jar"
                     } else {
                         eclipseAnnotationProcessor "com.asakusafw.mapreduce.compiler:asakusa-mapreduce-compiler-operator:${base.frameworkVersion}:lib@jar"
