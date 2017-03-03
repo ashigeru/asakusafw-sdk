@@ -202,10 +202,10 @@ final class PluginUtils {
                     return container.maybeCreate(name)
                 }
                 methodMissing = { String name, args ->
-                    if (args.size() != 1 || (args[0] instanceof Closure<?>) == false) {
-                        throw new MissingMethodException(name, NamedDomainObjectContainer, args)
+                    if (args.size() == 1 && args[0] instanceof Closure<?>) {
+                        return ConfigureUtil.configure(args[0], container.maybeCreate(name))
                     }
-                    return ConfigureUtil.configure(args[0], container.maybeCreate(name))
+                    throw new MissingMethodException(name, NamedDomainObjectContainer, args)
                 }
             }
         }
@@ -249,28 +249,32 @@ final class PluginUtils {
         }
 
         @Override
-        MetaMethod getMetaMethod(String methodName, Object[] methodArgs) {
-            MetaProperty existing = super.getMetaMethod(methodName, methodArgs)
+        MetaMethod getMetaMethod(String methodName, Object[] args) {
+            MetaProperty existing = super.getMetaMethod(methodName, args)
             if (existing) {
                 return existing
             }
-            return new MetaMethod([Closure]) {
-                CachedClass getDeclaringClass() {
-                    return DECL_CLASS
-                }
-                int getModifiers() {
-                    return Modifier.PUBLIC
-                }
-                String getName() {
-                    return methodName
-                }
-                Class<?> getReturnType() {
-                    return Object
-                }
-                Object invoke(Object object, Object[] arguments) {
-                    return ConfigureUtil.configure(arguments[0], container.maybeCreate(getName()))
+            if (args.size() == 1
+                    && (args[0] instanceof Closure<?> || Closure.class.isAssignableFrom(args[0]))) {
+                return new MetaMethod([Closure]) {
+                    CachedClass getDeclaringClass() {
+                        return DECL_CLASS
+                    }
+                    int getModifiers() {
+                        return Modifier.PUBLIC
+                    }
+                    String getName() {
+                        return methodName
+                    }
+                    Class<?> getReturnType() {
+                        return Object
+                    }
+                    Object invoke(Object object, Object[] arguments) {
+                        return ConfigureUtil.configure(arguments[0], container.maybeCreate(getName()))
+                    }
                 }
             }
+            return null
         }
     }
 
