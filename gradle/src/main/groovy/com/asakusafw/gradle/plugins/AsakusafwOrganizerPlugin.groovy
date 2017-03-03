@@ -18,7 +18,6 @@ package com.asakusafw.gradle.plugins
 import org.gradle.api.*
 import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.tasks.bundling.*
-import org.gradle.util.ConfigureUtil
 
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.BatchappsConfiguration
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention.CoreConfiguration
@@ -144,18 +143,7 @@ class AsakusafwOrganizerPlugin  implements Plugin<Project> {
             configureProfile convention, profile
             return profile
         }
-        container.metaClass.with {
-            propertyMissing = { String name ->
-                return container.maybeCreate(name)
-            }
-            methodMissing = { String name, args ->
-                if (args.size() != 1 || (args[0] instanceof Closure<?>) == false) {
-                    throw new MissingMethodException(name, NamedDomainObjectContainer, args)
-                }
-                return ConfigureUtil.configure(args[0], container.maybeCreate(name))
-            }
-        }
-        return container
+        return PluginUtils.enhanceNamedDomainObjectContainer(container)
     }
 
     private void configureProfile(AsakusafwOrganizerPluginConvention convention,  AsakusafwOrganizerProfile profile) {

@@ -15,21 +15,26 @@
  */
 package com.asakusafw.gradle.plugins.internal
 
+import java.lang.reflect.Modifier
+
+import org.codehaus.groovy.reflection.CachedClass
+import org.codehaus.groovy.reflection.ReflectionCache
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.ProjectState
 import org.gradle.api.Task
 import org.gradle.api.plugins.Convention
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
+import org.gradle.util.ConfigureUtil
 import org.gradle.util.GradleVersion
 
 import com.asakusafw.gradle.plugins.PluginParticipant
-import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
  * Basic utilities for Gradle plug-ins.
  * @since 0.7.4
- * @version 0.9.0
+ * @version 0.9.1
  */
 final class PluginUtils {
 
@@ -174,6 +179,98 @@ final class PluginUtils {
             extensions.plugins['asakusafw-version'] = value
         } else {
             extensions.add(PROPERTY_VERSION, value.version)
+        }
+    }
+
+    /**
+     * Enhances {@code NamedDomainObjectContainer} for enabling property accesses.
+     * @param <T> the element type
+     * @param container the target container
+     * @return the enhanced container
+     * @since 0.9.1
+     */
+    static <T> NamedDomainObjectContainer<T> enhanceNamedDomainObjectContainer(NamedDomainObjectContainer<T> container) {
+        if (compareGradleVersion('3.4') >= 0
+                && container.hasProperty('extensions')
+                && container.extensions.hasProperty('plugins')
+                && container.extensions.plugins instanceof Map<?, ?>
+                && container.extensions.plugins.containsKey('asakusafw-enhanced') == false) {
+            container.extensions.plugins.put('asakusafw-enhanced', new NamedDomainObjectContainerPlugin(container))
+        } else {
+            container.metaClass.with {
+                propertyMissing = { String name ->
+                    return container.maybeCreate(name)
+                }
+                methodMissing = { String name, args ->
+                    if (args.size() != 1 || (args[0] instanceof Closure<?>) == false) {
+                        throw new MissingMethodException(name, NamedDomainObjectContainer, args)
+                    }
+                    return ConfigureUtil.configure(args[0], container.maybeCreate(name))
+                }
+            }
+        }
+        return container
+    }
+
+    private static final class NamedDomainObjectContainerPlugin {
+
+        private final NamedDomainObjectContainer<?> container
+
+        NamedDomainObjectContainerPlugin(NamedDomainObjectContainer<?> container) {
+            this.metaClass = new NamedDomainObjectContainerMeta(metaClass, container)
+        }
+    }
+
+    private static final class NamedDomainObjectContainerMeta extends DelegatingMetaClass {
+
+        private static final CachedClass DECL_CLASS = ReflectionCache.getCachedClass(NamedDomainObjectContainerPlugin)
+
+        private final NamedDomainObjectContainer<?> container
+
+        NamedDomainObjectContainerMeta(MetaClass forward, NamedDomainObjectContainer<?> container) {
+            super(forward)
+            this.container = container
+        }
+
+        @Override
+        MetaProperty getMetaProperty(String name) {
+            MetaProperty existing = super.getMetaProperty(name)
+            if (existing) {
+                return existing
+            }
+            return new MetaProperty(name, Object) {
+                Object getProperty(Object object) {
+                    return container.maybeCreate(name)
+                }
+                void setProperty(Object object, Object value) {
+                    throw new UnsupportedOperationException()
+                }
+            }
+        }
+
+        @Override
+        MetaMethod getMetaMethod(String methodName, Object[] methodArgs) {
+            MetaProperty existing = super.getMetaMethod(methodName, methodArgs)
+            if (existing) {
+                return existing
+            }
+            return new MetaMethod([Closure]) {
+                CachedClass getDeclaringClass() {
+                    return DECL_CLASS
+                }
+                int getModifiers() {
+                    return Modifier.PUBLIC
+                }
+                String getName() {
+                    return methodName
+                }
+                Class<?> getReturnType() {
+                    return Object
+                }
+                Object invoke(Object object, Object[] arguments) {
+                    return ConfigureUtil.configure(arguments[0], container.maybeCreate(getName()))
+                }
+            }
         }
     }
 
