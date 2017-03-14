@@ -202,7 +202,6 @@ class AsakusafwBasePlugin implements Plugin<Project> {
             project.tasks.getByName(TASK_UPGRADE).dependsOn t
             t.conventionMapping.with {
                 gradleVersion = { extension.gradleVersion }
-                distributionUrl = { (String) "http://services.gradle.org/distributions/gradle-${t.gradleVersion}-bin.zip" }
                 jarFile  = { project.file('.buildtools/gradlew.jar') }
             }
             t.doFirst {
