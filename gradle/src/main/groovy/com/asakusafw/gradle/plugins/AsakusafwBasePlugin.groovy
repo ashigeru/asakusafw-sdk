@@ -200,8 +200,8 @@ class AsakusafwBasePlugin implements Plugin<Project> {
         project.tasks.create('upgradeGradleWrapper', Wrapper) { Wrapper t ->
             t.description 'Upgrades Gradle wrapper'
             project.tasks.getByName(TASK_UPGRADE).dependsOn t
+            t.gradleVersion = extension.gradleVersion
             t.conventionMapping.with {
-                gradleVersion = { extension.gradleVersion }
                 jarFile  = { project.file('.buildtools/gradlew.jar') }
             }
             t.doFirst {
