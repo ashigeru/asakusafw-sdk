@@ -215,6 +215,9 @@ class AsakusaSdkPlugin implements Plugin<Project> {
                     }
                 }
                 if (features.testing) {
+                    // For eclipse classpath
+                    project.configurations.compile.exclude group: 'asm', module: 'asm'
+                    project.configurations.testCompile.exclude group: 'asm', module: 'asm'
                     testCompile "com.asakusafw.sdk:asakusa-sdk-test-core:${base.frameworkVersion}"
                     if (features.directio) {
                         testCompile "com.asakusafw.sdk:asakusa-sdk-test-directio:${base.frameworkVersion}"
