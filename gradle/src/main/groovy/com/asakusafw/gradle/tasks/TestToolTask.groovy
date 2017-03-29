@@ -15,7 +15,6 @@
  */
 package com.asakusafw.gradle.tasks
 
-import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.process.ExecSpec
 
@@ -25,6 +24,7 @@ import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 /**
  * Gradle Task for using Asakusa testing tools.
  * @since 0.7.3
+ * @version 0.9.1
  */
 class TestToolTask extends AbstractTestToolTask {
 
@@ -35,6 +35,8 @@ class TestToolTask extends AbstractTestToolTask {
     private static final String PREPARATOR_CLASS = 'com.asakusafw.testdriver.tools.runner.BatchTestPreparator'
 
     private static final String VERIFIER_CLASS = 'com.asakusafw.testdriver.tools.runner.BatchTestVerifier'
+
+    private static final String COLLECTOR_CLASS = 'com.asakusafw.testdriver.tools.runner.BatchTestCollector'
 
     /**
      * Adds run operation to this task.
@@ -208,5 +210,44 @@ class TestToolTask extends AbstractTestToolTask {
             throw new IllegalArgumentException("'rule' must be specified")
         }
         verify(desc, data, rule)
+    }
+
+    /**
+     * Adds dump operation to this task.
+     * @param descriptionClass the target importer description class name
+     * @param dataPath the input data URI
+     * @since 0.9.1
+     */
+    void dump(String descriptionClass, String outputPath) {
+        if (descriptionClass == null) {
+            throw new InvalidUserDataException("dump.exporter must not be empty")
+        }
+        if (outputPath == null) {
+            throw new InvalidUserDataException("dump.output must not be empty")
+        }
+        doLast {
+            execute(COLLECTOR_CLASS, [
+                '--exporter', descriptionClass,
+                '--output', outputPath,
+            ])
+        }
+    }
+
+    /**
+     * Adds dump operation to this task.
+     * @param map {@code 'exporter'}: the target exporter description class,
+     *     {@code 'output'}: the output URI
+     * @since 0.9.1
+     */
+    void dump(Map<String, String> map) {
+        String desc = map.get('exporter')
+        String output = map.get('output')
+        if (desc == null) {
+            throw new IllegalArgumentException("'exporter' must be specified")
+        }
+        if (output == null) {
+            throw new IllegalArgumentException("'output' must be specified")
+        }
+        dump(desc, output)
     }
 }
