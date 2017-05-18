@@ -238,7 +238,7 @@ final class PluginUtils {
             if (existing) {
                 return existing
             }
-            return new MetaProperty(name, Object) {
+            return new MetaProperty(name, container.getType()) {
                 Object getProperty(Object object) {
                     return container.maybeCreate(name)
                 }
@@ -249,6 +249,18 @@ final class PluginUtils {
         }
 
         @Override
+        MetaMethod pickMethod(String methodName, Class[] args) {
+            MetaProperty existing = super.pickMethod(methodName, args)
+            if (existing) {
+                return existing
+            }
+            if (args.size() == 1 && Closure.class.isAssignableFrom(args[0])) {
+                return newMetaCallable(methodName)
+            }
+            return null
+        }
+
+        @Override
         MetaMethod getMetaMethod(String methodName, Object[] args) {
             MetaProperty existing = super.getMetaMethod(methodName, args)
             if (existing) {
@@ -256,25 +268,29 @@ final class PluginUtils {
             }
             if (args.size() == 1
                     && (args[0] instanceof Closure<?> || Closure.class.isAssignableFrom(args[0]))) {
-                return new MetaMethod([Closure]) {
-                    CachedClass getDeclaringClass() {
-                        return DECL_CLASS
-                    }
-                    int getModifiers() {
-                        return Modifier.PUBLIC
-                    }
-                    String getName() {
-                        return methodName
-                    }
-                    Class<?> getReturnType() {
-                        return Object
-                    }
-                    Object invoke(Object object, Object[] arguments) {
-                        return ConfigureUtil.configure(arguments[0], container.maybeCreate(getName()))
-                    }
-                }
+                return newMetaCallable(methodName)
             }
             return null
+        }
+
+        private MetaMethod newMetaCallable(String methodName) {
+            return new MetaMethod([Closure]) {
+                CachedClass getDeclaringClass() {
+                    return DECL_CLASS
+                }
+                int getModifiers() {
+                    return Modifier.PUBLIC
+                }
+                String getName() {
+                    return methodName
+                }
+                Class<?> getReturnType() {
+                    return container.getType()
+                }
+                Object invoke(Object object, Object[] arguments) {
+                    return ConfigureUtil.configure(arguments[0], container.maybeCreate(methodName))
+                }
+            }
         }
     }
 
