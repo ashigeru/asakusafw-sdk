@@ -80,8 +80,8 @@ groovydoc {
 processResources {
     File outputFile = new File(destinationDir, 'META-INF/asakusa-gradle/artifact.properties')
     inputs.properties parentPom
+    inputs.files configurations.asakusafw
     outputs.file outputFile
-    outputs.files configurations.asakusafw
     doLast {
         logger.info "injecting artifact versions: ${parentPom}"
         if (!outputFile.parentFile.exists()) {
