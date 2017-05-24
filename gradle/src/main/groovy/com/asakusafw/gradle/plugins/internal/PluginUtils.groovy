@@ -23,9 +23,11 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.ProjectState
 import org.gradle.api.Task
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.Convention
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
+import org.gradle.api.tasks.SourceSetOutput
 import org.gradle.util.ConfigureUtil
 import org.gradle.util.GradleVersion
 
@@ -34,7 +36,7 @@ import com.asakusafw.gradle.plugins.PluginParticipant
 /**
  * Basic utilities for Gradle plug-ins.
  * @since 0.7.4
- * @version 0.9.1
+ * @version 0.9.2
  */
 final class PluginUtils {
 
@@ -291,6 +293,21 @@ final class PluginUtils {
                     return ConfigureUtil.configure(arguments[0], container.maybeCreate(methodName))
                 }
             }
+        }
+    }
+
+    /**
+     * Returns a set of class files output directories.
+     * @param project the current project
+     * @param output the target output
+     * @return the set of class files output directories
+     * @since 0.9.2
+     */
+    public static FileCollection getClassesDirs(Project project, SourceSetOutput output) {
+        if (output.hasProperty('classesDirs')) {
+            return output.classesDirs
+        } else {
+            return project.files({ output.classesDir })
         }
     }
 
