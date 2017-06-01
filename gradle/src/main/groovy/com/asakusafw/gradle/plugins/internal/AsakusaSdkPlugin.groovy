@@ -463,7 +463,7 @@ class AsakusaSdkPlugin implements Plugin<Project> {
             task.description 'Generates a Hive DDL file [Experimental].'
             task.toolClasspath += project.configurations.asakusaHiveCli
             task.toolClasspath += project.sourceSets.main.compileClasspath
-            task.sourcepath = project.files({ project.sourceSets.main.output.classesDir })
+            task.sourcepath = PluginUtils.getClassesDirs(project, project.sourceSets.main.output)
             task.conventionMapping.with {
                 logbackConf = { this.findLogbackConf() }
                 maxHeapSize = { extension.maxHeapSize }
