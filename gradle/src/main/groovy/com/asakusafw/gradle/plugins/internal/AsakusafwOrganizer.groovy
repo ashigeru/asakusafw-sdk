@@ -165,11 +165,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 TestingDist : "com.asakusafw:asakusa-test-driver:${base.frameworkVersion}:dist@jar",
                 OperationDist : "com.asakusafw:asakusa-operation-tools:${base.frameworkVersion}:dist@jar",
                 OperationLib : [
-                    "com.asakusafw:asakusa-operation-tools:${base.frameworkVersion}@jar",
-                    "commons-cli:commons-cli:${base.commonsCliVersion}@jar",
-                    "ch.qos.logback:logback-classic:${base.logbackVersion}@jar",
-                    "ch.qos.logback:logback-core:${base.logbackVersion}@jar",
-                    "org.slf4j:slf4j-api:${base.slf4jVersion}@jar",
+                    "com.asakusafw:asakusa-operation-tools:${base.frameworkVersion}:lib@jar",
                 ],
                 DirectIoHiveDist : [],
                 DirectIoHiveLib : [
@@ -190,7 +186,7 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 into('core/lib') {
                     put configuration('asakusafwCoreLib')
                     process {
-                        rename(/asakusa-runtime-all(.*).jar/, 'asakusa-runtime-all.jar')
+                        rename(/asakusa-runtime-all-(.*).jar/, 'asakusa-runtime-all.jar')
                     }
                 }
             },
@@ -251,7 +247,10 @@ class AsakusafwOrganizer extends AbstractOrganizer {
                 }
                 into('tools/lib') {
                     put configuration('asakusafwOperationLib')
-                }
+                    process {
+                        rename(/asakusa-operation-tools-.*-lib\.jar/, 'asakusa-operation-tools.jar')
+                    }
+               }
             },
             Extension : {
                 into('ext/lib') {
