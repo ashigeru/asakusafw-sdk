@@ -23,8 +23,6 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-import com.asakusafw.mapreduce.gradle.plugins.AsakusafwMapReducePlugin
-
 /**
  * Test for {@link AsakusafwPlugin}.
  */
@@ -50,6 +48,5 @@ class AsakusafwPluginTest {
     @Test
     void parents() {
         assert project.plugins.hasPlugin(AsakusafwSdkPlugin)
-        assert project.plugins.hasPlugin(AsakusafwMapReducePlugin)
     }
 }

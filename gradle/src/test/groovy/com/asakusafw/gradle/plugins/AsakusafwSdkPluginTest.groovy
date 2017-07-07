@@ -26,7 +26,6 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
-import com.asakusafw.mapreduce.gradle.plugins.internal.AsakusaMapReduceSdkBasePlugin
 
 /**
  * Test for {@link AsakusafwSdkPlugin}.
@@ -53,6 +52,5 @@ class AsakusafwSdkPluginTest extends OrganizerTestRoot {
     @Test
     void parents() {
         assert project.plugins.hasPlugin(AsakusaSdkPlugin)
-        assert project.plugins.hasPlugin(AsakusaMapReduceSdkBasePlugin)
     }
 }
